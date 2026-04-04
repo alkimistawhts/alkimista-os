@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista Pro v4.2</title>
+    <title>Alkimista Pro v4.3</title>
     
     <link rel="manifest" href='data:application/manifest+json,{"name":"Alkimista Pro","short_name":"Alkimista","start_url":".","display":"standalone","background_color":"#0047AB","theme_color":"#0047AB","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/190/190411.png","sizes":"512x512","type":"image/png"}]}'>
 
@@ -71,12 +71,19 @@
         .filter-chip.active { background: #0047AB; color: white; border-color: #0047AB; }
 
         .nota-item { background: var(--bg-container); border: 1px solid var(--border); padding: 16px; border-radius: 18px; margin-bottom: 12px; position: relative; border-left: 6px solid #0047AB; }
-        .cat-geral { border-left-color: #3b82f6; }
         .cat-urgente { border-left-color: #ef4444; }
-        .cat-cliente { border-left-color: #10b981; }
-        .cat-estoque { border-left-color: #f59e0b; }
+        .cat-aviso { border-left-color: #3b82f6; }
+        .cat-verificação { border-left-color: #10b981; }
 
-        .remover-nota { position: absolute; top: 12px; right: 12px; background: #fee2e2; color: #ef4444; border: none; width: 28px; height: 28px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        /* DESIGN DO X CORRIGIDO */
+        .remover-nota { 
+            position: absolute; top: 12px; right: 12px; 
+            background: #fee2e2; color: #ef4444; border: none; 
+            width: 28px; height: 28px; border-radius: 50%; 
+            cursor: pointer; font-weight: 900; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 0;
+        }
 
         /* BOTÕES */
         .buttons { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -132,17 +139,17 @@
             <button class="btn-gray" onclick="App.limparCampos()">Limpar</button>
             <button class="btn-red" onclick="App.resetTotal()">🔄 Reset</button>
         </div>
-        <div id="historicoLista"></div> </div>
+        <div id="historicoLista"></div>
+    </div>
 
     <div id="tab-notes" class="tab-content">
         <h1>Anotações</h1>
         <div class="input-group">
             <label>Categoria</label>
             <select id="nCat">
-                <option value="geral">🔵 Geral</option>
                 <option value="urgente">🔴 Urgente</option>
-                <option value="cliente">🟢 Cliente</option>
-                <option value="estoque">🟠 Estoque</option>
+                <option value="aviso">🔵 Aviso</option>
+                <option value="verificação">🟢 Verificação</option>
             </select>
             <textarea id="notaTexto" rows="2" placeholder="O que deseja lembrar?" style="margin-top:10px"></textarea>
         </div>
@@ -150,18 +157,18 @@
             <div style="flex:1"><label>Data</label><input type="date" id="notaData"></div>
             <div style="flex:1"><label>Hora</label><input type="time" id="notaHora"></div>
         </div>
-        <button class="btn-blue" style="width:100%; margin-bottom: 15px;" onclick="App.adicionarNota()">✨ Salvar Lembrete</button>
+        <button class="btn-blue" style="width:100%; margin-bottom: 15px;" onclick="App.adicionarNota()">Salvar Lembrete</button>
         
         <div class="filter-bar">
             <div class="filter-chip active" onclick="App.filtrar('todas')">Todas</div>
             <div class="filter-chip" onclick="App.filtrar('urgente')">Urgentes</div>
-            <div class="filter-chip" onclick="App.filtrar('cliente')">Clientes</div>
-            <div class="filter-chip" onclick="App.filtrar('estoque')">Estoque</div>
+            <div class="filter-chip" onclick="App.filtrar('aviso')">Avisos</div>
+            <div class="filter-chip" onclick="App.filtrar('verificação')">Verificação</div>
         </div>
         <div id="listaNotas"></div>
     </div>
 
-    <div class="footer">💊 Farmácia Alkimista v4.2</div>
+    <div class="footer">💊 Farmácia Alkimista v4.3</div>
 </div>
 
 <script>
@@ -232,7 +239,10 @@ class CalculadoraApp {
 
     filtrar(cat) {
         this.filtro = cat;
-        document.querySelectorAll('.filter-chip').forEach(el => el.classList.toggle('active', el.textContent.toLowerCase().includes(cat) || (cat==='todas' && el.textContent==='Todas')));
+        document.querySelectorAll('.filter-chip').forEach(el => {
+            const txt = el.textContent.toLowerCase();
+            el.classList.toggle('active', txt.includes(cat) || (cat==='todas' && txt==='todas'));
+        });
         this.renderizarNotas();
     }
 
@@ -283,9 +293,9 @@ class CalculadoraApp {
     }
 
     removerNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.renderizarNotas(); this.salvarDados(); }
-    salvarDados() { localStorage.setItem('alk_v4.2', JSON.stringify({ t: this.total, h: this.historico, n: this.notas, dark: this.isDark })); }
+    salvarDados() { localStorage.setItem('alk_v4.3', JSON.stringify({ t: this.total, h: this.historico, n: this.notas, dark: this.isDark })); }
     carregarDados() {
-        const s = localStorage.getItem('alk_v4.2');
+        const s = localStorage.getItem('alk_v4.3');
         if (s) { const p = JSON.parse(s); this.total = p.t || 0; this.historico = p.h || []; this.notas = p.n || []; this.isDark = p.dark || false; }
     }
     copiar(id) {
