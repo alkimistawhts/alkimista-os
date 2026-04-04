@@ -4,66 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista Pro - Silencioso</title>
+    <title>Alkimista Pro v4.0</title>
     
     <link rel="manifest" href='data:application/manifest+json,{"name":"Alkimista Pro","short_name":"Alkimista","start_url":".","display":"standalone","background_color":"#0047AB","theme_color":"#0047AB","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/190/190411.png","sizes":"512x512","type":"image/png"}]}'>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: #0047AB; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        
-        .container { 
-            background: white; padding: 2rem; border-radius: 28px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
-            max-width: 450px; width: 100%; position: relative;
+        :root {
+            --bg-body: #0047AB;
+            --bg-container: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #475569;
+            --input-bg: #f8fafc;
+            --border: #e2e8f0;
+            --tab-bg: #f1f5f9;
+            --card-bg: #ffffff;
         }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #f1f5f9; padding: 6px; border-radius: 18px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 14px; cursor: pointer; font-weight: 700; color: #64748b; transition: 0.3s; background: transparent; }
-        .tab-btn.active { background: white; color: #0047AB; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .dark-mode {
+            --bg-body: #0f172a;
+            --bg-container: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --input-bg: #0f172a;
+            --border: #334155;
+            --tab-bg: #0f172a;
+            --card-bg: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg-body); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        
+        .container { 
+            background: var(--bg-container); padding: 2rem; border-radius: 28px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4); 
+            max-width: 480px; width: 100%; position: relative;
+        }
+
+        /* HEADER & DARK MODE TOGGLE */
+        .header-actions { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
+        .icon-btn { background: var(--tab-bg); border: none; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-main); }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--tab-bg); padding: 6px; border-radius: 18px; margin-top: 10px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 14px; cursor: pointer; font-weight: 700; color: var(--text-sub); background: transparent; }
+        .tab-btn.active { background: var(--bg-container); color: #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { color: #1e293b; text-align: center; font-size: 1.6rem; margin-bottom: 1.5rem; font-weight: 800; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-weight: 700; color: #475569; font-size: 0.9rem; }
-        input, textarea { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 16px; outline: none; background: #f8fafc; transition: 0.2s; }
+        h1 { color: var(--text-main); text-align: center; font-size: 1.5rem; margin-bottom: 1.2rem; font-weight: 800; }
+        label { display: block; margin-bottom: 6px; font-weight: 700; color: var(--text-sub); font-size: 0.85rem; }
+        input, textarea, select { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 14px; font-size: 16px; outline: none; background: var(--input-bg); color: var(--text-main); margin-bottom: 15px; }
 
-        .resultados { background: #f1f5f9; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        .res-row { display: flex; justify-content: space-between; padding: 8px; font-weight: 600; cursor: pointer; }
-        .valor-final { color: #059669; font-weight: 800; font-size: 1.1rem; }
+        /* CATEGORIAS E FILTROS */
+        .filter-bar { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .filter-chip { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: var(--tab-bg); color: var(--text-sub); white-space: nowrap; }
+        .filter-chip.active { background: #0047AB; color: white; border-color: #0047AB; }
 
-        .total-box { background: linear-gradient(135deg, #0047AB, #001a3d); color: white; padding: 20px; border-radius: 22px; text-align: center; margin-bottom: 15px; }
-        .total-val { font-size: 2.4rem; font-weight: 800; }
+        /* CARDS */
+        .resultados { background: var(--tab-bg); padding: 15px; border-radius: 20px; margin-bottom: 15px; }
+        .total-box { background: linear-gradient(135deg, #0047AB, #1d4ed8); color: white; padding: 20px; border-radius: 22px; text-align: center; margin-bottom: 15px; }
+        
+        .nota-card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 18px; margin-bottom: 10px; position: relative; border-left-width: 6px; }
+        .cat-geral { border-left-color: #3b82f6; }
+        .cat-urgente { border-left-color: #ef4444; }
+        .cat-cliente { border-left-color: #10b981; }
+        .cat-estoque { border-left-color: #f59e0b; }
 
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 10px; font-size: 1rem; }
-        .btn-green { background: #10b981; color: white; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-bottom: 10px; }
         .btn-blue { background: #0047AB; color: white; }
-        .btn-gray { background: #94a3b8; color: white; }
-        .btn-red { background: #ef4444; color: white; }
-        .btn:disabled { opacity: 0.4; }
+        .btn-green { background: #10b981; color: white; }
+        .btn-del { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; }
 
-        .nota-card { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 18px; margin-bottom: 10px; border-left: 6px solid #0047AB; position: relative; }
-        .nota-card.done { opacity: 0.6; border-left-color: #cbd5e1; }
-        .btn-del { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%); background: white; padding: 15px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-left: 6px solid #0047AB; z-index: 10000; transition: 0.5s ease; width: 90%; max-width: 380px; }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%); background: var(--bg-container); color: var(--text-main); padding: 15px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; transition: 0.5s ease; border-left: 6px solid #0047AB; width: 90%; max-width: 380px; }
         #toast.show { transform: translateX(-50%) translateY(0); }
-
-        .perm-btn { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 10px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 15px; cursor: pointer; width: 100%; font-weight: 600; display: none; }
     </style>
 </head>
 <body>
 
-<div id="toast">
-    <div style="font-weight: 800; color: #0047AB;">🔔 ALKIMISTA AVISA:</div>
-    <div id="toastMsg" style="font-size: 0.9rem; color: #475569; margin-top: 5px;"></div>
-</div>
+<div id="toast"><div id="toastMsg"></div></div>
 
 <div class="container">
-    <button id="btnPermissao" class="perm-btn" onclick="App.pedirPermissao()">⚠️ Ativar notificações no PC</button>
+    <div class="header-actions">
+        <button class="icon-btn" onclick="App.toggleDarkMode()" title="Alternar Tema">🌓</button>
+    </div>
 
     <nav class="tabs">
         <button class="tab-btn active" onclick="App.switch('calc')" id="t-calc">Calculadora</button>
@@ -72,69 +96,77 @@
 
     <div id="view-calc" class="tab-content active">
         <h1>Alkimista 20%</h1>
-        <div class="input-group">
-            <label>Valor para Cálculo</label>
-            <input type="number" id="vOrig" placeholder="R$ 0,00" inputmode="decimal" oninput="App.calc()">
-        </div>
+        <label>Valor Original</label>
+        <input type="number" id="vOrig" placeholder="R$ 0,00" inputmode="decimal" oninput="App.calc()">
+        
         <div class="resultados">
-            <div class="res-row" onclick="App.copy('displayBase')"><span>Base:</span> <span id="displayBase">R$ 0,00</span></div>
-            <div class="res-row" onclick="App.copy('displayFin')"><span>Com Desconto:</span> <span id="displayFin" class="valor-final">R$ 0,00</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--text-sub); font-weight:600">
+                <span>Base:</span> <span id="displayBase">R$ 0,00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#10b981; font-weight:800; font-size:1.1rem">
+                <span>Com Desconto:</span> <span id="displayFin">R$ 0,00</span>
+            </div>
         </div>
+
         <div class="total-box">
-            <div style="font-size: 0.8rem; font-weight: 700; opacity: 0.8; margin-bottom: 5px;">TOTAL ACUMULADO</div>
-            <div class="total-val" id="totalVal">R$ 0,00</div>
+            <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.9; margin-bottom: 5px;">TOTAL ACUMULADO</div>
+            <div style="font-size: 2.2rem; font-weight: 800;" id="totalVal">R$ 0,00</div>
         </div>
-        <button class="btn btn-green" id="btnSomar" onclick="App.somar()" disabled>➕ Somar agora</button>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-gray" onclick="App.limpar()">Limpar</button>
-            <button class="btn btn-red" onclick="App.reset()">Reset</button>
-        </div>
-        <div id="histLista" style="margin-top: 15px;"></div>
+        
+        <button class="btn btn-green" id="btnSomar" onclick="App.somar()" disabled>➕ Somar ao Total</button>
+        <button class="btn btn-blue" onclick="App.limpar()" style="background:#64748b">Limpar</button>
     </div>
 
     <div id="view-notes" class="tab-content">
         <h1>Anotações</h1>
-        <div class="input-group">
-            <label>Mensagem do Lembrete</label>
-            <textarea id="nTexto" rows="3" placeholder="O que eu preciso lembrar?"></textarea>
-        </div>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        
+        <label>Categoria</label>
+        <select id="nCat">
+            <option value="geral">🔵 Geral</option>
+            <option value="urgente">🔴 Urgente</option>
+            <option value="cliente">🟢 Cliente</option>
+            <option value="estoque">🟠 Estoque</option>
+        </select>
+
+        <textarea id="nTexto" rows="2" placeholder="O que deseja anotar?"></textarea>
+        
+        <div style="display: flex; gap: 10px;">
             <div style="flex:1"><label>Data</label><input type="date" id="nData"></div>
             <div style="flex:1"><label>Hora</label><input type="time" id="nHora"></div>
         </div>
-        <button class="btn btn-blue" onclick="App.addNota()">✨ Agendar Notificação</button>
-        <div id="notasLista" style="margin-top: 20px;"></div>
-    </div>
 
-    <div style="text-align: center; color: #94a3b8; font-size: 0.7rem; margin-top: 15px;">💊 Farmácia Alkimista v3.1</div>
+        <button class="btn btn-blue" onclick="App.addNota()">✨ Salvar Nota</button>
+
+        <div class="filter-bar" id="filtroBar">
+            <div class="filter-chip active" onclick="App.filtrar('todas')">Todas</div>
+            <div class="filter-chip" onclick="App.filtrar('urgente')">Urgentes</div>
+            <div class="filter-chip" onclick="App.filtrar('cliente')">Clientes</div>
+            <div class="filter-chip" onclick="App.filtrar('estoque')">Estoque</div>
+        </div>
+
+        <div id="notasLista"></div>
+    </div>
 </div>
 
 <script>
 class AlkimistaApp {
     constructor() {
-        this.total = 0; this.hist = []; this.notas = []; this.tmpF = 0; this.tmpO = 0;
+        this.total = 0; this.notas = []; this.tmpF = 0; this.filtroAtivo = 'todas';
+        this.isDark = false;
         this.init();
     }
 
     init() {
         this.load();
         this.render();
-        this.checkPerms();
-        setInterval(() => this.monitor(), 10000);
+        if(this.isDark) document.body.classList.add('dark-mode');
+        setInterval(() => this.monitor(), 15000);
     }
 
-    checkPerms() {
-        if ("Notification" in window && Notification.permission !== "granted") {
-            document.getElementById('btnPermissao').style.display = 'block';
-        }
-    }
-
-    async pedirPermissao() {
-        const p = await Notification.requestPermission();
-        if (p === "granted") {
-            document.getElementById('btnPermissao').style.display = 'none';
-            this.notify("Notificações ativadas!");
-        }
+    toggleDarkMode() {
+        this.isDark = !this.isDark;
+        document.body.classList.toggle('dark-mode');
+        this.save();
     }
 
     switch(t) {
@@ -145,103 +177,92 @@ class AlkimistaApp {
 
     calc() {
         const v = parseFloat(document.getElementById('vOrig').value);
-        if (isNaN(v) || v <= 0) { this.resetDisp(); return; }
-        this.tmpO = v; this.tmpF = v * 0.8;
+        if (isNaN(v) || v <= 0) { 
+            document.getElementById('displayBase').textContent = 'R$ 0,00';
+            document.getElementById('displayFin').textContent = 'R$ 0,00';
+            document.getElementById('btnSomar').disabled = true;
+            return; 
+        }
+        this.tmpF = v * 0.8;
         document.getElementById('displayBase').textContent = this.fmt(v);
         document.getElementById('displayFin').textContent = this.fmt(this.tmpF);
         document.getElementById('btnSomar').disabled = false;
     }
 
-    resetDisp() {
-        document.getElementById('displayBase').textContent = 'R$ 0,00';
-        document.getElementById('displayFin').textContent = 'R$ 0,00';
-        document.getElementById('btnSomar').disabled = true;
-    }
-
     somar() {
-        if (this.tmpF <= 0) return;
         this.total += this.tmpF;
-        this.hist.push({ o: this.tmpO, f: this.tmpF });
-        if (this.hist.length > 25) this.hist.shift();
-        this.limpar(); this.render(); this.save();
+        document.getElementById('vOrig').value = '';
+        this.calc(); this.render(); this.save();
+        this.notify("Valor somado!");
     }
 
-    limpar() { document.getElementById('vOrig').value = ''; this.resetDisp(); }
-
-    reset() { if(confirm("Zerar total acumulado?")) { this.total = 0; this.hist = []; this.render(); this.save(); } }
-
-    notify(msg) {
-        // Visual Toast
-        const t = document.getElementById('toast');
-        document.getElementById('toastMsg').textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 6000);
-
-        // Notificação de Sistema
-        if (Notification.permission === "granted") {
-            const n = new Notification("Alkimista", {
-                body: msg,
-                icon: "https://cdn-icons-png.flaticon.com/512/190/190411.png",
-                silent: true // Garante que o sistema não emita som
-            });
-            n.onclick = () => { window.focus(); n.close(); };
-        }
-    }
-
-    monitor() {
-        const agora = new Date();
-        const dHoje = agora.toISOString().split('T')[0];
-        const hAgora = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', hour12: false});
-        
-        this.notas.forEach(n => {
-            if (!n.done && n.data === dHoje && n.hora === hAgora) {
-                this.notify(n.texto);
-                n.done = true; this.save(); this.render();
-            }
-        });
-    }
+    limpar() { document.getElementById('vOrig').value = ''; this.calc(); }
 
     addNota() {
         const t = document.getElementById('nTexto').value;
         const d = document.getElementById('nData').value;
         const h = document.getElementById('nHora').value;
-        if (!t || !d || !h) return;
-        this.notas.push({ id: Date.now(), texto: t, data: d, hora: h, done: false });
+        const c = document.getElementById('nCat').value;
+        if (!t) return;
+        this.notas.push({ id: Date.now(), texto: t, data: d, hora: h, cat: c, done: false });
         this.render(); this.save();
         document.getElementById('nTexto').value = '';
-        this.notify("Agendado!");
+        this.notify("Nota salva!");
     }
 
-    delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); this.save(); }
+    filtrar(cat) {
+        this.filtroAtivo = cat;
+        document.querySelectorAll('.filter-chip').forEach(el => {
+            el.classList.toggle('active', el.textContent.toLowerCase().includes(cat) || (cat==='todas' && el.textContent==='Todas'));
+        });
+        this.render();
+    }
+
+    notify(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toastMsg').textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 4000);
+        if (Notification.permission === "granted" && msg.includes(":")) {
+            new Notification("Alkimista", { body: msg, silent: true });
+        }
+    }
+
+    monitor() {
+        const agora = new Date();
+        const d = agora.toISOString().split('T')[0];
+        const h = agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', hour12: false});
+        this.notas.forEach(n => {
+            if (n.data && n.hora && !n.done && n.data === d && n.hora === h) {
+                this.notify("Lembrete: " + n.texto);
+                n.done = true; this.save(); this.render();
+            }
+        });
+    }
 
     fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
     render() {
         document.getElementById('totalVal').textContent = this.fmt(this.total);
-        document.getElementById('histLista').innerHTML = this.hist.slice().reverse().map(i => `
-            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:0.85rem">
-                <span style="color:#94a3b8">Orig: ${this.fmt(i.o)}</span> <b>+ ${this.fmt(i.f)}</b>
-            </div>`).join('');
+        const lista = document.getElementById('notasLista');
+        const notasFiltradas = this.filtroAtivo === 'todas' ? this.notas : this.notas.filter(n => n.cat === this.filtroAtivo);
         
-        document.getElementById('notasLista').innerHTML = this.notas.map(n => `
-            <div class="nota-card ${n.done ? 'done' : ''}">
+        lista.innerHTML = notasFiltradas.slice().reverse().map(n => `
+            <div class="nota-card cat-${n.cat} ${n.done ? 'done' : ''}">
                 <button class="btn-del" onclick="App.delNota(${n.id})">✕</button>
-                <div style="font-size:0.75rem; color:#0047AB; font-weight:800; margin-bottom:4px;">📅 ${n.data.split('-').reverse().join('/')} às ${n.hora}</div>
-                <div style="color:#1e293b; font-size:0.95rem; font-weight:500">${n.texto}</div>
-                ${n.done ? '<div style="font-size:0.65rem; color:#059669; margin-top:5px; font-weight:800">✓ ENVIADA</div>' : ''}
+                <div style="font-size:0.7rem; font-weight:800; color:var(--text-sub); margin-bottom:5px">
+                    ${n.data ? '📅 ' + n.data.split('-').reverse().join('/') : ''} ${n.hora || ''} 
+                    <span style="text-transform: uppercase; margin-left:10px">• ${n.cat}</span>
+                </div>
+                <div style="color:var(--text-main); font-weight:500">${n.texto}</div>
             </div>`).join('');
     }
 
-    save() { localStorage.setItem('alk_v3.1', JSON.stringify({ t: this.total, h: this.hist, n: this.notas })); }
+    delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); this.save(); }
+    save() { localStorage.setItem('alk_v4', JSON.stringify({ t: this.total, n: this.notas, dark: this.isDark })); }
     load() {
-        const s = localStorage.getItem('alk_v3.1');
-        if (s) { const p = JSON.parse(s); this.total = p.t || 0; this.hist = p.h || []; this.notas = p.n || []; }
-    }
-    copy(id) {
-        const t = document.getElementById(id).textContent;
-        if(t.includes("0,00")) return;
-        navigator.clipboard.writeText(t);
-        this.notify("Copiado!");
+        const s = localStorage.getItem('alk_v4');
+        if (s) { const p = JSON.parse(s); this.total = p.t || 0; this.notas = p.n || []; this.isDark = p.dark || false; }
     }
 }
 const App = new AlkimistaApp();
