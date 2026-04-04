@@ -4,290 +4,312 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista Pro v4.4</title>
+    <title>Alkimista OS v5.0</title>
     
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Alkimista Pro","short_name":"Alkimista","start_url":".","display":"standalone","background_color":"#0047AB","theme_color":"#0047AB","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/190/190411.png","sizes":"512x512","type":"image/png"}]}'>
-
     <style>
         :root {
-            --bg-body: #0047AB; --bg-container: #ffffff; --text-main: #1e293b; --text-sub: #475569;
-            --input-bg: #f8fafc; --border: #e2e8f0; --tab-bg: #f1f5f9;
+            --bg-body: #f1f5f9;
+            --bg-sidebar: #0047AB;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --accent: #3b82f6;
+            --border: #e2e8f0;
         }
 
         .dark-mode {
-            --bg-body: #0f172a; --bg-container: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8;
-            --input-bg: #0f172a; --border: #334155; --tab-bg: #0f172a;
+            --bg-body: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: background 0.2s; }
-        body { background-color: var(--bg-body); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
-        
-        .container { 
-            background: var(--bg-container); padding: 1.5rem; border-radius: 24px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-            max-width: 450px; width: 100%; position: relative;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.2s; }
+        body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 80px; background: var(--bg-sidebar); height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px 0; position: fixed; left: 0; top: 0; z-index: 100;
         }
+        .nav-item {
+            width: 50px; height: 50px; border-radius: 12px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: white; opacity: 0.6; font-size: 1.4rem;
+        }
+        .nav-item.active { opacity: 1; background: rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .nav-item:hover { opacity: 1; }
 
-        .dark-toggle { position: absolute; top: 20px; right: 20px; background: var(--tab-bg); border: none; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; }
+        /* MAIN CONTENT */
+        .main { flex: 1; margin-left: 80px; padding: 40px 20px; display: flex; justify-content: center; }
+        .app-container { max-width: 480px; width: 100%; }
 
-        .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; background: var(--tab-bg); padding: 6px; border-radius: 16px; margin-top: 10px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; color: var(--text-sub); background: transparent; font-size: 0.9rem; }
-        .tab-btn.active { background: var(--bg-container); color: #0047AB; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .view { display: none; animation: fadeIn 0.3s ease-out; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { color: var(--text-main); margin-bottom: 1.2rem; text-align: center; font-size: 1.4rem; font-weight: 800; }
-        h2 { font-size: 0.9rem; color: #0047AB; margin: 15px 0 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+        /* CARDS */
+        .card { background: var(--bg-card); padding: 25px; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
         
-        .input-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 6px; color: var(--text-sub); font-weight: 600; font-size: 0.8rem; }
-        input, textarea, select { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; background: var(--input-bg); color: var(--text-main); }
+        h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; text-align: center; color: var(--text-main); }
+        h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 15px; font-weight: 800; }
 
-        /* CALCULADORA & DOSAGEM */
-        .resultados { background-color: var(--tab-bg); padding: 1rem; border-radius: 18px; margin-bottom: 1rem; border: 1px solid var(--border); }
-        .resultado-item { display: flex; justify-content: space-between; padding: 8px; border-radius: 10px; }
-        .acumulador-box { background: linear-gradient(135deg, #0047AB 0%, #002B6A 100%); padding: 1.2rem; border-radius: 20px; margin-bottom: 1rem; color: white; text-align: center; }
-        .acumulador-valor { font-size: 2rem; font-weight: 800; }
+        input, textarea, select { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 14px; font-size: 16px; outline: none; background: var(--bg-body); color: var(--text-main); margin-bottom: 15px; }
 
-        .dosagem-box { background: #f0fdf4; border: 2px dashed #10b981; padding: 15px; border-radius: 18px; margin-top: 15px; }
-        .dark-mode .dosagem-box { background: #064e3b; border-color: #10b981; }
+        /* COMPONENTES DA CALCULADORA */
+        .display-box { background: var(--bg-body); padding: 15px; border-radius: 18px; margin-bottom: 15px; }
+        .display-line { display: flex; justify-content: space-between; padding: 5px 0; }
+        .total-banner { background: linear-gradient(135deg, #0047AB, #002B6A); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
+        .total-banner span { display: block; font-size: 0.75rem; font-weight: 700; opacity: 0.8; margin-bottom: 5px; }
+        .total-banner b { font-size: 2.2rem; font-weight: 800; }
 
         /* CHECKLIST */
-        .check-item { display: flex; align-items: center; gap: 10px; background: var(--tab-bg); padding: 12px; border-radius: 12px; margin-bottom: 6px; cursor: pointer; }
-        .check-item input { width: 20px; height: 20px; margin-bottom: 0; cursor: pointer; }
-        .check-text { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
-        .strikethrough { text-decoration: line-through; opacity: 0.5; }
+        .check-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-body); border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+        .check-item input { width: 18px; height: 18px; margin: 0; cursor: pointer; }
+        .check-text { font-size: 0.9rem; font-weight: 600; }
+        .done { text-decoration: line-through; opacity: 0.5; }
 
         /* NOTAS */
-        .nota-item { background: var(--bg-container); border: 1px solid var(--border); padding: 14px; border-radius: 16px; margin-bottom: 10px; position: relative; border-left: 6px solid #0047AB; }
+        .nota-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 6px solid #0047AB; padding: 15px; border-radius: 16px; margin-bottom: 10px; position: relative; }
         .cat-urgente { border-left-color: #ef4444; }
         .cat-aviso { border-left-color: #3b82f6; }
         .cat-verificação { border-left-color: #10b981; }
-        .remover-nota { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+        .del-btn { position: absolute; top: 12px; right: 12px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; }
 
         /* BOTÕES */
-        .buttons { display: flex; gap: 8px; margin-bottom: 8px; }
-        button { flex: 1; padding: 14px; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
-        .btn-green { background: #10b981; } .btn-blue { background: #0047AB; } .btn-gray { background: #64748b; } .btn-red { background: #ef4444; }
-        button:disabled { opacity: 0.4; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; color: white; margin-bottom: 10px; }
+        .btn-blue { background: #0047AB; }
+        .btn-green { background: #10b981; }
+        .btn-red { background: #ef4444; }
+        button:disabled { opacity: 0.3; }
 
-        #historicoLista { margin-top: 10px; max-height: 100px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 10px; }
-        .hist-item { display:flex; justify-content:space-between; font-size:0.75rem; padding:4px 0; color: var(--text-sub); }
+        .theme-btn { position: fixed; bottom: 20px; left: 22px; cursor: pointer; font-size: 1.2rem; background: none; border: none; }
 
-        #customToast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%); background: var(--bg-container); color: var(--text-main); padding: 14px 20px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); z-index: 9999; width: 85%; border-left: 6px solid #0047AB; transition: 0.4s ease; }
-        #customToast.show { transform: translateX(-50%) translateY(0); }
-        .footer { text-align: center; margin-top: 15px; color: #94a3b8; font-size: 0.75rem; font-weight: 700; }
+        @media (max-width: 600px) {
+            .sidebar { width: 100%; height: 60px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; }
+            .main { margin-left: 0; margin-bottom: 60px; padding: 20px 15px; }
+            .nav-item { margin-bottom: 0; }
+            .theme-btn { top: 20px; bottom: auto; right: 20px; left: auto; color: var(--text-main); }
+        }
     </style>
 </head>
 <body>
 
-<div id="customToast"><div id="toastMessage"></div></div>
+    <aside class="sidebar">
+        <div class="nav-item active" onclick="App.switch('calc')" id="nav-calc" title="Calculadora">🧮</div>
+        <div class="nav-item" onclick="App.switch('notes')" id="nav-notes" title="Anotações">📝</div>
+        <div class="nav-item" onclick="App.switch('serv')" id="nav-serv" title="Serviços">📏</div>
+        <button class="theme-btn" onclick="App.toggleDark()">🌓</button>
+    </aside>
 
-<div class="container">
-    <button class="dark-toggle" onclick="App.toggleDark()">🌓</button>
+    <main class="main">
+        <div class="app-container">
 
-    <nav class="tabs">
-        <button class="tab-btn active" onclick="App.switchTab('calc')" id="btn-tab-calc">Calculadora</button>
-        <button class="tab-btn" onclick="App.switchTab('notes')" id="btn-tab-notes">Anotações</button>
-    </nav>
+            <div id="view-calc" class="view active">
+                <h1>Calculadora 20%</h1>
+                <div class="card">
+                    <label>Valor Original</label>
+                    <input type="number" id="vOrig" placeholder="R$ 0,00" inputmode="decimal" oninput="App.calc()">
+                    
+                    <div class="display-box">
+                        <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
+                        <div class="display-line"><span style="font-weight: 800;">Com Desconto</span> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
+                    </div>
 
-    <div id="tab-calc" class="tab-content active">
-        <h1>Alkimista 20%</h1>
-        <input type="number" id="valorOriginal" placeholder="Valor R$ 0,00" inputmode="decimal" oninput="App.calcularAutomatico()">
-        
-        <div class="resultados">
-            <div class="resultado-item"><span>Base</span> <span id="originalDisplay">R$ 0,00</span></div>
-            <div class="resultado-item"><span style="font-weight:700">Com 20%</span> <b style="color:#10b981" id="finalDisplay">R$ 0,00</b></div>
-        </div>
+                    <div class="total-banner">
+                        <span>TOTAL ACUMULADO</span>
+                        <b id="totalVal">R$ 0,00</b>
+                    </div>
 
-        <div class="acumulador-box">
-            <div style="font-size: 0.7rem; font-weight: 700; margin-bottom: 2px;">TOTAL ACUMULADO</div>
-            <div class="acumulador-valor" id="totalAcumulado">R$ 0,00</div>
-        </div>
+                    <button class="btn-green" id="btnSomar" onclick="App.somar()" disabled>➕ Somar ao Total</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-blue" onclick="App.limpar()" style="background: #64748b;">Limpar</button>
+                        <button class="btn-red" onclick="App.resetTotal()" style="background: #ef4444;">Reset</button>
+                    </div>
+                </div>
 
-        <div class="buttons">
-            <button class="btn-green" onclick="App.somar()" id="btnSomar" disabled>➕ Somar ao Total</button>
-            <button class="btn-gray" onclick="App.limparCampos()">Limpar</button>
-        </div>
-
-        <div class="dosagem-box">
-            <h2>📏 Calculadora de Tratamento</h2>
-            <div style="display:flex; gap:5px">
-                <input type="number" id="doseMl" placeholder="Dose (mL)" oninput="App.calcDose()">
-                <input type="number" id="doseVezes" placeholder="Vezes/dia" oninput="App.calcDose()">
-                <input type="number" id="doseDias" placeholder="Total dias" oninput="App.calcDose()">
+                <div id="histLista" style="padding: 0 10px; font-size: 0.8rem; color: var(--text-sub);"></div>
             </div>
-            <div id="resDose" style="margin-top:10px; font-weight:800; color:#064e3b; text-align:center; font-size:0.85rem">Digite os dados acima</div>
+
+            <div id="view-notes" class="view">
+                <h1>Rotina & Notas</h1>
+                
+                <div class="card">
+                    <h2>✅ Checklist do Turno</h2>
+                    <div id="checklist"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📝 Nova Nota</h2>
+                    <select id="nCat">
+                        <option value="urgente">🔴 Urgente</option>
+                        <option value="aviso">🔵 Aviso</option>
+                        <option value="verificação">🟢 Verificação</option>
+                    </select>
+                    <textarea id="nTexto" rows="2" placeholder="O que deseja anotar?"></textarea>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="time" id="nHora">
+                        <button class="btn-blue" onclick="App.addNota()" style="margin:0">Salvar</button>
+                    </div>
+                </div>
+
+                <div id="notasLista"></div>
+            </div>
+
+            <div id="view-serv" class="view">
+                <h1>Serviços Clínicos</h1>
+                
+                <div class="card">
+                    <h2>📏 Calculadora de Tratamento</h2>
+                    <p style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 15px;">Calcule quanto tempo dura um frasco ou quanto o cliente deve levar.</p>
+                    
+                    <label>Dose por vez (mL ou Gotas)</label>
+                    <input type="number" id="sDose" oninput="App.calcServ()">
+                    
+                    <label>Frequência (Vezes ao dia)</label>
+                    <input type="number" id="sFreq" oninput="App.calcServ()">
+                    
+                    <label>Duração do Tratamento (Dias)</label>
+                    <input type="number" id="sDias" oninput="App.calcServ()">
+
+                    <div class="display-box" style="text-align: center; border: 2px dashed #10b981;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #10b981;">VOLUME TOTAL NECESSÁRIO</span>
+                        <div id="sRes" style="font-size: 1.5rem; font-weight: 800; margin-top: 5px;">0 mL</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
+    </main>
 
-        <div id="historicoLista"></div>
-        <button class="btn-red" style="padding:8px; margin-top:10px; font-size:0.7rem" onclick="App.resetTotal()">Zerar Histórico e Total</button>
-    </div>
+    <script>
+        class AlkimistaApp {
+            constructor() {
+                this.total = 0; this.historico = []; this.notas = []; this.isDark = false;
+                this.vFin = 0; this.lastReset = "";
+                this.checks = [
+                    { id: 1, txt: "Conferir Termolábeis", done: false },
+                    { id: 2, txt: "Repor Material de Balcão", done: false },
+                    { id: 3, txt: "Verificar Lixo Infectante", done: false },
+                    { id: 4, txt: "Conferir Passagem de Turno", done: false }
+                ];
+                this.init();
+            }
 
-    <div id="tab-notes" class="tab-content">
-        <h1>Rotina e Notas</h1>
-        
-        <h2>✅ Checklist Diário</h2>
-        <div id="checklistCont"></div>
+            init() {
+                this.load();
+                this.checkReset();
+                this.render();
+                if(this.isDark) document.body.classList.add('dark-mode');
+            }
 
-        <h2 style="margin-top:20px">📝 Nova Anotação</h2>
-        <select id="nCat">
-            <option value="urgente">🔴 Urgente</option>
-            <option value="aviso">🔵 Aviso</option>
-            <option value="verificação">🟢 Verificação</option>
-        </select>
-        <textarea id="notaTexto" rows="2" placeholder="O que deseja lembrar?" style="margin:10px 0"></textarea>
-        <div style="display:flex; gap:5px; margin-bottom:10px">
-            <input type="time" id="notaHora">
-            <button class="btn-blue" onclick="App.adicionarNota()">Salvar</button>
-        </div>
+            checkReset() {
+                const hoje = new Date().toLocaleDateString();
+                if(this.lastReset !== hoje) {
+                    this.checks.forEach(c => c.done = false);
+                    this.lastReset = hoje;
+                    this.save();
+                }
+            }
 
-        <div id="listaNotas"></div>
-    </div>
+            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode'); this.save(); }
 
-    <div class="footer">💊 Farmácia Alkimista v4.4</div>
-</div>
+            switch(view) {
+                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('view-' + view).classList.add('active');
+                document.getElementById('nav-' + view).classList.add('active');
+            }
 
-<script>
-class CalculadoraApp {
-    constructor() {
-        this.total = 0; this.historico = []; this.notas = []; this.vFinal = 0;
-        this.isDark = false; this.lastReset = "";
-        this.checkItems = [
-            { id: 1, txt: "Conferir Geladeira (Termolábeis)", done: false },
-            { id: 2, txt: "Repor sacolas e bobinas", done: false },
-            { id: 3, txt: "Organizar cestinhas de balcão", done: false },
-            { id: 4, txt: "Verificar Pendências de Entrega", done: false }
-        ];
-        this.init();
-    }
+            calc() {
+                const val = parseFloat(document.getElementById('vOrig').value);
+                if(isNaN(val) || val <= 0) {
+                    this.vFin = 0;
+                    document.getElementById('bruto').textContent = "R$ 0,00";
+                    document.getElementById('comDesconto').textContent = "R$ 0,00";
+                    document.getElementById('btnSomar').disabled = true;
+                    return;
+                }
+                this.vFin = val * 0.8;
+                document.getElementById('bruto').textContent = this.fmt(val);
+                document.getElementById('comDesconto').textContent = this.fmt(this.vFin);
+                document.getElementById('btnSomar').disabled = false;
+            }
 
-    init() {
-        this.carregarDados();
-        this.verificarResetDiario();
-        this.atualizarInterface();
-        if(this.isDark) document.body.classList.add('dark-mode');
-        setInterval(() => this.verificarLembretes(), 15000);
-    }
+            somar() {
+                this.total += this.vFin;
+                this.historico.push({o: document.getElementById('vOrig').value, f: this.vFin});
+                if(this.historico.length > 10) this.historico.shift();
+                this.limpar(); this.render(); this.save();
+            }
 
-    verificarResetDiario() {
-        const hoje = new Date().toLocaleDateString();
-        if (this.lastReset !== hoje) {
-            this.checkItems.forEach(item => item.done = false);
-            this.lastReset = hoje;
-            this.salvarDados();
+            calcServ() {
+                const dose = parseFloat(document.getElementById('sDose').value) || 0;
+                const freq = parseFloat(document.getElementById('sFreq').value) || 0;
+                const dias = parseFloat(document.getElementById('sDias').value) || 0;
+                document.getElementById('sRes').textContent = (dose * freq * dias).toFixed(1) + " mL";
+            }
+
+            addNota() {
+                const txt = document.getElementById('nTexto').value;
+                if(!txt) return;
+                this.notas.push({ id: Date.now(), txt, cat: document.getElementById('nCat').value, hora: document.getElementById('nHora').value });
+                document.getElementById('nTexto').value = "";
+                this.render(); this.save();
+            }
+
+            toggleCheck(id) {
+                const c = this.checks.find(i => i.id === id);
+                c.done = !c.done;
+                this.render(); this.save();
+            }
+
+            delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); this.save(); }
+            limpar() { document.getElementById('vOrig').value = ""; this.calc(); }
+            resetTotal() { if(confirm("Zerar tudo?")) { this.total = 0; this.historico = []; this.render(); this.save(); } }
+            fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+            render() {
+                document.getElementById('totalVal').textContent = this.fmt(this.total);
+                
+                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                        <span>De ${this.fmt(parseFloat(h.o))}</span> <b>→ ${this.fmt(h.f)}</b>
+                    </div>
+                `).join('');
+
+                document.getElementById('checklist').innerHTML = this.checks.map(c => `
+                    <div class="check-item" onclick="App.toggleCheck(${c.id})">
+                        <input type="checkbox" ${c.done ? 'checked' : ''}>
+                        <span class="check-text ${c.done ? 'done' : ''}">${c.txt}</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `
+                    <div class="nota-card cat-${n.cat}">
+                        <button class="del-btn" onclick="App.delNota(${n.id})">✕</button>
+                        <div style="font-size:0.7rem; font-weight:800; color:var(--text-sub); margin-bottom:5px;">
+                            ${n.hora || ''} • ${n.cat.toUpperCase()}
+                        </div>
+                        <div style="color:var(--text-main); font-weight:600;">${n.txt}</div>
+                    </div>
+                `).join('');
+            }
+
+            save() { localStorage.setItem('alk_v5', JSON.stringify({ t: this.total, h: this.historico, n: this.notas, d: this.isDark, c: this.checks, r: this.lastReset })); }
+            load() {
+                const s = localStorage.getItem('alk_v5');
+                if(s) {
+                    const p = JSON.parse(s);
+                    this.total = p.t || 0; this.historico = p.h || []; this.notas = p.n || [];
+                    this.isDark = p.d || false; this.checks = p.c || this.checks; this.lastReset = p.r || "";
+                }
+            }
         }
-    }
-
-    toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode'); this.salvarDados(); }
-    switchTab(t) {
-        document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tab-${t}`).classList.add('active');
-        document.getElementById(`btn-tab-${t}`).classList.add('active');
-    }
-
-    calcularAutomatico() {
-        const val = parseFloat(document.getElementById('valorOriginal').value);
-        if (isNaN(val) || val <= 0) { 
-            document.getElementById('originalDisplay').textContent = 'R$ 0,00';
-            document.getElementById('finalDisplay').textContent = 'R$ 0,00';
-            document.getElementById('btnSomar').disabled = true;
-            return; 
-        }
-        this.vFinal = val * 0.8;
-        document.getElementById('originalDisplay').textContent = this.formatarMoeda(val);
-        document.getElementById('finalDisplay').textContent = this.formatarMoeda(this.vFinal);
-        document.getElementById('btnSomar').disabled = false;
-    }
-
-    calcDose() {
-        const ml = parseFloat(document.getElementById('doseMl').value);
-        const vezes = parseFloat(document.getElementById('doseVezes').value);
-        const dias = parseFloat(document.getElementById('doseDias').value);
-        const res = document.getElementById('resDose');
-        if(ml && vezes && dias) {
-            const total = ml * vezes * dias;
-            res.innerHTML = `O tratamento consumirá: <b>${total}mL</b><br><small>Equivale a ${(total/100).toFixed(1)} frascos de 100mL</small>`;
-        }
-    }
-
-    toggleCheck(id) {
-        const item = this.checkItems.find(i => i.id === id);
-        item.done = !item.done;
-        this.renderChecklist(); this.salvarDados();
-    }
-
-    somar() {
-        const valOrig = parseFloat(document.getElementById('valorOriginal').value);
-        this.total += this.vFinal;
-        this.historico.push({ o: valOrig, f: this.vFinal });
-        if (this.historico.length > 20) this.historico.shift();
-        this.limparCampos(); this.atualizarInterface(); this.salvarDados();
-        this.showToast("Valor somado!");
-    }
-
-    adicionarNota() {
-        const t = document.getElementById('notaTexto').value;
-        const h = document.getElementById('notaHora').value;
-        const c = document.getElementById('nCat').value;
-        if (!t) return;
-        this.notas.push({ id: Date.now(), texto: t, data: new Date().toISOString().split('T')[0], hora: h, cat: c, done: false });
-        this.renderizarNotas(); this.salvarDados();
-        document.getElementById('notaTexto').value = '';
-        this.showToast("Nota salva!");
-    }
-
-    showToast(msg) {
-        const toast = document.getElementById('customToast');
-        document.getElementById('toastMessage').textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    formatarMoeda(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-
-    atualizarInterface() {
-        document.getElementById('totalAcumulado').textContent = this.formatarMoeda(this.total);
-        const list = document.getElementById('historicoLista');
-        list.innerHTML = this.historico.slice().reverse().map(i => `<div class="hist-item"><span>De ${this.formatarMoeda(i.o)}</span> <b>→ ${this.formatarMoeda(i.f)}</b></div>`).join('');
-        this.renderChecklist(); this.renderizarNotas();
-    }
-
-    renderChecklist() {
-        document.getElementById('checklistCont').innerHTML = this.checkItems.map(i => `
-            <div class="check-item" onclick="App.toggleCheck(${i.id})">
-                <input type="checkbox" ${i.done ? 'checked' : ''}>
-                <span class="check-text ${i.done ? 'strikethrough' : ''}">${i.txt}</span>
-            </div>`).join('');
-    }
-
-    renderizarNotas() {
-        const container = document.getElementById('listaNotas');
-        container.innerHTML = this.notas.slice().reverse().map(n => `
-            <div class="nota-item cat-${n.cat}">
-                <button class="remover-nota" onclick="App.removerNota(${n.id})">✕</button>
-                <div style="font-size:0.65rem; color:var(--text-sub); font-weight:800">${n.hora || ''} • ${n.cat.toUpperCase()}</div>
-                <div style="color:var(--text-main); font-weight:500; font-size:0.9rem">${n.texto}</div>
-            </div>`).join('');
-    }
-
-    limparCampos() { document.getElementById('valorOriginal').value = ''; this.calcularAutomatico(); }
-    removerNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.renderizarNotas(); this.salvarDados(); }
-    resetTotal() { if (confirm("Deseja zerar o histórico e o total acumulado?")) { this.total = 0; this.historico = []; this.atualizarInterface(); this.salvarDados(); } }
-    
-    salvarDados() { localStorage.setItem('alk_v4.4', JSON.stringify({ t: this.total, h: this.historico, n: this.notas, dark: this.isDark, checks: this.checkItems, reset: this.lastReset })); }
-    carregarDados() {
-        const s = localStorage.getItem('alk_v4.4');
-        if (s) { 
-            const p = JSON.parse(s); 
-            this.total = p.t || 0; this.historico = p.h || []; this.notas = p.n || []; 
-            this.isDark = p.dark || false; this.checkItems = p.checks || this.checkItems; this.lastReset = p.reset || "";
-        }
-    }
-}
-const App = new CalculadoraApp();
-</script>
+        const App = new AlkimistaApp();
+    </script>
 </body>
 </html>
