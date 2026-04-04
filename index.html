@@ -2,314 +2,583 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v5.0</title>
+    <title>Alkimista OS v13.1 - Shared Catalog</title>
     
     <style>
         :root {
-            --bg-body: #f1f5f9;
-            --bg-sidebar: #0047AB;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --accent: #3b82f6;
-            --border: #e2e8f0;
+            --bg-body: #f1f5f9; --bg-sidebar: #0047AB; --bg-card: #ffffff;
+            --text-main: #1e293b; --text-sub: #64748b; --accent: #3b82f6; --border: #e2e8f0;
+            --sidebar-w: 70px; --danger: #ef4444; --success: #10b981;
         }
 
         .dark-mode {
-            --bg-body: #0f172a;
-            --bg-sidebar: #1e293b;
-            --bg-card: #1e293b;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --accent: #38bdf8;
-            --border: #334155;
+            --bg-body: #0f172a; --bg-sidebar: #1e293b; --bg-card: #1e293b;
+            --text-main: #f8fafc; --text-sub: #94a3b8; --accent: #38bdf8; --border: #334155;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.2s; }
-        body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.2s ease; }
+        body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); overflow-x: hidden; }
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 80px; background: var(--bg-sidebar); height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px 0; position: fixed; left: 0; top: 0; z-index: 100;
-        }
-        .nav-item {
-            width: 50px; height: 50px; border-radius: 12px; margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: white; opacity: 0.6; font-size: 1.4rem;
-        }
-        .nav-item.active { opacity: 1; background: rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .nav-item:hover { opacity: 1; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        .overlay.active { display: flex; }
+        .modal-container { background: var(--bg-card); width: 95%; max-width: 400px; padding: 30px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
 
-        /* MAIN CONTENT */
-        .main { flex: 1; margin-left: 80px; padding: 40px 20px; display: flex; justify-content: center; }
-        .app-container { max-width: 480px; width: 100%; }
+        #view-login { z-index: 9999; background: var(--bg-body); display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+        .login-card h1 { font-size: 2rem; color: var(--bg-sidebar); margin-bottom: 10px; text-align: center; }
 
-        .view { display: none; animation: fadeIn 0.3s ease-out; }
+        .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); height: 100vh; display: flex; flex-direction: column; padding: 20px 10px; position: fixed; left: 0; top: 0; z-index: 2000; overflow: hidden; white-space: nowrap; }
+        .sidebar:hover { width: 220px; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+        .nav-item { width: 100%; height: 50px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; padding: 0 13px; cursor: pointer; color: white; opacity: 0.6; }
+        .nav-item i { font-size: 1.4rem; min-width: 30px; display: flex; justify-content: center; font-style: normal; }
+        .nav-item span { margin-left: 15px; font-weight: 600; opacity: 0; }
+        .sidebar:hover .nav-item span { opacity: 1; }
+        .nav-item.active { opacity: 1; background: rgba(255,255,255,0.15); }
+
+        .main { flex: 1; margin-left: var(--sidebar-w); padding: 20px; display: flex; justify-content: center; }
+        .app-container { max-width: 600px; width: 100%; }
+        .view { display: none; animation: fadeIn 0.3s; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CARDS */
-        .card { background: var(--bg-card); padding: 25px; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
-        
-        h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; text-align: center; color: var(--text-main); }
-        h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 15px; font-weight: 800; }
+        .card { background: var(--bg-card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; font-weight: 800; }
+        h2 { font-size: 0.8rem; text-transform: uppercase; color: var(--accent); margin-bottom: 15px; font-weight: 900; }
+        label { font-size: 0.7rem; font-weight: 800; opacity: 0.6; margin-bottom: 4px; display: block; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; background: var(--bg-body); color: var(--text-main); margin-bottom: 10px; }
 
-        input, textarea, select { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 14px; font-size: 16px; outline: none; background: var(--bg-body); color: var(--text-main); margin-bottom: 15px; }
-
-        /* COMPONENTES DA CALCULADORA */
         .display-box { background: var(--bg-body); padding: 15px; border-radius: 18px; margin-bottom: 15px; }
         .display-line { display: flex; justify-content: space-between; padding: 5px 0; }
         .total-banner { background: linear-gradient(135deg, #0047AB, #002B6A); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
-        .total-banner span { display: block; font-size: 0.75rem; font-weight: 700; opacity: 0.8; margin-bottom: 5px; }
         .total-banner b { font-size: 2.2rem; font-weight: 800; }
 
-        /* CHECKLIST */
-        .check-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-body); border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
-        .check-item input { width: 18px; height: 18px; margin: 0; cursor: pointer; }
-        .check-text { font-size: 0.9rem; font-weight: 600; }
-        .done { text-decoration: line-through; opacity: 0.5; }
+        .fase-box { border: 1px solid var(--border); padding: 15px; border-radius: 18px; margin-bottom: 12px; background: rgba(59, 130, 246, 0.03); position: relative; }
+        .btn-remove-fase { position: absolute; top: 10px; right: 10px; color: var(--danger); background: none; border: none; font-weight: bold; cursor: pointer; padding: 5px; z-index: 10; }
+        .grid-fase { display: grid; grid-template-columns: 1fr 0.8fr 0.8fr 1fr; gap: 8px; }
 
-        /* NOTAS */
-        .nota-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 6px solid #0047AB; padding: 15px; border-radius: 16px; margin-bottom: 10px; position: relative; }
-        .cat-urgente { border-left-color: #ef4444; }
-        .cat-aviso { border-left-color: #3b82f6; }
-        .cat-verificação { border-left-color: #10b981; }
-        .del-btn { position: absolute; top: 12px; right: 12px; background: #fee2e2; color: #ef4444; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .prod-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .nota-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid var(--border); border-left: 6px solid #0047AB; }
 
-        /* BOTÕES */
-        button { width: 100%; padding: 16px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; color: white; margin-bottom: 10px; }
-        .btn-blue { background: #0047AB; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; color: white; margin-bottom: 8px; }
         .btn-green { background: #10b981; }
-        .btn-red { background: #ef4444; }
-        button:disabled { opacity: 0.3; }
+        .btn-blue { background: #0047AB; }
+        .btn-red { background: var(--danger); }
+        .btn-gray { background: #64748b; }
+        .btn-outline { background: transparent; border: 2px dashed var(--accent); color: var(--accent); }
+        .theme-fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--bg-sidebar); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; z-index: 1000; }
 
-        .theme-btn { position: fixed; bottom: 20px; left: 22px; cursor: pointer; font-size: 1.2rem; background: none; border: none; }
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; z-index: 5000; display: none; }
 
         @media (max-width: 600px) {
-            .sidebar { width: 100%; height: 60px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; }
-            .main { margin-left: 0; margin-bottom: 60px; padding: 20px 15px; }
-            .nav-item { margin-bottom: 0; }
-            .theme-btn { top: 20px; bottom: auto; right: 20px; left: auto; color: var(--text-main); }
+            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; border-radius: 20px 20px 0 0; }
+            .nav-item span { display: none; }
+            .main { margin-left: 0; margin-bottom: 80px; padding: 15px; }
+            .grid-fase { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 
+    <div id="view-login" class="overlay">
+        <div class="modal-container login-card">
+            <h1>Alkimista OS</h1>
+            <p style="margin-bottom: 20px; opacity: 0.6; text-align: center;">Acesse sua conta</p>
+            <label>Usuário</label>
+            <input type="text" id="loginUser" placeholder="Seu nome de usuário">
+            <label>Senha</label>
+            <input type="password" id="loginPass" placeholder="Sua senha">
+            <button class="btn-blue" id="btnLogin">Entrar</button>
+            <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none; text-align: center;"></p>
+        </div>
+    </div>
+
+    <div id="toast">Copiado!</div>
+
+    <div id="editOverlay" class="overlay">
+        <div class="modal-container">
+            <h2>📝 Editar Produto</h2>
+            <input type="hidden" id="editId">
+            <input type="text" id="editNome" placeholder="Nome">
+            <input type="text" id="editAtivos" placeholder="Ativos">
+            <input type="text" id="editServe" placeholder="Indicação">
+            <textarea id="editPoso" rows="4" placeholder="Posologia"></textarea>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-gray" onclick="window.App.closeEdit()" style="margin-bottom:0">Voltar</button>
+                <button class="btn-blue" onclick="window.App.saveEdit()" style="margin-bottom:0">Atualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmOverlay" class="overlay">
+        <div class="modal-container" style="text-align: center; max-width: 320px;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+            <h2 style="color: var(--text-main); margin-bottom: 10px;">Tem certeza?</h2>
+            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px;">Esta ação não pode ser desfeita e afetará os dados salvos.</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-gray" onclick="window.App.closeConfirm()" style="margin-bottom: 0;">Cancelar</button>
+                <button class="btn-red" id="confirmActionBtn" style="margin-bottom: 0;">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="theme-fab" onclick="window.App.toggleDark()">🌓</button>
+
     <aside class="sidebar">
-        <div class="nav-item active" onclick="App.switch('calc')" id="nav-calc" title="Calculadora">🧮</div>
-        <div class="nav-item" onclick="App.switch('notes')" id="nav-notes" title="Anotações">📝</div>
-        <div class="nav-item" onclick="App.switch('serv')" id="nav-serv" title="Serviços">📏</div>
-        <button class="theme-btn" onclick="App.toggleDark()">🌓</button>
+        <div class="nav-item active" onclick="window.App.switch('calc')" id="nav-calc"><i>🧮</i><span>Calculadora</span></div>
+        <div class="nav-item" onclick="window.App.switch('prod')" id="nav-prod"><i>🧪</i><span>Produtos</span></div>
+        <div class="nav-item" onclick="window.App.switch('notes')" id="nav-notes"><i>📝</i><span>Anotações</span></div>
+        <div class="nav-item" onclick="window.App.switch('serv')" id="nav-serv"><i>📏</i><span>Serviços</span></div>
+        <div class="nav-item" onclick="window.App.logout()" style="margin-top: auto; opacity: 0.4;"><i>🚪</i><span>Sair</span></div>
     </aside>
 
     <main class="main">
         <div class="app-container">
-
             <div id="view-calc" class="view active">
                 <h1>Calculadora 20%</h1>
                 <div class="card">
-                    <label>Valor Original</label>
-                    <input type="number" id="vOrig" placeholder="R$ 0,00" inputmode="decimal" oninput="App.calc()">
-                    
+                    <label>Valor Original (Aperte ENTER)</label>
+                    <input type="number" id="vOrig" placeholder="0,00" step="0.01">
                     <div class="display-box">
                         <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
-                        <div class="display-line"><span style="font-weight: 800;">Com Desconto</span> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
+                        <div class="display-line"><b>Com Desconto</b> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
                     </div>
-
                     <div class="total-banner">
-                        <span>TOTAL ACUMULADO</span>
+                        <span>TOTAL ACUMULADO</span><br>
                         <b id="totalVal">R$ 0,00</b>
                     </div>
-
-                    <button class="btn-green" id="btnSomar" onclick="App.somar()" disabled>➕ Somar ao Total</button>
+                    <button class="btn-green" id="btnSomar" disabled>➕ Somar (Enter)</button>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn-blue" onclick="App.limpar()" style="background: #64748b;">Limpar</button>
-                        <button class="btn-red" onclick="App.resetTotal()" style="background: #ef4444;">Reset</button>
+                        <button id="btnLimpar" class="btn-gray" style="flex:1">Limpar</button>
+                        <button id="btnResetTotal" class="btn-red" style="flex:1">Zerar</button>
                     </div>
                 </div>
+                <div id="histLista"></div>
+            </div>
 
-                <div id="histLista" style="padding: 0 10px; font-size: 0.8rem; color: var(--text-sub);"></div>
+            <div id="view-prod" class="view">
+                <h1>Catálogo Alkimista</h1>
+                <div class="card">
+                    <input type="text" id="pNome" placeholder="Nome">
+                    <input type="text" id="pAtivos" placeholder="Ativos">
+                    <input type="text" id="pServe" placeholder="Indicação">
+                    <textarea id="pPoso" rows="2" placeholder="Posologia"></textarea>
+                    <button class="btn-green" id="btnAddProd">Salvar</button>
+                </div>
+                <input type="text" id="pBusca" placeholder="🔍 Buscar..." style="margin-bottom:15px">
+                <div id="prodLista"></div>
             </div>
 
             <div id="view-notes" class="view">
-                <h1>Rotina & Notas</h1>
-                
+                <h1>Anotações</h1>
                 <div class="card">
-                    <h2>✅ Checklist do Turno</h2>
-                    <div id="checklist"></div>
-                </div>
-
-                <div class="card">
-                    <h2>📝 Nova Nota</h2>
                     <select id="nCat">
-                        <option value="urgente">🔴 Urgente</option>
                         <option value="aviso">🔵 Aviso</option>
+                        <option value="urgente">🔴 Urgente</option>
                         <option value="verificação">🟢 Verificação</option>
                     </select>
-                    <textarea id="nTexto" rows="2" placeholder="O que deseja anotar?"></textarea>
                     <div style="display: flex; gap: 10px;">
+                        <input type="date" id="nData">
                         <input type="time" id="nHora">
-                        <button class="btn-blue" onclick="App.addNota()" style="margin:0">Salvar</button>
                     </div>
+                    <textarea id="nTexto" rows="3" placeholder="Escreva aqui..."></textarea>
+                    <button class="btn-blue" id="btnAddNota">Salvar</button>
                 </div>
-
                 <div id="notasLista"></div>
             </div>
 
             <div id="view-serv" class="view">
                 <h1>Serviços Clínicos</h1>
-                
                 <div class="card">
-                    <h2>📏 Calculadora de Tratamento</h2>
-                    <p style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 15px;">Calcule quanto tempo dura um frasco ou quanto o cliente deve levar.</p>
-                    
-                    <label>Dose por vez (mL ou Gotas)</label>
-                    <input type="number" id="sDose" oninput="App.calcServ()">
-                    
-                    <label>Frequência (Vezes ao dia)</label>
-                    <input type="number" id="sFreq" oninput="App.calcServ()">
-                    
-                    <label>Duração do Tratamento (Dias)</label>
-                    <input type="number" id="sDias" oninput="App.calcServ()">
-
-                    <div class="display-box" style="text-align: center; border: 2px dashed #10b981;">
-                        <span style="font-size: 0.8rem; font-weight: 700; color: #10b981;">VOLUME TOTAL NECESSÁRIO</span>
-                        <div id="sRes" style="font-size: 1.5rem; font-weight: 800; margin-top: 5px;">0 mL</div>
+                    <h2>📅 Duração de Tratamento</h2>
+                    <div id="fasesContainer"></div>
+                    <button class="btn-outline" id="btnAddFase">+ Adicionar Fase</button>
+                    <div class="total-banner" style="margin-top:15px; padding: 15px;">
+                        <small>RESULTADO TOTAL:</small><br>
+                        <b id="resGeral" style="font-size: 1.4rem;">0 uni/mL</b>
                     </div>
+                    <button class="btn-gray" id="btnResetFases">Limpar Campos</button>
+                </div>
+                <div class="card">
+                    <h2>💧 Gotas para mL (Rápido)</h2>
+                    <input type="number" id="gGotas" placeholder="Número de Gotas">
+                    <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDb8cQwqo1T0ZezgS9eEKGpbrceDm8PV4E",
+            authDomain: "alkimista-os.firebaseapp.com",
+            projectId: "alkimista-os",
+            storageBucket: "alkimista-os.firebasestorage.app",
+            messagingSenderId: "913918533081",
+            appId: "1:913918533081:web:7bd424bbbff8c277e90dc8"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+        const DOMAIN = "@alkimista.com";
+
         class AlkimistaApp {
             constructor() {
-                this.total = 0; this.historico = []; this.notas = []; this.isDark = false;
-                this.vFin = 0; this.lastReset = "";
-                this.checks = [
-                    { id: 1, txt: "Conferir Termolábeis", done: false },
-                    { id: 2, txt: "Repor Material de Balcão", done: false },
-                    { id: 3, txt: "Verificar Lixo Infectante", done: false },
-                    { id: 4, txt: "Conferir Passagem de Turno", done: false }
-                ];
-                this.init();
+                this.user = null;
+                this.total = 0; 
+                this.historico = []; 
+                this.notas = []; 
+                this.produtos = []; 
+                this.isDark = false;
+                this.tempV = 0;
+                this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
+                
+                this.initAuth();
             }
 
-            init() {
-                this.load();
-                this.checkReset();
-                this.render();
-                if(this.isDark) document.body.classList.add('dark-mode');
+            initAuth() {
+                onAuthStateChanged(auth, async (user) => {
+                    const loginDiv = document.getElementById('view-login');
+                    if (user) {
+                        this.user = user;
+                        loginDiv.classList.remove('active');
+                        loginDiv.style.display = 'none';
+                        await this.loadFromCloud();
+                        this.setupListeners();
+                        this.initUI();
+                    } else {
+                        loginDiv.classList.add('active');
+                        loginDiv.style.display = 'flex';
+                        this.setupLoginListeners();
+                    }
+                });
             }
 
-            checkReset() {
-                const hoje = new Date().toLocaleDateString();
-                if(this.lastReset !== hoje) {
-                    this.checks.forEach(c => c.done = false);
-                    this.lastReset = hoje;
-                    this.save();
+            setupLoginListeners() {
+                document.getElementById('btnLogin').onclick = () => this.handleLogin();
+            }
+
+            async handleLogin() {
+                const u = document.getElementById('loginUser').value.trim();
+                const p = document.getElementById('loginPass').value;
+                const err = document.getElementById('loginError');
+                if(!u || !p) return;
+                try {
+                    await signInWithEmailAndPassword(auth, u + DOMAIN, p);
+                } catch (e) {
+                    err.innerText = "Erro ao acessar. Verifique usuário e senha.";
+                    err.style.display = 'block';
                 }
             }
 
-            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode'); this.save(); }
-
-            switch(view) {
-                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('view-' + view).classList.add('active');
-                document.getElementById('nav-' + view).classList.add('active');
+            // FUNÇÃO INVISÍVEL PARA CADASTRAR OS 6 ADMINS (Usar via console F12)
+            async adminCreate() {
+                const key = prompt("Chave Mestre");
+                if(key !== "@Alk1mista_@2026@") return alert("Negado");
+                
+                const user = prompt("Novo Usuário:");
+                const pass = prompt("Senha (min 5):");
+                
+                try {
+                    const res = await createUserWithEmailAndPassword(auth, user + DOMAIN, pass);
+                    await setDoc(doc(db, "usuarios", res.user.uid), {
+                        isAdmin: true,
+                        nome: user
+                    });
+                    alert("Admin " + user + " criado!");
+                } catch(e) { alert(e.message); }
             }
+
+            async logout() { await signOut(auth); location.reload(); }
+
+            initUI() {
+                this.setDefaultDate();
+                if(this.isDark) document.body.classList.add('dark-mode');
+                this.render();
+                this.renderFases();
+            }
+
+            async save() {
+                if(!this.user) return;
+                try {
+                    await setDoc(doc(db, "usuarios", this.user.uid), {
+                        total: this.total, 
+                        historico: this.historico,
+                        notas: this.notas, 
+                        isDark: this.isDark
+                    }, { merge: true });
+
+                    await setDoc(doc(db, "configuracoes", "catalogo"), {
+                        produtos: this.produtos
+                    });
+                } catch (e) { console.error("Erro ao salvar:", e); }
+            }
+
+            async loadFromCloud() {
+                try {
+                    const d = await getDoc(doc(db, "usuarios", this.user.uid));
+                    if(d.exists()) {
+                        const data = d.data();
+                        this.total = data.total || 0;
+                        this.historico = data.historico || [];
+                        this.notas = data.notas || [];
+                        this.isDark = data.isDark || false;
+                    }
+
+                    const dCat = await getDoc(doc(db, "configuracoes", "catalogo"));
+                    if(dCat.exists()) {
+                        this.produtos = dCat.data().produtos || [];
+                    }
+                } catch (e) { console.error("Erro ao carregar:", e); }
+            }
+
+            setDefaultDate() {
+                const now = new Date();
+                document.getElementById('nData').value = now.toISOString().split('T')[0];
+                document.getElementById('nHora').value = now.toTimeString().slice(0,5);
+            }
+
+            switch(v) {
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                const targetView = document.getElementById('view-' + v);
+                const targetNav = document.getElementById('nav-' + v);
+                if(targetView) targetView.classList.add('active');
+                if(targetNav) targetNav.classList.add('active');
+            }
+
+            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
 
             calc() {
-                const val = parseFloat(document.getElementById('vOrig').value);
-                if(isNaN(val) || val <= 0) {
-                    this.vFin = 0;
-                    document.getElementById('bruto').textContent = "R$ 0,00";
-                    document.getElementById('comDesconto').textContent = "R$ 0,00";
-                    document.getElementById('btnSomar').disabled = true;
-                    return;
+                const v = parseFloat(document.getElementById('vOrig').value) || 0;
+                this.tempV = v * 0.8;
+                document.getElementById('bruto').innerText = this.fmt(v);
+                document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
+                document.getElementById('btnSomar').disabled = v <= 0;
+            }
+
+            async somar() {
+                const vOrig = parseFloat(document.getElementById('vOrig').value);
+                if(!vOrig || vOrig <= 0) return;
+                this.total += this.tempV;
+                this.historico.push({o: vOrig, f: this.tempV});
+                this.limparCalc();
+                this.render();
+                await this.save();
+                document.getElementById('vOrig').focus();
+            }
+
+            limparCalc() { 
+                document.getElementById('vOrig').value = ""; 
+                this.calc(); 
+            }
+
+            openConfirm(callback) {
+                const overlay = document.getElementById('confirmOverlay');
+                const btn = document.getElementById('confirmActionBtn');
+                overlay.classList.add('active');
+                btn.onclick = () => {
+                    callback();
+                    this.closeConfirm();
+                };
+            }
+
+            closeConfirm() {
+                document.getElementById('confirmOverlay').classList.remove('active');
+            }
+
+            async resetTotal() { 
+                this.openConfirm(async () => {
+                    this.total = 0; 
+                    this.historico = []; 
+                    this.render(); 
+                    await this.save(); 
+                });
+            }
+
+            async delProd(id) { 
+                this.openConfirm(async () => {
+                    this.produtos = this.produtos.filter(p => p.id !== id); 
+                    this.renderProds(); 
+                    await this.save(); 
+                });
+            }
+
+            calcGotasRapido() {
+                const g = parseFloat(document.getElementById('gGotas').value) || 0;
+                document.getElementById('gRes').innerText = (g / 20).toFixed(2) + " mL";
+            }
+
+            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
+            removeFase(id) { if(this.fases.length > 1) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); } }
+            updateFase(id, field, value) { 
+                const f = this.fases.find(x => x.id === id); 
+                if(f) f[field] = value; 
+                this.calcTotalFases(); 
+            }
+            
+            calcTotalFases() {
+                let tC = 0, tM = 0, tG = 0, hasG = false, hasM = false, hasC = false;
+                this.fases.forEach(f => {
+                    let sub = (parseFloat(f.dose)||0) * (parseFloat(f.freq)||0) * (parseFloat(f.dias)||0);
+                    if(f.tipo === 'gotas') { tG += (sub/20); hasG = true; }
+                    else if(f.tipo === 'ml') { tM += sub; hasM = true; }
+                    else { tC += sub; hasC = true; }
+                });
+                let res = "";
+                if(hasC) res += `${tC} Cáps `;
+                if(hasG || hasM) res += `${(tM + tG).toFixed(2)} mL`;
+                document.getElementById('resGeral').innerText = res || "0 uni/mL";
+            }
+
+            renderFases() {
+                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
+                    <div class="fase-box">
+                        ${this.fases.length > 1 ? `<button class="btn-remove-fase" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
+                        <label>Fase ${i + 1}</label>
+                        <div class="grid-fase">
+                            <div><label>Dose</label><input type="number" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)"></div>
+                            <div><label>Vezes/d</label><input type="number" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)"></div>
+                            <div><label>Dias</label><input type="number" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)"></div>
+                            <div><label>Tipo</label>
+                                <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
+                                    <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
+                                    <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
+                                    <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>`).join('');
+                this.calcTotalFases();
+            }
+
+            resetFases() { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); }
+
+            async addFullProd() {
+                const p = { id: Date.now(), nome: document.getElementById('pNome').value, ativos: document.getElementById('pAtivos').value, serve: document.getElementById('pServe').value, poso: document.getElementById('pPoso').value };
+                if(p.nome) { 
+                    this.produtos.push(p); 
+                    ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); 
+                    this.renderProds(); 
+                    await this.save(); 
                 }
-                this.vFin = val * 0.8;
-                document.getElementById('bruto').textContent = this.fmt(val);
-                document.getElementById('comDesconto').textContent = this.fmt(this.vFin);
-                document.getElementById('btnSomar').disabled = false;
             }
 
-            somar() {
-                this.total += this.vFin;
-                this.historico.push({o: document.getElementById('vOrig').value, f: this.vFin});
-                if(this.historico.length > 10) this.historico.shift();
-                this.limpar(); this.render(); this.save();
+            renderProds() {
+                const b = document.getElementById('pBusca').value.toLowerCase();
+                const f = this.produtos.filter(p => (p.nome||'').toLowerCase().includes(b) || (p.ativos||'').toLowerCase().includes(b));
+                const list = document.getElementById('prodLista');
+                if(list) {
+                    list.innerHTML = f.slice().reverse().map(p => `
+                    <div class="prod-card">
+                        <div style="color:var(--accent);font-weight:800">${p.nome}</div>
+                        <div style="font-size:0.85rem;margin:8px 0">
+                            <b>Ativos:</b> ${p.ativos}<br>
+                            <b>Indicação:</b> ${p.serve}<br>
+                            <b>Posologia:</b> ${p.poso}
+                        </div>
+                        <div style="display:flex;gap:5px">
+                            <button class="btn-blue" style="flex:2" onclick="window.App.copyProd(${p.id})">📋 COPIAR</button>
+                            <button class="btn-gray" style="flex:1" onclick="window.App.editProd(${p.id})">EDITAR</button>
+                            <button class="btn-red" style="width:40px" onclick="window.App.delProd(${p.id})">X</button>
+                        </div>
+                    </div>`).join('');
+                }
             }
 
-            calcServ() {
-                const dose = parseFloat(document.getElementById('sDose').value) || 0;
-                const freq = parseFloat(document.getElementById('sFreq').value) || 0;
-                const dias = parseFloat(document.getElementById('sDias').value) || 0;
-                document.getElementById('sRes').textContent = (dose * freq * dias).toFixed(1) + " mL";
+            copyProd(id) {
+                const p = this.produtos.find(x => x.id === id);
+                const txt = `*PRODUTO:* ${p.nome}\n \n*INDICAÇÃO:* ${p.serve || ''}\n \n*COMPOSIÇÃO:* ${p.ativos}`;
+                navigator.clipboard.writeText(txt).then(() => {
+                    const t = document.getElementById('toast'); t.style.display = 'block';
+                    setTimeout(() => t.style.display = 'none', 2000);
+                });
             }
 
-            addNota() {
-                const txt = document.getElementById('nTexto').value;
-                if(!txt) return;
-                this.notas.push({ id: Date.now(), txt, cat: document.getElementById('nCat').value, hora: document.getElementById('nHora').value });
-                document.getElementById('nTexto').value = "";
-                this.render(); this.save();
+            editProd(id) { 
+                const p = this.produtos.find(x => x.id === id); 
+                ['Id','Nome','Ativos','Serve','Poso'].forEach(f => document.getElementById('edit'+f).value = p[f.toLowerCase()] || ""); 
+                document.getElementById('editOverlay').classList.add('active'); 
+            }
+            
+            async saveEdit() { 
+                const id = parseInt(document.getElementById('editId').value); 
+                this.produtos = this.produtos.map(p => p.id === id ? {id, nome: document.getElementById('editNome').value, ativos: document.getElementById('editAtivos').value, serve: document.getElementById('editServe').value, poso: document.getElementById('editPoso').value} : p); 
+                this.closeEdit(); 
+                this.renderProds(); 
+                await this.save(); 
+            }
+            
+            closeEdit() { document.getElementById('editOverlay').classList.remove('active'); }
+            
+            async addNota() {
+                const t = document.getElementById('nTexto').value.trim();
+                if(t) {
+                    this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value });
+                    document.getElementById('nTexto').value = ""; 
+                    this.render(); 
+                    await this.save();
+                }
             }
 
-            toggleCheck(id) {
-                const c = this.checks.find(i => i.id === id);
-                c.done = !c.done;
-                this.render(); this.save();
+            async delNota(id) { 
+                this.openConfirm(async () => {
+                    this.notas = this.notas.filter(n => n.id !== id); 
+                    this.render(); 
+                    await this.save(); 
+                });
             }
 
-            delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); this.save(); }
-            limpar() { document.getElementById('vOrig').value = ""; this.calc(); }
-            resetTotal() { if(confirm("Zerar tudo?")) { this.total = 0; this.historico = []; this.render(); this.save(); } }
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
             render() {
-                document.getElementById('totalVal').textContent = this.fmt(this.total);
-                
+                document.getElementById('totalVal').innerText = this.fmt(this.total);
                 document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span>De ${this.fmt(parseFloat(h.o))}</span> <b>→ ${this.fmt(h.f)}</b>
-                    </div>
-                `).join('');
-
-                document.getElementById('checklist').innerHTML = this.checks.map(c => `
-                    <div class="check-item" onclick="App.toggleCheck(${c.id})">
-                        <input type="checkbox" ${c.done ? 'checked' : ''}>
-                        <span class="check-text ${c.done ? 'done' : ''}">${c.txt}</span>
-                    </div>
-                `).join('');
-
+                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;border-bottom:1px solid var(--border);padding:4px 0">
+                        <span>De ${this.fmt(parseFloat(h.o))}</span>
+                        <b>→ ${this.fmt(h.f)}</b>
+                    </div>`).join('');
                 document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="nota-card cat-${n.cat}">
-                        <button class="del-btn" onclick="App.delNota(${n.id})">✕</button>
-                        <div style="font-size:0.7rem; font-weight:800; color:var(--text-sub); margin-bottom:5px;">
-                            ${n.hora || ''} • ${n.cat.toUpperCase()}
+                    <div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}">
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6">
+                            <span>${n.data.split('-').reverse().join('/')} ${n.hora}</span>
+                            <span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span>
                         </div>
-                        <div style="color:var(--text-main); font-weight:600;">${n.txt}</div>
-                    </div>
-                `).join('');
+                        <b style="display:block;margin-top:5px">${n.txt}</b>
+                    </div>`).join('');
+                this.renderProds();
             }
 
-            save() { localStorage.setItem('alk_v5', JSON.stringify({ t: this.total, h: this.historico, n: this.notas, d: this.isDark, c: this.checks, r: this.lastReset })); }
-            load() {
-                const s = localStorage.getItem('alk_v5');
-                if(s) {
-                    const p = JSON.parse(s);
-                    this.total = p.t || 0; this.historico = p.h || []; this.notas = p.n || [];
-                    this.isDark = p.d || false; this.checks = p.c || this.checks; this.lastReset = p.r || "";
-                }
+            setupListeners() {
+                const vOrig = document.getElementById('vOrig');
+                vOrig.oninput = () => this.calc();
+                vOrig.onkeydown = (e) => { if(e.key === 'Enter') this.somar(); };
+                
+                document.getElementById('btnSomar').onclick = () => this.somar();
+                document.getElementById('btnLimpar').onclick = () => this.limparCalc();
+                document.getElementById('btnResetTotal').onclick = () => this.resetTotal();
+                document.getElementById('gGotas').oninput = () => this.calcGotasRapido();
+                document.getElementById('btnAddFase').onclick = () => this.addFase();
+                document.getElementById('btnResetFases').onclick = () => this.resetFases();
+                document.getElementById('btnAddProd').onclick = () => this.addFullProd();
+                document.getElementById('pBusca').oninput = () => this.renderProds();
+                document.getElementById('btnAddNota').onclick = () => this.addNota();
+                
+                window.onclick = (e) => { 
+                    if(e.target.classList.contains('overlay')) {
+                        this.closeEdit(); 
+                        this.closeConfirm();
+                    }
+                };
             }
         }
-        const App = new AlkimistaApp();
+
+        window.App = new AlkimistaApp();
     </script>
 </body>
 </html>
