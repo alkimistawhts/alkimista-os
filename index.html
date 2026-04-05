@@ -204,7 +204,7 @@
                     <button class="btn-gray" id="btnResetFases">Limpar Campos</button>
                 </div>
                 <div class="card">
-                    <h2>💧 Gotas para mL</h2>
+                    <h2>📅 Gotas para mL</h2>
                     <input type="number" id="gGotas" placeholder="Número de Gotas">
                     <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
                 </div>
@@ -269,7 +269,16 @@
             }
 
             async requestNotif() {
-                if ('Notification' in window) { await Notification.requestPermission(); }
+                if (!('Notification' in window)) return;
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") {
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.showNotification("Alkimista OS", {
+                            body: "Sistema de alertas conectado com sucesso!",
+                            icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png'
+                        });
+                    });
+                }
             }
 
             checkScheduledNotes() {
@@ -293,8 +302,13 @@
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
-                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } 
-                catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
+                await this.requestNotif(); // Brave exige ativação no clique
+                try { 
+                    await signInWithEmailAndPassword(auth, u + DOMAIN, p); 
+                } catch(e) { 
+                    document.getElementById('loginError').innerText = "Erro ao entrar."; 
+                    document.getElementById('loginError').style.display = 'block'; 
+                }
             }
 
             calc() {
@@ -343,18 +357,13 @@
                 await this.save(); this.renderProds(); this.closeProdModal();
             }
 
-            // --- PESQUISA MELHORADA COM DESTAQUE REFINADO (SEM AMARELO) ---
             highlightText(text, searchTerms) {
                 if (!searchTerms.length || !text) return text;
-                // Escapar termos especiais de Regex para evitar erros se o usuário digitar parênteses, etc.
                 const escapedTerms = searchTerms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-                
                 let highlighted = text;
                 escapedTerms.forEach(term => {
                     if (term.length < 2) return;
-                    // Cria uma regex para encontrar todas as ocorrências de forma insensível a maiúsculas
                     const regex = new RegExp(`(${term})`, 'gi');
-                    // Substitui pela tag mark que agora tem estilo azul refinado no CSS
                     highlighted = highlighted.replace(regex, '<mark>$1</mark>');
                 });
                 return highlighted;
@@ -363,12 +372,10 @@
             renderProds() {
                 const buscaInput = document.getElementById('pBusca').value.toLowerCase();
                 const termos = buscaInput.split(' ').filter(t => t.length > 0);
-                
                 const filtrados = this.produtos.filter(p => {
                     const textoBusca = `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase();
                     return termos.every(termo => textoBusca.includes(termo));
                 });
-
                 document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
                 <div class="prod-card">
                     <div style="color:var(--accent);font-weight:800">${this.highlightText(p.nome, termos)}</div>
