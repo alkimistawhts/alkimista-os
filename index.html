@@ -11,32 +11,27 @@
             --bg-body: #f1f5f9; --bg-sidebar: #0047AB; --bg-card: #ffffff;
             --text-main: #1e293b; --text-sub: #64748b; --accent: #3b82f6; --border: #e2e8f0;
             --sidebar-w: 70px; --danger: #ef4444; --success: #10b981;
-            /* Nova cor de destaque: Azul Pastel Suave */
             --highlight-bg: rgba(59, 130, 246, 0.15); 
         }
 
         .dark-mode {
             --bg-body: #0f172a; --bg-sidebar: #1e293b; --bg-card: #1e293b;
             --text-main: #f8fafc; --text-sub: #94a3b8; --accent: #38bdf8; --border: #334155;
-            /* Destaque no modo escuro: Azul Royal Suave */
             --highlight-bg: rgba(0, 71, 171, 0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.15s ease; }
         body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); overflow-x: hidden; }
 
-        /* ESTILO REFINADO PARA O DESTAQUE DA BUSCA (Removido o Amarelo) */
         mark { 
             background: var(--highlight-bg); 
-            color: var(--bg-sidebar); /* Texto na cor azul royal do tema */
+            color: var(--bg-sidebar); 
             border-radius: 4px; 
             padding: 1px 3px; 
-            font-weight: 600; /* Levemente negrito para destacar */
+            font-weight: 600; 
         }
 
-        .dark-mode mark {
-            color: var(--accent); /* No modo escuro, texto azul claro */
-        }
+        .dark-mode mark { color: var(--accent); }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 15px; }
         .overlay.active { display: flex; }
@@ -204,7 +199,7 @@
                     <button class="btn-gray" id="btnResetFases">Limpar Campos</button>
                 </div>
                 <div class="card">
-                    <h2>📅 Gotas para mL</h2>
+                    <h2>💧 Gotas para mL</h2>
                     <input type="number" id="gGotas" placeholder="Número de Gotas">
                     <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
                 </div>
@@ -245,7 +240,12 @@
 
             initServiceWorker() {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdwdXNoJywgZnVuY3Rpb24oZSl7dmFyIG9wdHM9e2JvZHk6ZS5kYXRhLnRleHQoKX07ZS53YWl0VW50aWwoc2VsZi5yZWdpc3RyYXRpb24uc2hvd05vdGlmaWNhdGlvbignQWxraW1pc3RhIE9TJywgb3B0cykpO30pOw==');
+                    const swCode = `self.addEventListener('push', e => { 
+                        const data = e.data.json();
+                        self.registration.showNotification(data.title, { body: data.body, icon: data.icon });
+                    });`;
+                    const blob = new Blob([swCode], { type: 'application/javascript' });
+                    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(e => console.log("SW Bloqueado localmente."));
                 }
             }
 
@@ -274,7 +274,7 @@
                 if (permission === "granted") {
                     navigator.serviceWorker.ready.then(reg => {
                         reg.showNotification("Alkimista OS", {
-                            body: "Sistema de alertas conectado com sucesso!",
+                            body: "Sistema de alertas conectado!",
                             icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png'
                         });
                     });
@@ -302,7 +302,7 @@
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
-                await this.requestNotif(); // Brave exige ativação no clique
+                await this.requestNotif();
                 try { 
                     await signInWithEmailAndPassword(auth, u + DOMAIN, p); 
                 } catch(e) { 
@@ -411,7 +411,10 @@
                 document.getElementById('btnAddNota').onclick = () => this.addNota();
                 document.getElementById('btnAddFase').onclick = () => this.addFase();
                 document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
-                document.getElementById('gGotas').oninput = (e) => { document.getElementById('gRes').innerText = (parseFloat(e.target.value)/20 || 0).toFixed(2) + " mL"; };
+                document.getElementById('gGotas').oninput = (e) => { 
+                    const val = parseFloat(e.target.value) || 0;
+                    document.getElementById('gRes').innerText = (val/20).toFixed(2) + " mL"; 
+                };
             }
 
             async addNota() {
