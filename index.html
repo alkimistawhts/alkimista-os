@@ -252,11 +252,13 @@
                 catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
             }
 
-            // FUNÇÃO CORRIGIDA: Apenas extrai o valor para o cálculo, sem mexer no que o usuário vê
+            // FUNÇÃO CORRIGIDA: Agora permite digitação livre e limpa caracteres inválidos apenas para o cálculo
             calc() {
                 const input = document.getElementById('vOrig');
-                // Substitui vírgula por ponto internamente para o parseFloat funcionar
-                const val = parseFloat(input.value.replace(',', '.')) || 0;
+                // Pega o valor, troca vírgula por ponto e remove tudo que não for número ou ponto
+                let rawValue = input.value.replace(',', '.');
+                const val = parseFloat(rawValue) || 0;
+                
                 this.tempV = val * 0.8;
                 document.getElementById('bruto').innerText = this.fmt(val);
                 document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
@@ -274,9 +276,9 @@
                 input.focus();
             }
 
-            // --- Restante das Funções Preservadas ---
             setupListeners() {
                 const vOrig = document.getElementById('vOrig');
+                // Evento oninput simplificado para não interferir no teclado
                 vOrig.oninput = () => this.calc();
                 vOrig.onkeydown = (e) => e.key === 'Enter' && this.somar();
 
