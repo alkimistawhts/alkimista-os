@@ -74,6 +74,18 @@
         #auditContent p { margin-bottom: 8px; font-size: 0.9rem; }
         #auditContent li { margin-left: 15px; font-size: 0.85rem; }
 
+        /* Ajustes de Cores para Resposta da IA (Modo Claro) */
+        .audit-safe { background: #dcfce7; color: #15803d; border: 1px solid #bcf0da; }
+        .audit-warn { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .audit-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        /* Ajustes de Cores para Resposta da IA (Modo Escuro) */
+        .dark-mode .audit-safe { background: rgba(21, 128, 61, 0.2); color: #4ade80; border-color: #166534; }
+        .dark-mode .audit-warn { background: rgba(180, 83, 9, 0.2); color: #fbbf24; border-color: #92400e; }
+        .dark-mode .audit-danger { background: rgba(185, 28, 28, 0.2); color: #f87171; border-color: #991b1b; }
+        
+        #auditContent, #auditContent p, #auditContent li { color: inherit; }
+
         @media (max-width: 600px) {
             .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; border-radius: 20px 20px 0 0; }
             .nav-item span { display: none; }
@@ -143,7 +155,8 @@
                 <div class="card">
                     <label>Valor Original</label>
                     <input type="text" id="vOrig" placeholder="0,00" inputmode="decimal">
-                    <div class="display-box"><br>                        <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
+                    <div class="display-box"><br>
+                        <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
                         <div class="display-line"><b>Com Desconto</b> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
                     </div>
                     <div class="total-banner">
@@ -329,31 +342,34 @@
                 };
             }
 
-async execAudit() {
-    const input = document.getElementById('auditInput').value;
-    const box = document.getElementById('auditResultBox');
-    const content = document.getElementById('auditContent');
-    const status = document.getElementById('auditStatus');
-    const loading = document.getElementById('auditLoading');
-    
-    if(!input.trim()) return alert("Cole o texto da receita primeiro.");
+            async execAudit() {
+                const input = document.getElementById('auditInput').value;
+                const box = document.getElementById('auditResultBox');
+                const content = document.getElementById('auditContent');
+                const status = document.getElementById('auditStatus');
+                const loading = document.getElementById('auditLoading');
+                
+                if(!input.trim()) return alert("Cole o texto da receita primeiro.");
 
-    loading.style.display = 'block';
-    box.style.display = 'none';
+                loading.style.display = 'block';
+                box.style.display = 'none';
+                
+                // Limpa classes anteriores
+                box.classList.remove('audit-safe', 'audit-warn', 'audit-danger');
 
-    try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${GROQ_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile", // Modelo ultra inteligente e grátis
-                messages: [
-                    {
-                        role: "system",
-                        content: `Você é um Consultor Farmacêutico especializado em segurança medicamentosa. Sua tarefa é analisar regimes de dosagem e identificar riscos.
+                try {
+                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${GROQ_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: `Você é um Consultor Farmacêutico especializado em segurança medicamentosa. Sua tarefa é analisar regimes de dosagem e identificar riscos.
 
 **ANÁLISE O SEGUINTE REGIME:**
 "${input}"
@@ -365,37 +381,41 @@ async execAudit() {
 4. Identifique posologias incomuns ou suspeitas
 
 **FORMATO DE RESPOSTA OBRIGATÓRIO (HTML simples):** Comece estritamente com [SEGURO], [ATENÇÃO] ou [PERIGOSO]. Use tags <p>, <b> e <li>.`
-                    },
-                    {
-                        role: "user",
-                        content: `Analise esta prescrição: ${input}`
+                                },
+                                {
+                                    role: "user",
+                                    content: `Analise esta prescrição: ${input}`
+                                }
+                            ],
+                            temperature: 0.2
+                        })
+                    });
+
+                    const data = await response.json();
+                    const text = data.choices[0].message.content;
+
+                    if(text.includes("[PERIGOSO]")) { 
+                        box.classList.add('audit-danger');
+                        status.innerText = "🚨 RISCO DETECTADO"; 
+                    } else if(text.includes("[ATENÇÃO]")) { 
+                        box.classList.add('audit-warn');
+                        status.innerText = "⚠️ ATENÇÃO"; 
+                    } else { 
+                        box.classList.add('audit-safe');
+                        status.innerText = "✅ CONDIZENTE"; 
                     }
-                ]
-            })
-        });
 
-        const data = await response.json();
-        const text = data.choices[0].message.content;
+                    content.innerHTML = text.replace(/\[SEGURO\]|\[ATENÇÃO\]|\[PERIGOSO\]/g, "");
+                    box.style.display = 'block';
 
-        // Lógica de cores (A mesma que você já gosta)
-        if(text.includes("[PERIGOSO]")) { 
-            box.style.background = "#fee2e2"; status.innerText = "🚨 RISCO DETECTADO"; status.style.color = "#b91c1c"; 
-        } else if(text.includes("[ATENÇÃO]")) { 
-            box.style.background = "#fef3c7"; status.innerText = "⚠️ ATENÇÃO"; status.style.color = "#b45309"; 
-        } else { 
-            box.style.background = "#dcfce7"; status.innerText = "✅ CONDIZENTE"; status.style.color = "#15803d"; 
-        }
+                } catch (e) { 
+                    console.error("Erro Groq:", e);
+                    alert("Erro na Groq: " + e.message); 
+                } finally { 
+                    loading.style.display = 'none'; 
+                }
+            }
 
-        content.innerHTML = text.replace(/\[SEGURO\]|\[ATENÇÃO\]|\[PERIGOSO\]/g, "");
-        box.style.display = 'block';
-
-    } catch (e) { 
-        console.error("Erro Groq:", e);
-        alert("Erro na Groq: " + e.message); 
-    } finally { 
-        loading.style.display = 'none'; 
-    }
-}
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
                 this.resetProdForm();
