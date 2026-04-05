@@ -3,143 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Alkimista OS v14.0</title>
+    <meta name="theme-color" content="#0047AB">
+    <title>Alkimista OS v13.9 - Estável</title>
+    
     <style>
-        /* Variáveis e Estilos Base */
         :root {
             --bg-body: #f1f5f9; --bg-sidebar: #0047AB; --bg-card: #ffffff;
             --text-main: #1e293b; --text-sub: #64748b; --accent: #3b82f6; --border: #e2e8f0;
             --sidebar-w: 70px; --danger: #ef4444; --success: #10b981;
+            --highlight-bg: rgba(59, 130, 246, 0.15); 
         }
+
         .dark-mode {
             --bg-body: #0f172a; --bg-sidebar: #1e293b; --bg-card: #1e293b;
             --text-main: #f8fafc; --text-sub: #94a3b8; --accent: #38bdf8; --border: #334155;
+            --highlight-bg: rgba(0, 71, 171, 0.3);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; }
 
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); height: 100vh; position: fixed; left: 0; top: 0; display: flex; flex-direction: column; padding: 15px 5px; z-index: 1000; transition: 0.3s; overflow: hidden; }
-        .sidebar:hover { width: 200px; }
-        .nav-item { padding: 15px; color: white; display: flex; align-items: center; cursor: pointer; border-radius: 10px; margin-bottom: 5px; opacity: 0.6; }
-        .nav-item.active { opacity: 1; background: rgba(255,255,255,0.1); }
-        .nav-item i { font-style: normal; font-size: 1.5rem; min-width: 40px; text-align: center; }
-        .nav-item span { margin-left: 10px; font-weight: bold; white-space: nowrap; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.15s ease; }
+        body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); overflow-x: hidden; }
 
-        /* Main Content */
+        mark { background: var(--highlight-bg); color: var(--bg-sidebar); border-radius: 4px; padding: 1px 3px; font-weight: 600; }
+        .dark-mode mark { color: var(--accent); }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 15px; }
+        .overlay.active { display: flex; }
+        .modal-container { background: var(--bg-card); width: 100%; max-width: 450px; padding: 25px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+
+        #view-login { z-index: 9999; background: var(--bg-body); display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); height: 100vh; display: flex; flex-direction: column; padding: 20px 10px; position: fixed; left: 0; top: 0; z-index: 2000; overflow: hidden; white-space: nowrap; }
+        .sidebar:hover { width: 220px; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+        .nav-item { width: 100%; height: 50px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; padding: 0 13px; cursor: pointer; color: white; opacity: 0.6; }
+        .nav-item i { font-size: 1.4rem; min-width: 30px; display: flex; justify-content: center; font-style: normal; }
+        .nav-item span { margin-left: 15px; font-weight: 600; opacity: 0; }
+        .sidebar:hover .nav-item span { opacity: 1; }
+        .nav-item.active { opacity: 1; background: rgba(255,255,255,0.15); }
+
         .main { flex: 1; margin-left: var(--sidebar-w); padding: 20px; display: flex; justify-content: center; }
         .app-container { max-width: 600px; width: 100%; }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .view { display: none; animation: fadeIn 0.3s; }
+        .view.active { display: block; }
 
-        /* Inputs - O CORAÇÃO DO PROBLEMA */
-        input, textarea, select { 
-            width: 100%; padding: 15px; margin: 10px 0; 
-            border: 2px solid var(--border); border-radius: 12px; 
-            background: var(--bg-card); color: var(--text-main);
-            font-size: 16px; /* Evita zoom no iPhone */
-            -webkit-appearance: none; /* Remove sombras do iOS */
-        }
+        .card { background: var(--bg-card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; font-weight: 800; }
+        h2 { font-size: 0.8rem; text-transform: uppercase; color: var(--accent); margin-bottom: 15px; font-weight: 900; }
+        label { font-size: 0.7rem; font-weight: 800; opacity: 0.6; margin-bottom: 4px; display: block; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; background: var(--bg-body); color: var(--text-main); margin-bottom: 10px; }
 
-        .card { background: var(--bg-card); padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
-        .btn-blue { background: #0047AB; }
+        .display-box { background: var(--bg-body); padding: 15px; border-radius: 18px; margin-bottom: 15px; }
+        .display-line { display: flex; justify-content: space-between; padding: 5px 0; }
+        .total-banner { background: linear-gradient(135deg, #0047AB, #002B6A); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
+        .total-banner b { font-size: 2.2rem; font-weight: 800; }
+
+        .prod-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .nota-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid var(--border); border-left: 6px solid #0047AB; }
+
+        button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; color: white; margin-bottom: 8px; }
         .btn-green { background: #10b981; }
-        .btn-red { background: #ef4444; }
-        
+        .btn-blue { background: #0047AB; }
+        .btn-red { background: var(--danger); }
+        .btn-gray { background: #64748b; }
+        .btn-outline { background: transparent; border: 2px dashed var(--accent); color: var(--accent); }
+        .theme-fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--bg-sidebar); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; z-index: 1000; }
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; z-index: 5000; display: none; }
+
         @media (max-width: 600px) {
-            .sidebar { width: 100%; height: 60px; top: auto; bottom: 0; flex-direction: row; justify-content: space-around; padding: 0; }
-            .main { margin-left: 0; margin-bottom: 70px; }
+            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; border-radius: 20px 20px 0 0; }
             .nav-item span { display: none; }
+            .main { margin-left: 0; margin-bottom: 80px; padding: 15px; }
         }
     </style>
 </head>
 <body>
 
+    <div id="view-login" class="overlay">
+        <div class="modal-container">
+            <h1 style="color:var(--bg-sidebar)">Alkimista OS</h1>
+            <input type="text" id="loginUser" placeholder="Seu usuário">
+            <input type="password" id="loginPass" placeholder="Sua senha">
+            <button class="btn-blue" id="btnLogin">Entrar</button>
+            <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none; text-align: center;"></p>
+        </div>
+    </div>
+
+    <div id="modalProd" class="overlay">
+        <div class="modal-container">
+            <h2 id="modalProdTitle">Novo Produto</h2>
+            <input type="hidden" id="pId">
+            <label>Nome do Produto</label>
+            <input type="text" id="pNome">
+            <label>Ativos / Composição</label>
+            <input type="text" id="pAtivos">
+            <label>Indicação / Serve para</label>
+            <input type="text" id="pServe">
+            <label>Posologia Sugerida</label>
+            <textarea id="pPoso" rows="3"></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-gray" onclick="window.App.closeProdModal()">Cancelar</button>
+                <button class="btn-green" id="btnSalvarProd">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Copiado!</div>
+
+    <div id="confirmOverlay" class="overlay">
+        <div class="modal-container" style="text-align: center; max-width: 320px;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+            <h2>Tem certeza?</h2>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-gray" onclick="window.App.closeConfirm()">Voltar</button>
+                <button class="btn-red" id="confirmActionBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="theme-fab" onclick="window.App.toggleDark()">🌓</button>
+
     <aside class="sidebar">
         <div class="nav-item active" onclick="window.App.switch('calc')" id="nav-calc"><i>🧮</i><span>Calculadora</span></div>
         <div class="nav-item" onclick="window.App.switch('prod')" id="nav-prod"><i>🧪</i><span>Produtos</span></div>
-        <div class="nav-item" onclick="window.App.switch('notes')" id="nav-notes"><i>📝</i><span>Notas</span></div>
+        <div class="nav-item" onclick="window.App.switch('notes')" id="nav-notes"><i>📝</i><span>Anotações</span></div>
+        <div class="nav-item" onclick="window.App.switch('serv')" id="nav-serv"><i>📏</i><span>Serviços</span></div>
+        <div class="nav-item" onclick="window.App.logout()" style="margin-top: auto; opacity: 0.4;"><i>🚪</i><span>Sair</span></div>
     </aside>
 
     <main class="main">
         <div class="app-container">
             <div id="view-calc" class="view active">
+                <h1>Calculadora 20%</h1>
                 <div class="card">
-                    <h2>Calculadora 20%</h2>
                     <label>Valor Original</label>
-                    <input type="text" id="vOrig" inputmode="decimal" placeholder="R$ 0,00">
-                    <p>Com Desconto: <b id="comDesconto">R$ 0,00</b></p>
-                    <button class="btn-green" id="btnSomar">Somar</button>
-                    <h1 id="totalVal" style="text-align:center; margin-top:20px;">R$ 0,00</h1>
-                    <div id="histLista"></div>
+                    <input type="text" id="vOrig" placeholder="0,00" inputmode="decimal">
+                    <div class="display-box">
+                        <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
+                        <div class="display-line"><b>Com Desconto</b> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
+                    </div>
+                    <div class="total-banner">
+                        <span>TOTAL ACUMULADO</span><br>
+                        <b id="totalVal">R$ 0,00</b>
+                    </div>
+                    <button class="btn-green" id="btnSomar" disabled>➕ Somar (Enter)</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btnLimpar" class="btn-gray" style="flex:1">Limpar</button>
+                        <button id="btnResetTotal" class="btn-red" style="flex:1">Zerar</button>
+                    </div>
                 </div>
+                <div id="histLista"></div>
             </div>
 
             <div id="view-prod" class="view">
-                <div class="card">
-                    <h2>Gerenciar Produtos</h2>
-                    <input type="text" id="pNome" placeholder="Nome do Produto">
-                    <input type="text" id="pPreco" inputmode="decimal" placeholder="Preço">
-                    <button class="btn-blue" onclick="window.App.addProd()">Salvar Produto</button>
-                    <div id="listaProd" style="margin-top:20px;"></div>
-                </div>
+                <h1>Catálogo Alkimista</h1>
+                <button class="btn-blue" id="btnAbreNovoProd" style="display:none; margin-bottom:15px">+ Adicionar Novo Produto</button>
+                <input type="text" id="pBusca" placeholder="🔍 Buscar por nome, ativos ou indicação..." style="margin-bottom:15px">
+                <div id="prodLista"></div>
             </div>
 
             <div id="view-notes" class="view">
+                <h1>Anotações & Agenda</h1>
                 <div class="card">
-                    <h2>Anotações Rápidas</h2>
-                    <textarea id="txtNota" rows="5" placeholder="Digite algo..."></textarea>
-                    <button class="btn-blue" onclick="window.App.addNota()">Salvar Nota</button>
-                    <div id="listaNotas" style="margin-top:20px;"></div>
+                    <select id="nCat">
+                        <option value="aviso">🔵 Aviso</option>
+                        <option value="urgente">🔴 Urgente</option>
+                        <option value="verificação">🟢 Verificação</option>
+                    </select>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="nData">
+                        <input type="time" id="nHora">
+                    </div>
+                    <textarea id="nTexto" rows="3" placeholder="Escreva aqui..."></textarea>
+                    <button class="btn-blue" id="btnAddNota">Salvar Agendamento</button>
+                </div>
+                <div id="notasLista"></div>
+            </div>
+
+            <div id="view-serv" class="view">
+                <h1>Serviços & Prazos</h1>
+                <div class="card">
+                    <h2>📏 Duração de Tratamento</h2>
+                    <div id="fasesContainer"></div>
+                    <button class="btn-outline" id="btnAddFase">+ Adicionar Fase</button>
+                    <div class="total-banner" style="margin-top:15px; padding: 15px;">
+                        <small>RESULTADO TOTAL:</small><br>
+                        <b id="resGeral" style="font-size: 1.4rem;">0 uni/mL</b>
+                    </div>
+                    <button class="btn-gray" id="btnResetFases">Limpar Campos</button>
+                </div>
+                <div class="card">
+                    <h2>💧 Gotas para mL</h2>
+                    <input type="text" id="gGotas" placeholder="Número de Gotas" inputmode="numeric">
+                    <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
                 </div>
             </div>
         </div>
     </main>
 
     <script type="module">
-        // Configurações do Firebase (Mantenha as suas originais aqui)
-        // ... (Cole aqui o bloco de import e firebaseConfig que você já tem)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDb8cQwqo1T0ZezgS9eEKGpbrceDm8PV4E",
+            authDomain: "alkimista-os.firebaseapp.com",
+            projectId: "alkimista-os",
+            storageBucket: "alkimista-os.firebasestorage.app",
+            messagingSenderId: "913918533081",
+            appId: "1:913918533081:web:7bd424bbbff8c277e90dc8"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const auth = getAuth(firebaseApp);
+        const db = getFirestore(firebaseApp);
+        const DOMAIN = "@alkimista.com";
 
         class AlkimistaApp {
             constructor() {
-                this.total = 0;
-                this.historico = [];
-                this.produtos = [];
-                this.notas = [];
-                this.setupCalc();
+                this.user = null; this.isAdmin = false;
+                this.total = 0; this.historico = []; this.notas = []; this.produtos = [];
+                this.isDark = false; this.tempV = 0; this.listenersLoaded = false;
+                this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
+                this.initAuth();
             }
 
-            // A MÁGICA PARA O TECLADO FUNCIONAR
-            setupCalc() {
-                const input = document.getElementById('vOrig');
-                input.addEventListener('input', (e) => {
-                    // Permite digitar, mas limpa o valor para o cálculo
-                    let v = e.target.value.replace(',', '.');
-                    let n = parseFloat(v) || 0;
-                    document.getElementById('comDesconto').innerText = (n * 0.8).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+            initAuth() {
+                onAuthStateChanged(auth, async (u) => {
+                    if (u) {
+                        this.user = u;
+                        const uDoc = await getDoc(doc(db, "usuarios", u.uid));
+                        if(uDoc.exists()) this.isAdmin = uDoc.data().isAdmin || false;
+                        document.getElementById('view-login').style.display = 'none';
+                        document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
+                        await this.loadFromCloud();
+                        if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
+                        this.initUI();
+                    } else {
+                        document.getElementById('view-login').style.display = 'flex';
+                    }
                 });
+                document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
-            switch(aba) {
-                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('view-' + aba).classList.add('active');
-                document.getElementById('nav-' + aba).classList.add('active');
+            async handleLogin() {
+                const u = document.getElementById('loginUser').value.trim();
+                const p = document.getElementById('loginPass').value;
+                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } 
+                catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
             }
 
-            // Funções de Produtos e Notas (Reconstruídas)
-            addProd() {
-                const n = document.getElementById('pNome').value;
-                const p = document.getElementById('pPreco').value;
-                if(!n || !p) return;
-                this.produtos.push({nome: n, preco: p});
-                this.renderProds();
+            // CORREÇÃO TECLADO: Limpa o valor para o cálculo mas não bloqueia a tecla
+            calc() {
+                const input = document.getElementById('vOrig');
+                let valStr = input.value.replace(',', '.');
+                const val = parseFloat(valStr) || 0;
+                
+                this.tempV = val * 0.8;
+                document.getElementById('bruto').innerText = this.fmt(val);
+                document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
+                document.getElementById('btnSomar').disabled = val <= 0;
+            }
+
+            async somar() {
+                if(this.tempV <= 0) return;
+                this.total += this.tempV;
+                const input = document.getElementById('vOrig');
+                const valRaw = parseFloat(input.value.replace(',', '.')) || 0;
+                this.historico.push({o: valRaw, f: this.tempV});
+                input.value = ""; this.calc();
+                this.render(); await this.save();
+                input.focus();
+            }
+
+            setupListeners() {
+                const vOrig = document.getElementById('vOrig');
+                
+                // Evento oninput para cálculo em tempo real
+                vOrig.addEventListener('input', () => this.calc());
+                
+                // CORREÇÃO: Função Enter para somar
+                vOrig.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // Evita recarregar a página
+                        this.somar();
+                    }
+                });
+
+                document.getElementById('btnSomar').onclick = () => this.somar();
+                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
+                document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
+                
+                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
+                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
+                document.getElementById('pBusca').oninput = () => this.renderProds();
+                
+                document.getElementById('btnAddNota').onclick = () => this.addNota();
+                document.getElementById('btnAddFase').onclick = () => this.addFase();
+                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
+                
+                const gGotas = document.getElementById('gGotas');
+                gGotas.oninput = (e) => {
+                    let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                    document.getElementById('gRes').innerText = (val/20).toFixed(2) + " mL"; 
+                };
+            }
+
+            openProdModal(id = null) {
+                if(!this.isAdmin) return;
+                this.resetProdForm();
+                if(id) {
+                    const p = this.produtos.find(x => x.id === id);
+                    document.getElementById('pId').value = p.id;
+                    document.getElementById('pNome').value = p.nome;
+                    document.getElementById('pAtivos').value = p.ativos;
+                    document.getElementById('pServe').value = p.serve;
+                    document.getElementById('pPoso').value = p.poso;
+                    document.getElementById('modalProdTitle').innerText = "Editar Produto";
+                } else { document.getElementById('modalProdTitle').innerText = "Novo Produto"; }
+                document.getElementById('modalProd').classList.add('active');
+            }
+
+            closeProdModal() { document.getElementById('modalProd').classList.remove('active'); }
+
+            async addFullProd() {
+                if(!this.isAdmin) return;
+                const id = document.getElementById('pId').value;
+                const p = { id: id ? parseInt(id) : Date.now(), nome: document.getElementById('pNome').value, ativos: document.getElementById('pAtivos').value, serve: document.getElementById('pServe').value, poso: document.getElementById('pPoso').value };
+                if(!p.nome) return;
+                if(id) { const idx = this.produtos.findIndex(x => x.id == id); if(idx!=-1) this.produtos[idx] = p; }
+                else { this.produtos.push(p); }
+                await this.save(); this.renderProds(); this.closeProdModal();
             }
 
             renderProds() {
-                document.getElementById('listaProd').innerHTML = this.produtos.map(p => `<div>${p.nome} - R$ ${p.preco}</div>`).join('');
+                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
+                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
+                document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
+                <div class="prod-card">
+                    <div style="color:var(--accent);font-weight:800">${p.nome}</div>
+                    <div style="font-size:0.85rem;margin:8px 0"><b>Ativos:</b> ${p.ativos}<br><b>Indicação:</b> ${p.serve}</div>
+                    <div style="display:flex;gap:5px">
+                        <button class="btn-blue" onclick="window.App.copyProd(${p.id})">COPIAR</button>
+                        ${this.isAdmin ? `<button class="btn-gray" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
+                        ${this.isAdmin ? `<button class="btn-red" style="width:45px" onclick="window.App.delProd(${p.id})">X</button>` : ''}
+                    </div>
+                </div>`).join('');
             }
+
+            copyProd(id) {
+                const p = this.produtos.find(x => x.id === id);
+                const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}`;
+                navigator.clipboard.writeText(txt);
+                document.getElementById('toast').style.display = 'block';
+                setTimeout(() => document.getElementById('toast').style.display = 'none', 1500);
+            }
+
+            async addNota() {
+                const t = document.getElementById('nTexto').value.trim();
+                if(!t) return;
+                this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value, notificado: false });
+                document.getElementById('nTexto').value = ""; this.render(); await this.save();
+            }
+
+            async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
+            async save() { if(this.user) { await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true }); if(this.isAdmin) await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos }); } }
+            async loadFromCloud() { const uD = await getDoc(doc(db, "usuarios", this.user.uid)); if(uD.exists()) { const d = uD.data(); this.total = d.total||0; this.historico = d.historico||[]; this.notas = d.notas||[]; this.isDark = d.isDark||false; } const cD = await getDoc(doc(db, "configuracoes", "catalogo")); if(cD.exists()) this.produtos = cD.data().produtos||[]; }
+            fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+            switch(v) { document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active')); document.getElementById('view-' + v)?.classList.add('active'); document.getElementById('nav-' + v)?.classList.add('active'); }
+            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
+            openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
+            closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
+            resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
+            async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
+            
+            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
+            removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); }
+            
+            updateFase(id, field, val) { 
+                const f = this.fases.find(x => x.id === id); 
+                if(f) {
+                    if (field === 'tipo') f[field] = val;
+                    else f[field] = val.replace(',', '.').replace(/[^0-9.]/g, ''); 
+                }
+                this.calcTotalFases(); 
+            }
+
+            calcTotalFases() {
+                let tC = 0, tL = 0; 
+                this.fases.forEach(f => {
+                    let d = parseFloat(f.dose) || 0;
+                    let fr = parseFloat(f.freq) || 0;
+                    let di = parseFloat(f.dias) || 0;
+                    let sub = d * fr * di;
+                    if(f.tipo === 'gotas') tL += (sub/20);
+                    else if(f.tipo === 'ml') tL += sub;
+                    else tC += sub;
+                });
+                let res = [];
+                if(tC > 0) res.push(`${Math.ceil(tC)} Cáps`);
+                if(tL > 0) res.push(`${tL.toFixed(2)} mL`);
+                document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL";
+            }
+
+            renderFases() {
+                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
+                <div style="border:1px solid var(--border); padding:15px; border-radius:18px; margin-bottom:12px; position:relative;">
+                    ${this.fases.length > 1 ? `<button style="position:absolute;top:5px;right:5px;width:30px;padding:5px;background:red;color:white;border:none;border-radius:5px" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                        <div><label>Dose</label><input type="text" value="${f.dose}" inputmode="decimal" oninput="window.App.updateFase(${f.id},'dose',this.value)"></div>
+                        <div><label>x/dia</label><input type="text" value="${f.freq}" inputmode="numeric" oninput="window.App.updateFase(${f.id},'freq',this.value)"></div>
+                        <div><label>Dias</label><input type="text" value="${f.dias}" inputmode="numeric" oninput="window.App.updateFase(${f.id},'dias',this.value)"></div>
+                        <div><label>Tipo</label><select onchange="window.App.updateFase(${f.id},'tipo',this.value)"><option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option><option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option><option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option></select></div>
+                    </div>
+                </div>`).join('');
+                this.calcTotalFases();
+            }
+
+            render() {
+                document.getElementById('totalVal').innerText = this.fmt(this.total);
+                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `<div class="display-line" style="font-size:0.8rem; border-bottom:1px solid var(--border)"><span>De ${this.fmt(h.o)}</span><b>→ ${this.fmt(h.f)}</b></div>`).join('');
+                document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `<div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}"><div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6"><span>📅 ${n.data.split('-').reverse().join('/')} ${n.hora}</span><span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span></div><b>${n.txt}</b></div>`).join('');
+                this.renderProds();
+            }
+
+            initUI() { 
+                const now = new Date(); 
+                document.getElementById('nData').value = now.toISOString().split('T')[0]; 
+                document.getElementById('nHora').value = now.toTimeString().slice(0,5);
+                if(this.isDark) document.body.classList.add('dark-mode'); 
+                this.render(); 
+                this.renderFases(); 
+            }
+            async logout() { await signOut(auth); location.reload(); }
         }
 
         window.App = new AlkimistaApp();
