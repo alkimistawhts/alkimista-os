@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.2 - Final</title>
+    <title>Alkimista OS v13.3 - Stable</title>
     
     <style>
         :root {
@@ -21,9 +21,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.15s ease; }
         body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); overflow-x: hidden; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 15px; }
         .overlay.active { display: flex; }
-        .modal-container { background: var(--bg-card); width: 95%; max-width: 400px; padding: 30px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+        .modal-container { background: var(--bg-card); width: 100%; max-width: 450px; padding: 25px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 
         #view-login { z-index: 9999; background: var(--bg-body); display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
         
@@ -52,10 +52,6 @@
         .total-banner { background: linear-gradient(135deg, #0047AB, #002B6A); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
         .total-banner b { font-size: 2.2rem; font-weight: 800; }
 
-        .fase-box { border: 1px solid var(--border); padding: 15px; border-radius: 18px; margin-bottom: 12px; background: rgba(59, 130, 246, 0.03); position: relative; }
-        .btn-remove-fase { position: absolute; top: 10px; right: 10px; color: var(--danger); background: none; border: none; font-weight: bold; cursor: pointer; padding: 5px; z-index: 10; }
-        .grid-fase { display: grid; grid-template-columns: 1fr 0.8fr 0.8fr 1fr; gap: 8px; }
-
         .prod-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 15px; }
         .nota-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid var(--border); border-left: 6px solid #0047AB; }
 
@@ -73,7 +69,6 @@
             .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; border-radius: 20px 20px 0 0; }
             .nav-item span { display: none; }
             .main { margin-left: 0; margin-bottom: 80px; padding: 15px; }
-            .grid-fase { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -87,6 +82,25 @@
             <input type="password" id="loginPass" placeholder="Sua senha">
             <button class="btn-blue" id="btnLogin">Entrar</button>
             <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none; text-align: center;"></p>
+        </div>
+    </div>
+
+    <div id="modalProd" class="overlay">
+        <div class="modal-container">
+            <h2 id="modalProdTitle">Novo Produto</h2>
+            <input type="hidden" id="pId">
+            <label>Nome do Produto</label>
+            <input type="text" id="pNome">
+            <label>Ativos / Composição</label>
+            <input type="text" id="pAtivos">
+            <label>Indicação / Serve para</label>
+            <input type="text" id="pServe">
+            <label>Posologia Sugerida</label>
+            <textarea id="pPoso" rows="3"></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-gray" onclick="window.App.closeProdModal()">Cancelar</button>
+                <button class="btn-green" id="btnSalvarProd">Salvar</button>
+            </div>
         </div>
     </div>
 
@@ -121,7 +135,7 @@
                 <h1>Calculadora 20%</h1>
                 <div class="card">
                     <label>Valor Original</label>
-                    <input type="number" id="vOrig" placeholder="0,00" step="0.01">
+                    <input type="text" id="vOrig" placeholder="0,00" inputmode="decimal">
                     <div class="display-box">
                         <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
                         <div class="display-line"><b>Com Desconto</b> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
@@ -141,15 +155,7 @@
 
             <div id="view-prod" class="view">
                 <h1>Catálogo Alkimista</h1>
-                <div class="card" id="adminAddCard" style="display:none">
-                    <h2 id="prodTitulo">Novo Produto (Admin)</h2>
-                    <input type="hidden" id="pId">
-                    <input type="text" id="pNome" placeholder="Nome">
-                    <input type="text" id="pAtivos" placeholder="Ativos">
-                    <input type="text" id="pServe" placeholder="Indicação">
-                    <textarea id="pPoso" rows="2" placeholder="Posologia"></textarea>
-                    <button class="btn-green" id="btnAddProd">Salvar no Catálogo</button>
-                </div>
+                <button class="btn-blue" id="btnAbreNovoProd" style="display:none; margin-bottom:15px">+ Adicionar Novo Produto</button>
                 <input type="text" id="pBusca" placeholder="🔍 Buscar no catálogo..." style="margin-bottom:15px">
                 <div id="prodLista"></div>
             </div>
@@ -221,8 +227,6 @@
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 
                 this.initAuth();
-                this.setupNotifications();
-                setInterval(() => this.checkScheduledNotes(), 30000);
             }
 
             initAuth() {
@@ -233,10 +237,10 @@
                         if(uDoc.exists()) this.isAdmin = uDoc.data().isAdmin || false;
                         
                         document.getElementById('view-login').style.display = 'none';
-                        document.getElementById('adminAddCard').style.display = this.isAdmin ? 'block' : 'none';
+                        document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
                         
                         await this.loadFromCloud();
-                        this.setupListeners();
+                        this.setupListeners(); // Só configura os botões após garantir que o usuário está logado
                         this.initUI();
                     } else {
                         document.getElementById('view-login').style.display = 'flex';
@@ -245,43 +249,10 @@
                 document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
-            async handleLogin() {
-                const u = document.getElementById('loginUser').value.trim();
-                const p = document.getElementById('loginPass').value;
-                if(!u || !p) return;
-                try {
-                    await signInWithEmailAndPassword(auth, u + DOMAIN, p);
-                } catch(e) {
-                    const err = document.getElementById('loginError');
-                    err.innerText = "Usuário ou senha inválidos."; err.style.display = 'block';
-                }
-            }
-
-            async logout() { await signOut(auth); location.reload(); }
-
-            setupNotifications() {
-                if ('Notification' in window && Notification.permission !== 'granted') {
-                    Notification.requestPermission();
-                }
-            }
-
-            checkScheduledNotes() {
-                const agora = new Date();
-                const d = agora.toISOString().split('T')[0];
-                const h = agora.toTimeString().slice(0, 5);
-                this.notas.forEach(n => {
-                    if (n.data === d && n.hora === h && !n.notificado) {
-                        if (Notification.permission === "granted") {
-                            new Notification("Alkimista OS", { body: n.txt });
-                        }
-                        n.notificado = true; this.save(); this.render();
-                    }
-                });
-            }
-
-            // --- CALCULADORA ---
+            // --- CALCULADORA (CORRIGIDA PARA VÍRGULA) ---
             calc() {
-                const v = parseFloat(document.getElementById('vOrig').value) || 0;
+                let valRaw = document.getElementById('vOrig').value.replace(',', '.');
+                const v = parseFloat(valRaw) || 0;
                 this.tempV = v * 0.8;
                 document.getElementById('bruto').innerText = this.fmt(v);
                 document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
@@ -291,13 +262,33 @@
             async somar() {
                 if(this.tempV <= 0) return;
                 this.total += this.tempV;
-                this.historico.push({o: parseFloat(document.getElementById('vOrig').value), f: this.tempV});
+                let valRaw = document.getElementById('vOrig').value.replace(',', '.');
+                this.historico.push({o: parseFloat(valRaw), f: this.tempV});
                 document.getElementById('vOrig').value = ""; this.calc();
                 this.render(); await this.save();
                 document.getElementById('vOrig').focus();
             }
 
-            // --- CATALOGO (COM EDITAR) ---
+            // --- PRODUTOS (EDIÇÃO EM MODAL) ---
+            openProdModal(id = null) {
+                if(!this.isAdmin) return;
+                this.resetProdForm();
+                if(id) {
+                    const p = this.produtos.find(x => x.id === id);
+                    document.getElementById('pId').value = p.id;
+                    document.getElementById('pNome').value = p.nome;
+                    document.getElementById('pAtivos').value = p.ativos;
+                    document.getElementById('pServe').value = p.serve;
+                    document.getElementById('pPoso').value = p.poso;
+                    document.getElementById('modalProdTitle').innerText = "Editar: " + p.nome;
+                } else {
+                    document.getElementById('modalProdTitle').innerText = "Novo Produto";
+                }
+                document.getElementById('modalProd').classList.add('active');
+            }
+
+            closeProdModal() { document.getElementById('modalProd').classList.remove('active'); }
+
             async addFullProd() {
                 if(!this.isAdmin) return;
                 const id = document.getElementById('pId').value;
@@ -312,38 +303,14 @@
 
                 if(id) {
                     const idx = this.produtos.findIndex(x => x.id === p.id);
-                    this.produtos[idx] = p;
+                    if(idx !== -1) this.produtos[idx] = p;
                 } else {
                     this.produtos.push(p);
                 }
                 
-                this.renderProds(); await this.save();
-                this.resetProdForm();
-            }
-
-            editProd(id) {
-                const p = this.produtos.find(x => x.id === id);
-                if(!p) return;
-                document.getElementById('pId').value = p.id;
-                document.getElementById('pNome').value = p.nome;
-                document.getElementById('pAtivos').value = p.ativos;
-                document.getElementById('pServe').value = p.serve;
-                document.getElementById('pPoso').value = p.poso;
-                document.getElementById('prodTitulo').innerText = "Editando: " + p.nome;
-                window.scrollTo(0,0);
-            }
-
-            resetProdForm() {
-                document.getElementById('pId').value = "";
-                ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value="");
-                document.getElementById('prodTitulo').innerText = "Novo Produto (Admin)";
-            }
-
-            async delProd(id) {
-                this.openConfirm(async () => {
-                    this.produtos = this.produtos.filter(p => p.id !== id);
-                    this.renderProds(); await this.save();
-                });
+                await this.save();
+                this.renderProds();
+                this.closeProdModal();
             }
 
             renderProds() {
@@ -355,58 +322,33 @@
                     <div style="font-size:0.85rem;margin:8px 0"><b>Ativos:</b> ${p.ativos}<br><b>Indicação:</b> ${p.serve}</div>
                     <div style="display:flex;gap:5px">
                         <button class="btn-blue" onclick="window.App.copyProd(${p.id})">COPIAR</button>
-                        ${this.isAdmin ? `<button class="btn-gray" onclick="window.App.editProd(${p.id})">EDITAR</button>` : ''}
+                        ${this.isAdmin ? `<button class="btn-gray" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
                         ${this.isAdmin ? `<button class="btn-red" style="width:45px" onclick="window.App.delProd(${p.id})">X</button>` : ''}
                     </div>
                 </div>`).join('');
             }
 
-            copyProd(id) {
-                const p = this.produtos.find(x => x.id === id);
-                navigator.clipboard.writeText(`*PRODUTO:* ${p.nome}\n*INDICAÇÃO:* ${p.serve}\n*COMPOSIÇÃO:* ${p.ativos}`);
-                document.getElementById('toast').style.display = 'block';
-                setTimeout(() => document.getElementById('toast').style.display = 'none', 1500);
+            resetProdForm() {
+                document.getElementById('pId').value = "";
+                ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value="");
             }
 
-            // --- SERVIÇOS ---
-            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
-            removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); }
-            updateFase(id, field, val) { const f = this.fases.find(x => x.id === id); if(f) f[field] = val; this.calcTotalFases(); }
-            calcTotalFases() {
-                let tC = 0, tM = 0, tG = 0, hasG = false, hasM = false, hasC = false;
-                this.fases.forEach(f => {
-                    let sub = (parseFloat(f.dose)||0) * (parseFloat(f.freq)||0) * (parseFloat(f.dias)||0);
-                    if(f.tipo === 'gotas') { tG += (sub/20); hasG = true; }
-                    else if(f.tipo === 'ml') { tM += sub; hasM = true; }
-                    else { tC += sub; hasC = true; }
+            async delProd(id) {
+                this.openConfirm(async () => {
+                    this.produtos = this.produtos.filter(p => p.id !== id);
+                    this.renderProds(); await this.save();
                 });
-                let res = [];
-                if(hasC) res.push(`${tC} Cáps`);
-                if(hasG || hasM) res.push(`${(tM + tG).toFixed(2)} mL`);
-                document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL";
-            }
-            renderFases() {
-                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
-                <div class="fase-box">
-                    ${this.fases.length > 1 ? `<button class="btn-remove-fase" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
-                    <label>Fase ${i + 1}</label>
-                    <div class="grid-fase">
-                        <div><label>Dose</label><input type="number" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)"></div>
-                        <div><label>x/dia</label><input type="number" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)"></div>
-                        <div><label>Dias</label><input type="number" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)"></div>
-                        <div><label>Tipo</label>
-                            <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
-                                <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
-                                <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
-                                <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>`).join('');
-                this.calcTotalFases();
             }
 
-            // --- PERSISTÊNCIA ---
+            // --- RESTANTE DAS FUNÇÕES (NOTAS, SERVIÇOS, ETC) ---
+            async addNota() {
+                const t = document.getElementById('nTexto').value.trim();
+                if(!t) return;
+                this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value, notificado: false });
+                document.getElementById('nTexto').value = ""; this.render(); await this.save();
+            }
+            async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
+
             async save() {
                 if(!this.user) return;
                 await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true });
@@ -425,7 +367,23 @@
             }
 
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-            
+            copyProd(id) {
+                const p = this.produtos.find(x => x.id === id);
+                navigator.clipboard.writeText(`*PRODUTO:* ${p.nome}\n*INDICAÇÃO:* ${p.serve}\n*COMPOSIÇÃO:* ${p.ativos}`);
+                document.getElementById('toast').style.display = 'block';
+                setTimeout(() => document.getElementById('toast').style.display = 'none', 1500);
+            }
+
+            switch(v) {
+                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('view-' + v)?.classList.add('active');
+                document.getElementById('nav-' + v)?.classList.add('active');
+            }
+
+            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
+            openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
+            closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
+
             render() {
                 document.getElementById('totalVal').innerText = this.fmt(this.total);
                 document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
@@ -443,24 +401,6 @@
                 this.renderProds();
             }
 
-            async addNota() {
-                const t = document.getElementById('nTexto').value.trim();
-                if(!t) return;
-                this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value, notificado: false });
-                document.getElementById('nTexto').value = ""; this.render(); await this.save();
-            }
-            async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
-
-            switch(v) {
-                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('view-' + v)?.classList.add('active');
-                document.getElementById('nav-' + v)?.classList.add('active');
-            }
-
-            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
-            openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
-            closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
-            
             initUI() { 
                 const now = new Date(); 
                 document.getElementById('nData').value = now.toISOString().split('T')[0];
@@ -475,12 +415,43 @@
                 document.getElementById('btnSomar').onclick = () => this.somar();
                 document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
                 document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
-                document.getElementById('btnAddProd').onclick = () => this.addFullProd();
+                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
+                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
                 document.getElementById('pBusca').oninput = () => this.renderProds();
                 document.getElementById('btnAddNota').onclick = () => this.addNota();
-                document.getElementById('btnAddFase').onclick = () => this.addFase();
-                document.getElementById('gGotas').oninput = (e) => { document.getElementById('gRes').innerText = (parseFloat(e.target.value)/20 || 0).toFixed(2) + " mL"; };
-                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
+            }
+
+            // Métodos de Serviços (simplificados para manter o código leve)
+            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
+            removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); }
+            updateFase(id, field, val) { const f = this.fases.find(x => x.id === id); if(f) f[field] = val; this.calcTotalFases(); }
+            calcTotalFases() {
+                let tC = 0, tM = 0, tG = 0, hasG = false, hasM = false, hasC = false;
+                this.fases.forEach(f => {
+                    let sub = (parseFloat(f.dose)||0) * (parseFloat(f.freq)||0) * (parseFloat(f.dias)||0);
+                    if(f.tipo === 'gotas') { tG += (sub/20); hasG = true; }
+                    else if(f.tipo === 'ml') { tM += sub; hasM = true; }
+                    else { tC += sub; hasC = true; }
+                });
+                let res = []; if(hasC) res.push(`${tC} Cáps`); if(hasG || hasM) res.push(`${(tM + tG).toFixed(2)} mL`);
+                document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL";
+            }
+            renderFases() {
+                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
+                <div style="border:1px solid var(--border); padding:15px; border-radius:18px; margin-bottom:12px; position:relative;">
+                    ${this.fases.length > 1 ? `<button style="position:absolute;top:5px;right:5px;width:30px;padding:5px" class="btn-red" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                        <input type="number" placeholder="Dose" value="${f.dose}" oninput="window.App.updateFase(${f.id},'dose',this.value)">
+                        <input type="number" placeholder="x/dia" value="${f.freq}" oninput="window.App.updateFase(${f.id},'freq',this.value)">
+                        <input type="number" placeholder="Dias" value="${f.dias}" oninput="window.App.updateFase(${f.id},'dias',this.value)">
+                        <select onchange="window.App.updateFase(${f.id},'tipo',this.value)">
+                            <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
+                            <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
+                            <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
+                        </select>
+                    </div>
+                </div>`).join('');
+                this.calcTotalFases();
             }
         }
 
