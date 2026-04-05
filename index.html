@@ -131,7 +131,6 @@
 
     <main class="main">
         <div class="app-container">
-            
             <div id="view-calc" class="view active">
                 <h1>Calculadora 20%</h1>
                 <div class="card">
@@ -197,7 +196,6 @@
                     <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -254,31 +252,51 @@
                 catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
             }
 
-            // CORREÇÃO: Limpeza simplificada para não travar o input
-            sanitize(val) {
-                return val.replace(',', '.').replace(/[^0-9.]/g, '');
-            }
-
+            // FUNÇÃO CORRIGIDA: Apenas extrai o valor para o cálculo, sem mexer no que o usuário vê
             calc() {
                 const input = document.getElementById('vOrig');
-                // Pegamos o valor, trocamos vírgula por ponto para o JS entender, mas não limpamos o campo visualmente ainda
-                let valNumerico = input.value.replace(',', '.');
-                const v = parseFloat(valNumerico) || 0;
-                this.tempV = v * 0.8;
-                document.getElementById('bruto').innerText = this.fmt(v);
+                // Substitui vírgula por ponto internamente para o parseFloat funcionar
+                const val = parseFloat(input.value.replace(',', '.')) || 0;
+                this.tempV = val * 0.8;
+                document.getElementById('bruto').innerText = this.fmt(val);
                 document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
-                document.getElementById('btnSomar').disabled = v <= 0;
+                document.getElementById('btnSomar').disabled = val <= 0;
             }
 
             async somar() {
                 if(this.tempV <= 0) return;
                 this.total += this.tempV;
                 const input = document.getElementById('vOrig');
-                const valRaw = parseFloat(this.sanitize(input.value)) || 0;
+                const valRaw = parseFloat(input.value.replace(',', '.')) || 0;
                 this.historico.push({o: valRaw, f: this.tempV});
                 input.value = ""; this.calc();
                 this.render(); await this.save();
                 input.focus();
+            }
+
+            // --- Restante das Funções Preservadas ---
+            setupListeners() {
+                const vOrig = document.getElementById('vOrig');
+                vOrig.oninput = () => this.calc();
+                vOrig.onkeydown = (e) => e.key === 'Enter' && this.somar();
+
+                document.getElementById('btnSomar').onclick = () => this.somar();
+                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
+                document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
+                
+                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
+                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
+                document.getElementById('pBusca').oninput = () => this.renderProds();
+                
+                document.getElementById('btnAddNota').onclick = () => this.addNota();
+                document.getElementById('btnAddFase').onclick = () => this.addFase();
+                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
+                
+                const gGotas = document.getElementById('gGotas');
+                gGotas.oninput = (e) => {
+                    let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                    document.getElementById('gRes').innerText = (val/20).toFixed(2) + " mL"; 
+                };
             }
 
             openProdModal(id = null) {
@@ -329,35 +347,6 @@
                 navigator.clipboard.writeText(txt);
                 document.getElementById('toast').style.display = 'block';
                 setTimeout(() => document.getElementById('toast').style.display = 'none', 1500);
-            }
-
-            setupListeners() {
-                const vOrig = document.getElementById('vOrig');
-                
-                // CORREÇÃO: Permitir digitar pontos e vírgulas livremente
-                vOrig.oninput = (e) => {
-                    // Remove apenas o que não for número, ponto ou vírgula
-                    e.target.value = e.target.value.replace(/[^0-9,.]/g, '');
-                    this.calc();
-                };
-                
-                vOrig.onkeydown = (e) => e.key === 'Enter' && this.somar();
-
-                document.getElementById('btnSomar').onclick = () => this.somar();
-                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
-                document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
-                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
-                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
-                document.getElementById('pBusca').oninput = () => this.renderProds();
-                document.getElementById('btnAddNota').onclick = () => this.addNota();
-                document.getElementById('btnAddFase').onclick = () => this.addFase();
-                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
-                
-                const gGotas = document.getElementById('gGotas');
-                gGotas.oninput = (e) => {
-                    let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                    document.getElementById('gRes').innerText = (val/20).toFixed(2) + " mL"; 
-                };
             }
 
             async addNota() {
