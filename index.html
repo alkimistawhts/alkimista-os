@@ -330,38 +330,85 @@
             }
 
             async execAudit() {
-                const input = document.getElementById('auditInput').value;
-                const box = document.getElementById('auditResultBox');
-                const content = document.getElementById('auditContent');
-                const status = document.getElementById('auditStatus');
-                const loading = document.getElementById('auditLoading');
-                
-                if(!input.trim()) return alert("Cole o texto da receita primeiro.");
+    const input = document.getElementById('auditInput').value;
+    const box = document.getElementById('auditResultBox');
+    const content = document.getElementById('auditContent');
+    const status = document.getElementById('auditStatus');
+    const loading = document.getElementById('auditLoading');
+    
+    if(!input.trim()) return alert("Cole o texto da receita primeiro.");
 
-                loading.style.display = 'block';
-                box.style.display = 'none';
+    loading.style.display = 'block';
+    box.style.display = 'none';
 
-                const prompt = `Você é um Consultor Farmacêutico. Analise: "${input}". Verifique se as doses excedem limites diários de segurança. Responda em HTML simples (p, b, li). Inicie com [SEGURO], [ATENÇÃO] ou [PERIGOSO]. Justifique com base em toxicidade ou posologia padrão.`;
+    // Texto do prompt
+    const promptData = {
+        contents: [{ parts: [{ text: `Você é um Consultor Farmacêutico especializado em segurança medicamentosa. Sua tarefa é analisar regimes de dosagem e identificar riscos.
 
-                try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const data = await res.json();
-                    const text = data.candidates[0].content.parts[0].text;
+**ANÁLISE O SEGUINTE REGIME:**
+"${input}"
 
-                    if(text.includes("[PERIGOSO]")) { box.style.background = "#fee2e2"; status.innerText = "🚨 RISCO DETECTADO"; status.style.color = "#b91c1c"; }
-                    else if(text.includes("[ATENÇÃO]")) { box.style.background = "#fef3c7"; status.innerText = "⚠️ ATENÇÃO"; status.style.color = "#b45309"; }
-                    else { box.style.background = "#dcfce7"; status.innerText = "✅ CONDIZENTE"; status.style.color = "#15803d"; }
+**INSTRUÇÕES ESPECÍFICAS:**
+1. Verifique doses diárias contra limites de segurança padrão (Anvisa, FDA, Bula)
+2. Considere interações medicamentosas óbvias
+3. Avalie duração do tratamento quando informada
+4. Identifique posologias incomuns ou suspeitas
 
-                    content.innerHTML = text.replace(/\[SEGURO\]|\[ATENÇÃO\]|\[PERIGOSO\]/g, "");
-                    box.style.display = 'block';
-                } catch (e) { alert("Erro ao consultar IA."); }
-                finally { loading.style.display = 'none'; }
+**FORMATO DE RESPOSTA OBRIGATÓRIO (HTML simples):**. Comece com [SEGURO], [ATENÇÃO] ou [PERIGOSO].` }] }]
+    };
+
+    // Tentaremos esses dois nomes de modelo, que são os que o erro sugere estarem "faltando"
+    const modelosParaTestar = [
+        "gemini-1.5-flash-latest", 
+        "gemini-1.5-flash"
+    ];
+
+    let sucesso = false;
+
+    for (const modelName of modelosParaTestar) {
+        if (sucesso) break;
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(promptData)
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                console.warn(`Tentativa com ${modelName} falhou, tentando próximo...`);
+                continue; // Pula para o próximo modelo da lista
             }
 
+            if (data.candidates && data.candidates[0].content) {
+                const text = data.candidates[0].content.parts[0].text;
+                
+                // Lógica de cores baseada no texto
+                if(text.includes("[PERIGOSO]")) { 
+                    box.style.background = "#fee2e2"; status.innerText = "🚨 RISCO DETECTADO"; status.style.color = "#b91c1c"; 
+                } else if(text.includes("[ATENÇÃO]")) { 
+                    box.style.background = "#fef3c7"; status.innerText = "⚠️ ATENÇÃO"; status.style.color = "#b45309"; 
+                } else { 
+                    box.style.background = "#dcfce7"; status.innerText = "✅ CONDIZENTE"; status.style.color = "#15803d"; 
+                }
+
+                content.innerHTML = text.replace(/\[SEGURO\]|\[ATENÇÃO\]|\[PERIGOSO\]/g, "");
+                box.style.display = 'block';
+                sucesso = true;
+            }
+        } catch (e) {
+            console.error("Erro na tentativa:", e);
+        }
+    }
+
+    loading.style.display = 'none';
+
+    if (!sucesso) {
+        alert("Não foi possível conectar com os modelos Gemini 1.5. Verifique se sua chave de API no Google AI Studio tem permissão para 'Pay-as-you-go' ou se é uma chave Gratuita de região suportada.");
+    }
+}
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
                 this.resetProdForm();
