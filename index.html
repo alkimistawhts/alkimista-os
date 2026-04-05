@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.1 - Shared Catalog</title>
+    <title>Alkimista OS v13.1 - Notificações Ativas</title>
     
     <style>
         :root {
@@ -26,8 +26,7 @@
         .modal-container { background: var(--bg-card); width: 95%; max-width: 400px; padding: 30px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
 
         #view-login { z-index: 9999; background: var(--bg-body); display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-        .login-card h1 { font-size: 2rem; color: var(--bg-sidebar); margin-bottom: 10px; text-align: center; }
-
+        
         .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); height: 100vh; display: flex; flex-direction: column; padding: 20px 10px; position: fixed; left: 0; top: 0; z-index: 2000; overflow: hidden; white-space: nowrap; }
         .sidebar:hover { width: 220px; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
         .nav-item { width: 100%; height: 50px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; padding: 0 13px; cursor: pointer; color: white; opacity: 0.6; }
@@ -67,7 +66,6 @@
         .btn-gray { background: #64748b; }
         .btn-outline { background: transparent; border: 2px dashed var(--accent); color: var(--accent); }
         .theme-fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--bg-sidebar); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; z-index: 1000; }
-
         #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; z-index: 5000; display: none; }
 
         @media (max-width: 600px) {
@@ -95,26 +93,11 @@
 
     <div id="toast">Copiado!</div>
 
-    <div id="editOverlay" class="overlay">
-        <div class="modal-container">
-            <h2>📝 Editar Produto</h2>
-            <input type="hidden" id="editId">
-            <input type="text" id="editNome" placeholder="Nome">
-            <input type="text" id="editAtivos" placeholder="Ativos">
-            <input type="text" id="editServe" placeholder="Indicação">
-            <textarea id="editPoso" rows="4" placeholder="Posologia"></textarea>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-gray" onclick="window.App.closeEdit()" style="margin-bottom:0">Voltar</button>
-                <button class="btn-blue" onclick="window.App.saveEdit()" style="margin-bottom:0">Atualizar</button>
-            </div>
-        </div>
-    </div>
-
     <div id="confirmOverlay" class="overlay">
         <div class="modal-container" style="text-align: center; max-width: 320px;">
             <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
             <h2 style="color: var(--text-main); margin-bottom: 10px;">Tem certeza?</h2>
-            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px;">Esta ação não pode ser desfeita e afetará os dados salvos.</p>
+            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 25px;">Esta ação não pode ser desfeita.</p>
             <div style="display: flex; gap: 10px;">
                 <button class="btn-gray" onclick="window.App.closeConfirm()" style="margin-bottom: 0;">Cancelar</button>
                 <button class="btn-red" id="confirmActionBtn" style="margin-bottom: 0;">Sim, Excluir</button>
@@ -134,6 +117,7 @@
 
     <main class="main">
         <div class="app-container">
+            
             <div id="view-calc" class="view active">
                 <h1>Calculadora 20%</h1>
                 <div class="card">
@@ -170,7 +154,7 @@
             </div>
 
             <div id="view-notes" class="view">
-                <h1>Anotações</h1>
+                <h1>Anotações Agendadas</h1>
                 <div class="card">
                     <select id="nCat">
                         <option value="aviso">🔵 Aviso</option>
@@ -182,7 +166,7 @@
                         <input type="time" id="nHora">
                     </div>
                     <textarea id="nTexto" rows="3" placeholder="Escreva aqui..."></textarea>
-                    <button class="btn-blue" id="btnAddNota">Salvar</button>
+                    <button class="btn-blue" id="btnAddNota">Salvar e Agendar</button>
                 </div>
                 <div id="notasLista"></div>
             </div>
@@ -200,7 +184,7 @@
                     <button class="btn-gray" id="btnResetFases">Limpar Campos</button>
                 </div>
                 <div class="card">
-                    <h2>💧 Gotas para mL (Rápido)</h2>
+                    <h2>💧 Gotas para mL</h2>
                     <input type="number" id="gGotas" placeholder="Número de Gotas">
                     <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
                 </div>
@@ -210,7 +194,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -239,63 +223,65 @@
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 
                 this.initAuth();
+                this.setupNotifications();
+                setInterval(() => this.checkScheduledNotes(), 30000);
             }
 
+            // --- NOTIFICAÇÕES ---
+            async setupNotifications() {
+                if ('Notification' in window) {
+                    if (Notification.permission !== 'granted') await Notification.requestPermission();
+                }
+            }
+
+            checkScheduledNotes() {
+                const agora = new Date();
+                const d = agora.toISOString().split('T')[0];
+                const h = agora.toTimeString().slice(0, 5);
+
+                this.notas.forEach(n => {
+                    if (n.data === d && n.hora === h && !n.notificado) {
+                        this.triggerPush(n.txt);
+                        n.notificado = true;
+                        this.save();
+                        this.render();
+                    }
+                });
+            }
+
+            triggerPush(msg) {
+                if (Notification.permission === "granted") {
+                    new Notification("Alkimista OS", { body: msg, silent: true });
+                }
+            }
+
+            // --- AUTH ---
             initAuth() {
                 onAuthStateChanged(auth, async (user) => {
                     const loginDiv = document.getElementById('view-login');
                     if (user) {
                         this.user = user;
-                        loginDiv.classList.remove('active');
                         loginDiv.style.display = 'none';
                         await this.loadFromCloud();
                         this.setupListeners();
                         this.initUI();
                     } else {
-                        loginDiv.classList.add('active');
                         loginDiv.style.display = 'flex';
-                        this.setupLoginListeners();
+                        document.getElementById('btnLogin').onclick = () => this.handleLogin();
                     }
                 });
-            }
-
-            setupLoginListeners() {
-                document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
-                const err = document.getElementById('loginError');
                 if(!u || !p) return;
-                try {
-                    await signInWithEmailAndPassword(auth, u + DOMAIN, p);
-                } catch (e) {
-                    err.innerText = "Erro ao acessar. Verifique usuário e senha.";
-                    err.style.display = 'block';
-                }
-            }
-
-            // FUNÇÃO INVISÍVEL PARA CADASTRAR OS 6 ADMINS (Usar via console F12)
-            async adminCreate() {
-                const key = prompt("Chave Mestre");
-                if(key !== "@Alk1mista_@2026@") return alert("Negado");
-                
-                const user = prompt("Novo Usuário:");
-                const pass = prompt("Senha (min 5):");
-                
-                try {
-                    const res = await createUserWithEmailAndPassword(auth, user + DOMAIN, pass);
-                    await setDoc(doc(db, "usuarios", res.user.uid), {
-                        isAdmin: true,
-                        nome: user
-                    });
-                    alert("Admin " + user + " criado!");
-                } catch(e) { alert(e.message); }
+                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } catch(e) { alert("Erro no login"); }
             }
 
             async logout() { await signOut(auth); location.reload(); }
 
+            // --- NAVEGAÇÃO E UI ---
             initUI() {
                 this.setDefaultDate();
                 if(this.isDark) document.body.classList.add('dark-mode');
@@ -303,57 +289,16 @@
                 this.renderFases();
             }
 
-            async save() {
-                if(!this.user) return;
-                try {
-                    await setDoc(doc(db, "usuarios", this.user.uid), {
-                        total: this.total, 
-                        historico: this.historico,
-                        notas: this.notas, 
-                        isDark: this.isDark
-                    }, { merge: true });
-
-                    await setDoc(doc(db, "configuracoes", "catalogo"), {
-                        produtos: this.produtos
-                    });
-                } catch (e) { console.error("Erro ao salvar:", e); }
-            }
-
-            async loadFromCloud() {
-                try {
-                    const d = await getDoc(doc(db, "usuarios", this.user.uid));
-                    if(d.exists()) {
-                        const data = d.data();
-                        this.total = data.total || 0;
-                        this.historico = data.historico || [];
-                        this.notas = data.notas || [];
-                        this.isDark = data.isDark || false;
-                    }
-
-                    const dCat = await getDoc(doc(db, "configuracoes", "catalogo"));
-                    if(dCat.exists()) {
-                        this.produtos = dCat.data().produtos || [];
-                    }
-                } catch (e) { console.error("Erro ao carregar:", e); }
-            }
-
-            setDefaultDate() {
-                const now = new Date();
-                document.getElementById('nData').value = now.toISOString().split('T')[0];
-                document.getElementById('nHora').value = now.toTimeString().slice(0,5);
-            }
-
             switch(v) {
                 document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                const targetView = document.getElementById('view-' + v);
-                const targetNav = document.getElementById('nav-' + v);
-                if(targetView) targetView.classList.add('active');
-                if(targetNav) targetNav.classList.add('active');
+                document.getElementById('view-' + v)?.classList.add('active');
+                document.getElementById('nav-' + v)?.classList.add('active');
             }
 
             toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
 
+            // --- CALCULADORA ---
             calc() {
                 const v = parseFloat(document.getElementById('vOrig').value) || 0;
                 this.tempV = v * 0.8;
@@ -367,48 +312,14 @@
                 if(!vOrig || vOrig <= 0) return;
                 this.total += this.tempV;
                 this.historico.push({o: vOrig, f: this.tempV});
-                this.limparCalc();
-                this.render();
-                await this.save();
+                document.getElementById('vOrig').value = ""; this.calc();
+                this.render(); await this.save();
                 document.getElementById('vOrig').focus();
             }
 
-            limparCalc() { 
-                document.getElementById('vOrig').value = ""; 
-                this.calc(); 
-            }
+            async resetTotal() { this.openConfirm(async () => { this.total = 0; this.historico = []; this.render(); await this.save(); }); }
 
-            openConfirm(callback) {
-                const overlay = document.getElementById('confirmOverlay');
-                const btn = document.getElementById('confirmActionBtn');
-                overlay.classList.add('active');
-                btn.onclick = () => {
-                    callback();
-                    this.closeConfirm();
-                };
-            }
-
-            closeConfirm() {
-                document.getElementById('confirmOverlay').classList.remove('active');
-            }
-
-            async resetTotal() { 
-                this.openConfirm(async () => {
-                    this.total = 0; 
-                    this.historico = []; 
-                    this.render(); 
-                    await this.save(); 
-                });
-            }
-
-            async delProd(id) { 
-                this.openConfirm(async () => {
-                    this.produtos = this.produtos.filter(p => p.id !== id); 
-                    this.renderProds(); 
-                    await this.save(); 
-                });
-            }
-
+            // --- SERVIÇOS ---
             calcGotasRapido() {
                 const g = parseFloat(document.getElementById('gGotas').value) || 0;
                 document.getElementById('gRes').innerText = (g / 20).toFixed(2) + " mL";
@@ -416,11 +327,7 @@
 
             addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
             removeFase(id) { if(this.fases.length > 1) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); } }
-            updateFase(id, field, value) { 
-                const f = this.fases.find(x => x.id === id); 
-                if(f) f[field] = value; 
-                this.calcTotalFases(); 
-            }
+            updateFase(id, field, val) { const f = this.fases.find(x => x.id === id); if(f) f[field] = val; this.calcTotalFases(); }
             
             calcTotalFases() {
                 let tC = 0, tM = 0, tG = 0, hasG = false, hasM = false, hasC = false;
@@ -438,143 +345,115 @@
 
             renderFases() {
                 document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
-                    <div class="fase-box">
-                        ${this.fases.length > 1 ? `<button class="btn-remove-fase" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
-                        <label>Fase ${i + 1}</label>
-                        <div class="grid-fase">
-                            <div><label>Dose</label><input type="number" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)"></div>
-                            <div><label>Vezes/d</label><input type="number" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)"></div>
-                            <div><label>Dias</label><input type="number" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)"></div>
-                            <div><label>Tipo</label>
-                                <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
-                                    <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
-                                    <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
-                                    <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
-                                </select>
-                            </div>
+                <div class="fase-box">
+                    ${this.fases.length > 1 ? `<button class="btn-remove-fase" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
+                    <label>Fase ${i + 1}</label>
+                    <div class="grid-fase">
+                        <div><label>Dose</label><input type="number" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)"></div>
+                        <div><label>x/dia</label><input type="number" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)"></div>
+                        <div><label>Dias</label><input type="number" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)"></div>
+                        <div><label>Tipo</label>
+                            <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
+                                <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
+                                <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
+                                <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
+                            </select>
                         </div>
-                    </div>`).join('');
+                    </div>
+                </div>`).join('');
                 this.calcTotalFases();
             }
 
-            resetFases() { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); }
-
+            // --- PRODUTOS ---
             async addFullProd() {
                 const p = { id: Date.now(), nome: document.getElementById('pNome').value, ativos: document.getElementById('pAtivos').value, serve: document.getElementById('pServe').value, poso: document.getElementById('pPoso').value };
-                if(p.nome) { 
-                    this.produtos.push(p); 
-                    ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); 
-                    this.renderProds(); 
-                    await this.save(); 
-                }
+                if(p.nome) { this.produtos.push(p); this.renderProds(); await this.save(); ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
             }
 
             renderProds() {
                 const b = document.getElementById('pBusca').value.toLowerCase();
                 const f = this.produtos.filter(p => (p.nome||'').toLowerCase().includes(b) || (p.ativos||'').toLowerCase().includes(b));
-                const list = document.getElementById('prodLista');
-                if(list) {
-                    list.innerHTML = f.slice().reverse().map(p => `
-                    <div class="prod-card">
-                        <div style="color:var(--accent);font-weight:800">${p.nome}</div>
-                        <div style="font-size:0.85rem;margin:8px 0">
-                            <b>Ativos:</b> ${p.ativos}<br>
-                            <b>Indicação:</b> ${p.serve}<br>
-                            <b>Posologia:</b> ${p.poso}
-                        </div>
-                        <div style="display:flex;gap:5px">
-                            <button class="btn-blue" style="flex:2" onclick="window.App.copyProd(${p.id})">📋 COPIAR</button>
-                            <button class="btn-gray" style="flex:1" onclick="window.App.editProd(${p.id})">EDITAR</button>
-                            <button class="btn-red" style="width:40px" onclick="window.App.delProd(${p.id})">X</button>
-                        </div>
-                    </div>`).join('');
-                }
+                document.getElementById('prodLista').innerHTML = f.slice().reverse().map(p => `
+                <div class="prod-card">
+                    <div style="color:var(--accent);font-weight:800">${p.nome}</div>
+                    <div style="font-size:0.85rem;margin:8px 0"><b>Ativos:</b> ${p.ativos}<br><b>Indicação:</b> ${p.serve}</div>
+                    <div style="display:flex;gap:5px">
+                        <button class="btn-blue" onclick="window.App.copyProd(${p.id})">COPIAR</button>
+                        <button class="btn-red" style="width:50px" onclick="window.App.delProd(${p.id})">X</button>
+                    </div>
+                </div>`).join('');
             }
 
             copyProd(id) {
                 const p = this.produtos.find(x => x.id === id);
-                const txt = `*PRODUTO:* ${p.nome}\n \n*INDICAÇÃO:* ${p.serve || ''}\n \n*COMPOSIÇÃO:* ${p.ativos}`;
-                navigator.clipboard.writeText(txt).then(() => {
-                    const t = document.getElementById('toast'); t.style.display = 'block';
-                    setTimeout(() => t.style.display = 'none', 2000);
-                });
+                navigator.clipboard.writeText(`*PRODUTO:* ${p.nome}\n*INDICAÇÃO:* ${p.serve}\n*COMPOSIÇÃO:* ${p.ativos}`);
+                document.getElementById('toast').style.display = 'block'; setTimeout(() => document.getElementById('toast').style.display = 'none', 2000);
             }
 
-            editProd(id) { 
-                const p = this.produtos.find(x => x.id === id); 
-                ['Id','Nome','Ativos','Serve','Poso'].forEach(f => document.getElementById('edit'+f).value = p[f.toLowerCase()] || ""); 
-                document.getElementById('editOverlay').classList.add('active'); 
-            }
-            
-            async saveEdit() { 
-                const id = parseInt(document.getElementById('editId').value); 
-                this.produtos = this.produtos.map(p => p.id === id ? {id, nome: document.getElementById('editNome').value, ativos: document.getElementById('editAtivos').value, serve: document.getElementById('editServe').value, poso: document.getElementById('editPoso').value} : p); 
-                this.closeEdit(); 
-                this.renderProds(); 
-                await this.save(); 
-            }
-            
-            closeEdit() { document.getElementById('editOverlay').classList.remove('active'); }
-            
+            async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
+
+            // --- NOTAS ---
             async addNota() {
                 const t = document.getElementById('nTexto').value.trim();
                 if(t) {
-                    this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value });
-                    document.getElementById('nTexto').value = ""; 
-                    this.render(); 
-                    await this.save();
+                    this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value, notificado: false });
+                    document.getElementById('nTexto').value = ""; this.render(); await this.save();
                 }
             }
 
-            async delNota(id) { 
-                this.openConfirm(async () => {
-                    this.notas = this.notas.filter(n => n.id !== id); 
-                    this.render(); 
-                    await this.save(); 
-                });
+            async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
+
+            // --- CLOUD ---
+            async save() {
+                if(!this.user) return;
+                await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true });
+                await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos });
             }
 
+            async loadFromCloud() {
+                const d = await getDoc(doc(db, "usuarios", this.user.uid));
+                if(d.exists()) {
+                    const data = d.data();
+                    this.total = data.total || 0; this.historico = data.historico || [];
+                    this.notas = data.notas || []; this.isDark = data.isDark || false;
+                }
+                const dCat = await getDoc(doc(db, "configuracoes", "catalogo"));
+                if(dCat.exists()) this.produtos = dCat.data().produtos || [];
+            }
+
+            // --- HELPERS ---
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+            setDefaultDate() { const now = new Date(); document.getElementById('nData').value = now.toISOString().split('T')[0]; document.getElementById('nHora').value = now.toTimeString().slice(0,5); }
+            openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
+            closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
 
             render() {
                 document.getElementById('totalVal').innerText = this.fmt(this.total);
-                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
-                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;border-bottom:1px solid var(--border);padding:4px 0">
-                        <span>De ${this.fmt(parseFloat(h.o))}</span>
-                        <b>→ ${this.fmt(h.f)}</b>
-                    </div>`).join('');
+                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `<div class="display-line" style="font-size:0.8rem; border-bottom:1px solid var(--border)"><span>De ${this.fmt(h.o)}</span><b>→ ${this.fmt(h.f)}</b></div>`).join('');
                 document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `
                     <div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}">
                         <div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6">
-                            <span>${n.data.split('-').reverse().join('/')} ${n.hora}</span>
+                            <span>📅 ${n.data.split('-').reverse().join('/')} às ${n.hora}</span>
                             <span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span>
                         </div>
                         <b style="display:block;margin-top:5px">${n.txt}</b>
+                        ${n.notificado ? '<small style="color:green">✓ Notificado</small>' : '<small style="opacity:0.5">⏳ Agendado</small>'}
                     </div>`).join('');
                 this.renderProds();
             }
 
             setupListeners() {
-                const vOrig = document.getElementById('vOrig');
-                vOrig.oninput = () => this.calc();
-                vOrig.onkeydown = (e) => { if(e.key === 'Enter') this.somar(); };
-                
+                document.getElementById('vOrig').oninput = () => this.calc();
+                document.getElementById('vOrig').onkeydown = (e) => e.key === 'Enter' && this.somar();
                 document.getElementById('btnSomar').onclick = () => this.somar();
-                document.getElementById('btnLimpar').onclick = () => this.limparCalc();
                 document.getElementById('btnResetTotal').onclick = () => this.resetTotal();
-                document.getElementById('gGotas').oninput = () => this.calcGotasRapido();
-                document.getElementById('btnAddFase').onclick = () => this.addFase();
-                document.getElementById('btnResetFases').onclick = () => this.resetFases();
                 document.getElementById('btnAddProd').onclick = () => this.addFullProd();
                 document.getElementById('pBusca').oninput = () => this.renderProds();
                 document.getElementById('btnAddNota').onclick = () => this.addNota();
-                
-                window.onclick = (e) => { 
-                    if(e.target.classList.contains('overlay')) {
-                        this.closeEdit(); 
-                        this.closeConfirm();
-                    }
-                };
+                document.getElementById('btnAddFase').onclick = () => this.addFase();
+                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
+                document.getElementById('gGotas').oninput = () => this.calcGotasRapido();
+                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
             }
         }
 
