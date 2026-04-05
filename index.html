@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.4</title>
+    <title>Alkimista OS v13.5 - Final</title>
     
     <style>
         :root {
@@ -77,7 +77,6 @@
     <div id="view-login" class="overlay">
         <div class="modal-container">
             <h1 style="color:var(--bg-sidebar)">Alkimista OS</h1>
-            <p style="margin-bottom: 20px; opacity: 0.6; text-align: center;">Acesso Restrito</p>
             <input type="text" id="loginUser" placeholder="Seu usuário">
             <input type="password" id="loginPass" placeholder="Sua senha">
             <button class="btn-blue" id="btnLogin">Entrar</button>
@@ -110,10 +109,9 @@
         <div class="modal-container" style="text-align: center; max-width: 320px;">
             <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
             <h2>Tem certeza?</h2>
-            <p style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 25px;">Esta ação não pode ser desfeita.</p>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-gray" onclick="window.App.closeConfirm()" style="margin-bottom: 0;">Voltar</button>
-                <button class="btn-red" id="confirmActionBtn" style="margin-bottom: 0;">Confirmar</button>
+                <button class="btn-gray" onclick="window.App.closeConfirm()">Voltar</button>
+                <button class="btn-red" id="confirmActionBtn">Confirmar</button>
             </div>
         </div>
     </div>
@@ -223,11 +221,10 @@
             constructor() {
                 this.user = null; this.isAdmin = false;
                 this.total = 0; this.historico = []; this.notas = []; this.produtos = [];
-                this.isDark = false; this.tempV = 0;
+                this.isDark = false; this.tempV = 0; this.listenersLoaded = false;
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 this.initAuth();
-                this.setupNotifications();
-                setInterval(() => this.checkScheduledNotes(), 10000); // Checa a cada 10 seg
+                setInterval(() => this.checkScheduledNotes(), 30000);
             }
 
             initAuth() {
@@ -239,7 +236,7 @@
                         document.getElementById('view-login').style.display = 'none';
                         document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
                         await this.loadFromCloud();
-                        this.setupListeners(); 
+                        if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
                         this.initUI();
                     } else {
                         document.getElementById('view-login').style.display = 'flex';
@@ -251,19 +248,8 @@
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
-                if(!u || !p) return;
-                try {
-                    await signInWithEmailAndPassword(auth, u + DOMAIN, p);
-                } catch(e) {
-                    const err = document.getElementById('loginError');
-                    err.innerText = "Usuário ou senha inválidos."; err.style.display = 'block';
-                }
-            }
-
-            setupNotifications() {
-                if ('Notification' in window && Notification.permission !== 'granted') {
-                    Notification.requestPermission();
-                }
+                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } 
+                catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
             }
 
             checkScheduledNotes() {
@@ -273,11 +259,8 @@
                 let mudou = false;
                 this.notas.forEach(n => {
                     if (n.data === d && n.hora === h && !n.notificado) {
-                        if (Notification.permission === "granted") {
-                            new Notification("Alkimista OS", { body: n.txt, icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png' });
-                        } else {
-                            alert("AGENDA: " + n.txt);
-                        }
+                        if (Notification.permission === "granted") { new Notification("Agenda Alkimista", { body: n.txt }); }
+                        else { alert("Lembrete: " + n.txt); }
                         n.notificado = true; mudou = true;
                     }
                 });
@@ -313,10 +296,8 @@
                     document.getElementById('pAtivos').value = p.ativos;
                     document.getElementById('pServe').value = p.serve;
                     document.getElementById('pPoso').value = p.poso;
-                    document.getElementById('modalProdTitle').innerText = "Editar: " + p.nome;
-                } else {
-                    document.getElementById('modalProdTitle').innerText = "Novo Produto";
-                }
+                    document.getElementById('modalProdTitle').innerText = "Editar Produto";
+                } else { document.getElementById('modalProdTitle').innerText = "Novo Produto"; }
                 document.getElementById('modalProd').classList.add('active');
             }
 
@@ -327,10 +308,8 @@
                 const id = document.getElementById('pId').value;
                 const p = { id: id ? parseInt(id) : Date.now(), nome: document.getElementById('pNome').value, ativos: document.getElementById('pAtivos').value, serve: document.getElementById('pServe').value, poso: document.getElementById('pPoso').value };
                 if(!p.nome) return;
-                if(id) {
-                    const idx = this.produtos.findIndex(x => x.id === p.id);
-                    if(idx !== -1) this.produtos[idx] = p;
-                } else { this.produtos.push(p); }
+                if(id) { const idx = this.produtos.findIndex(x => x.id == id); if(idx!=-1) this.produtos[idx] = p; }
+                else { this.produtos.push(p); }
                 await this.save(); this.renderProds(); this.closeProdModal();
             }
 
@@ -349,9 +328,28 @@
                 </div>`).join('');
             }
 
-            resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
+            copyProd(id) {
+                const p = this.produtos.find(x => x.id === id);
+                const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}`;
+                navigator.clipboard.writeText(txt);
+                document.getElementById('toast').style.display = 'block';
+                setTimeout(() => document.getElementById('toast').style.display = 'none', 1500);
+            }
 
-            async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
+            setupListeners() {
+                document.getElementById('vOrig').addEventListener('input', () => this.calc());
+                document.getElementById('vOrig').addEventListener('keydown', (e) => e.key === 'Enter' && this.somar());
+                document.getElementById('btnSomar').onclick = () => this.somar();
+                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
+                document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
+                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
+                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
+                document.getElementById('pBusca').oninput = () => this.renderProds();
+                document.getElementById('btnAddNota').onclick = () => this.addNota();
+                document.getElementById('btnAddFase').onclick = () => this.addFase();
+                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
+                document.getElementById('gGotas').oninput = (e) => { document.getElementById('gRes').innerText = (parseFloat(e.target.value)/20 || 0).toFixed(2) + " mL"; };
+            }
 
             async addNota() {
                 const t = document.getElementById('nTexto').value.trim();
@@ -359,118 +357,30 @@
                 this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value, notificado: false });
                 document.getElementById('nTexto').value = ""; this.render(); await this.save();
             }
+
             async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
-
-            async save() {
-                if(!this.user) return;
-                await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true });
-                if(this.isAdmin) await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos });
-            }
-
-            async loadFromCloud() {
-                const uD = await getDoc(doc(db, "usuarios", this.user.uid));
-                if(uD.exists()) {
-                    const d = uD.data();
-                    this.total = d.total || 0; this.historico = d.historico || [];
-                    this.notas = d.notas || []; this.isDark = d.isDark || false;
-                }
-                const cD = await getDoc(doc(db, "configuracoes", "catalogo"));
-                if(cD.exists()) this.produtos = cD.data().produtos || [];
-            }
-
+            async save() { if(this.user) { await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true }); if(this.isAdmin) await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos }); } }
+            async loadFromCloud() { const uD = await getDoc(doc(db, "usuarios", this.user.uid)); if(uD.exists()) { const d = uD.data(); this.total = d.total||0; this.historico = d.historico||[]; this.notas = d.notas||[]; this.isDark = d.isDark||false; } const cD = await getDoc(doc(db, "configuracoes", "catalogo")); if(cD.exists()) this.produtos = cD.data().produtos||[]; }
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-            copyProd(id) {
-                const p = this.produtos.find(x => x.id === id);
-                navigator.clipboard.writeText(`*PRODUTO:* ${p.nome}\n*INDICAÇÃO:* ${p.serve}\n*COMPOSIÇÃO:* ${p.ativos}`);
-                document.getElementById('toast').style.display = 'block';
-                setTimeout(() => document.getElementById('toast').style.display = 'none', 1500);
-            }
-
-            switch(v) {
-                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('view-' + v)?.classList.add('active');
-                document.getElementById('nav-' + v)?.classList.add('active');
-            }
-
+            switch(v) { document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active')); document.getElementById('view-' + v)?.classList.add('active'); document.getElementById('nav-' + v)?.classList.add('active'); }
             toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
             openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
             closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
-
-            render() {
-                document.getElementById('totalVal').innerText = this.fmt(this.total);
-                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
-                    <div class="display-line" style="font-size:0.8rem; border-bottom:1px solid var(--border)">
-                        <span>De ${this.fmt(h.o)}</span><b>→ ${this.fmt(h.f)}</b>
-                    </div>`).join('');
-                document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}">
-                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6">
-                            <span>📅 ${n.data.split('-').reverse().join('/')} às ${n.hora}</span>
-                            <span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span>
-                        </div>
-                        <b style="display:block;margin-top:5px">${n.txt}</b>
-                    </div>`).join('');
-                this.renderProds();
-            }
-
-            initUI() { 
-                const now = new Date(); 
-                document.getElementById('nData').value = now.toISOString().split('T')[0];
-                document.getElementById('nHora').value = now.toTimeString().slice(0,5);
-                if(this.isDark) document.body.classList.add('dark-mode'); 
-                this.render(); this.renderFases(); 
-            }
-
-            setupListeners() {
-                // CORREÇÃO CALCULADORA: Reatribuindo eventos corretamente
-                const vOrig = document.getElementById('vOrig');
-                vOrig.oninput = () => this.calc();
-                vOrig.onkeydown = (e) => { if(e.key === 'Enter') this.somar(); };
-                
-                document.getElementById('btnSomar').onclick = () => this.somar();
-                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
-                document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
-                
-                // PRODUTOS
-                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
-                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
-                document.getElementById('pBusca').oninput = () => this.renderProds();
-                
-                // NOTAS
-                document.getElementById('btnAddNota').onclick = () => this.addNota();
-
-                // CORREÇÃO SERVIÇOS: Adicionar Fase e Gotas
-                document.getElementById('btnAddFase').onclick = () => this.addFase();
-                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
-                
-                const gGotas = document.getElementById('gGotas');
-                gGotas.oninput = (e) => {
-                    const res = (parseFloat(e.target.value) / 20) || 0;
-                    document.getElementById('gRes').innerText = res.toFixed(2) + " mL";
-                };
-            }
-
-            async logout() { await signOut(auth); location.reload(); }
-
-            addFase() { 
-                this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); 
-                this.renderFases(); 
-            }
+            resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
+            async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
+            
+            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
             removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); }
             updateFase(id, field, val) { const f = this.fases.find(x => x.id === id); if(f) f[field] = val; this.calcTotalFases(); }
-            
             calcTotalFases() {
                 let tC = 0, tM = 0, tG = 0, hasG = false, hasM = false, hasC = false;
                 this.fases.forEach(f => {
                     let sub = (parseFloat(f.dose)||0) * (parseFloat(f.freq)||0) * (parseFloat(f.dias)||0);
-                    if(f.tipo === 'gotas') { tG += (sub/20); hasG = true; }
-                    else if(f.tipo === 'ml') { tM += sub; hasM = true; }
-                    else { tC += sub; hasC = true; }
+                    if(f.tipo === 'gotas') { tG += (sub/20); hasG = true; } else if(f.tipo === 'ml') { tM += sub; hasM = true; } else { tC += sub; hasC = true; }
                 });
                 let res = []; if(hasC) res.push(`${tC} Cáps`); if(hasG || hasM) res.push(`${(tM + tG).toFixed(2)} mL`);
                 document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL";
             }
-
             renderFases() {
                 document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
                 <div style="border:1px solid var(--border); padding:15px; border-radius:18px; margin-bottom:12px; position:relative;">
@@ -479,17 +389,24 @@
                         <div><label>Dose</label><input type="number" value="${f.dose}" oninput="window.App.updateFase(${f.id},'dose',this.value)"></div>
                         <div><label>x/dia</label><input type="number" value="${f.freq}" oninput="window.App.updateFase(${f.id},'freq',this.value)"></div>
                         <div><label>Dias</label><input type="number" value="${f.dias}" oninput="window.App.updateFase(${f.id},'dias',this.value)"></div>
-                        <div><label>Tipo</label>
-                            <select onchange="window.App.updateFase(${f.id},'tipo',this.value)">
-                                <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
-                                <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
-                                <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
-                            </select>
-                        </div>
+                        <div><label>Tipo</label><select onchange="window.App.updateFase(${f.id},'tipo',this.value)"><option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option><option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option><option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option></select></div>
                     </div>
                 </div>`).join('');
                 this.calcTotalFases();
             }
+
+            render() {
+                document.getElementById('totalVal').innerText = this.fmt(this.total);
+                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `<div class="display-line" style="font-size:0.8rem; border-bottom:1px solid var(--border)"><span>De ${this.fmt(h.o)}</span><b>→ ${this.fmt(h.f)}</b></div>`).join('');
+                document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `<div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}"><div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6"><span>📅 ${n.data.split('-').reverse().join('/')} ${n.hora}</span><span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span></div><b>${n.txt}</b></div>`).join('');
+                this.renderProds();
+            }
+
+            initUI() { 
+                const now = new Date(); document.getElementById('nData').value = now.toISOString().split('T')[0]; document.getElementById('nHora').value = now.toTimeString().slice(0,5);
+                if(this.isDark) document.body.classList.add('dark-mode'); this.render(); this.renderFases(); 
+            }
+            async logout() { await signOut(auth); location.reload(); }
         }
 
         window.App = new AlkimistaApp();
