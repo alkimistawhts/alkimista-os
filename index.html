@@ -4,22 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.7</title>
+    <title>Alkimista OS v13.9 - Design Refinado</title>
     
     <style>
         :root {
             --bg-body: #f1f5f9; --bg-sidebar: #0047AB; --bg-card: #ffffff;
             --text-main: #1e293b; --text-sub: #64748b; --accent: #3b82f6; --border: #e2e8f0;
             --sidebar-w: 70px; --danger: #ef4444; --success: #10b981;
+            /* Nova cor de destaque: Azul Pastel Suave */
+            --highlight-bg: rgba(59, 130, 246, 0.15); 
         }
 
         .dark-mode {
             --bg-body: #0f172a; --bg-sidebar: #1e293b; --bg-card: #1e293b;
             --text-main: #f8fafc; --text-sub: #94a3b8; --accent: #38bdf8; --border: #334155;
+            /* Destaque no modo escuro: Azul Royal Suave */
+            --highlight-bg: rgba(0, 71, 171, 0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.15s ease; }
         body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); overflow-x: hidden; }
+
+        /* ESTILO REFINADO PARA O DESTAQUE DA BUSCA (Removido o Amarelo) */
+        mark { 
+            background: var(--highlight-bg); 
+            color: var(--bg-sidebar); /* Texto na cor azul royal do tema */
+            border-radius: 4px; 
+            padding: 1px 3px; 
+            font-weight: 600; /* Levemente negrito para destacar */
+        }
+
+        .dark-mode mark {
+            color: var(--accent); /* No modo escuro, texto azul claro */
+        }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 15px; }
         .overlay.active { display: flex; }
@@ -152,7 +169,7 @@
             <div id="view-prod" class="view">
                 <h1>Catálogo Alkimista</h1>
                 <button class="btn-blue" id="btnAbreNovoProd" style="display:none; margin-bottom:15px">+ Adicionar Novo Produto</button>
-                <input type="text" id="pBusca" placeholder="🔍 Buscar no catálogo..." style="margin-bottom:15px">
+                <input type="text" id="pBusca" placeholder="🔍 Buscar por nome, ativos ou indicação..." style="margin-bottom:15px">
                 <div id="prodLista"></div>
             </div>
 
@@ -260,22 +277,13 @@
                 const d = agora.toISOString().split('T')[0];
                 const h = agora.toTimeString().slice(0, 5);
                 let mudou = false;
-                
                 this.notas.forEach(n => {
                     if (n.data === d && n.hora === h && !n.notificado) {
                         if (Notification.permission === "granted") {
-                            // Envia via Service Worker para suporte Mobile Push e Windows
                             navigator.serviceWorker.ready.then(reg => {
-                                reg.showNotification("AGENDA ALKIMISTA", {
-                                    body: n.txt,
-                                    icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
-                                    badge: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
-                                    vibrate: [200, 100, 200]
-                                });
+                                reg.showNotification("AGENDA ALKIMISTA", { body: n.txt, icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png' });
                             });
-                        } else {
-                            alert("AGENDA: " + n.txt);
-                        }
+                        } else { alert("AGENDA: " + n.txt); }
                         n.notificado = true; mudou = true;
                     }
                 });
@@ -335,13 +343,39 @@
                 await this.save(); this.renderProds(); this.closeProdModal();
             }
 
+            // --- PESQUISA MELHORADA COM DESTAQUE REFINADO (SEM AMARELO) ---
+            highlightText(text, searchTerms) {
+                if (!searchTerms.length || !text) return text;
+                // Escapar termos especiais de Regex para evitar erros se o usuário digitar parênteses, etc.
+                const escapedTerms = searchTerms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                
+                let highlighted = text;
+                escapedTerms.forEach(term => {
+                    if (term.length < 2) return;
+                    // Cria uma regex para encontrar todas as ocorrências de forma insensível a maiúsculas
+                    const regex = new RegExp(`(${term})`, 'gi');
+                    // Substitui pela tag mark que agora tem estilo azul refinado no CSS
+                    highlighted = highlighted.replace(regex, '<mark>$1</mark>');
+                });
+                return highlighted;
+            }
+
             renderProds() {
-                const b = document.getElementById('pBusca').value.toLowerCase();
-                const f = this.produtos.filter(p => (p.nome||'').toLowerCase().includes(b) || (p.ativos||'').toLowerCase().includes(b));
-                document.getElementById('prodLista').innerHTML = f.slice().reverse().map(p => `
+                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
+                const termos = buscaInput.split(' ').filter(t => t.length > 0);
+                
+                const filtrados = this.produtos.filter(p => {
+                    const textoBusca = `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase();
+                    return termos.every(termo => textoBusca.includes(termo));
+                });
+
+                document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
                 <div class="prod-card">
-                    <div style="color:var(--accent);font-weight:800">${p.nome}</div>
-                    <div style="font-size:0.85rem;margin:8px 0"><b>Ativos:</b> ${p.ativos}<br><b>Indicação:</b> ${p.serve}</div>
+                    <div style="color:var(--accent);font-weight:800">${this.highlightText(p.nome, termos)}</div>
+                    <div style="font-size:0.85rem;margin:8px 0">
+                        <b>Ativos:</b> ${this.highlightText(p.ativos, termos)}<br>
+                        <b>Indicação:</b> ${this.highlightText(p.serve, termos)}
+                    </div>
                     <div style="display:flex;gap:5px">
                         <button class="btn-blue" onclick="window.App.copyProd(${p.id})">COPIAR</button>
                         ${this.isAdmin ? `<button class="btn-gray" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
