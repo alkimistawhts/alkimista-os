@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.3 - Stable</title>
+    <title>Alkimista OS v13.4</title>
     
     <style>
         :root {
@@ -225,8 +225,9 @@
                 this.total = 0; this.historico = []; this.notas = []; this.produtos = [];
                 this.isDark = false; this.tempV = 0;
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
-                
                 this.initAuth();
+                this.setupNotifications();
+                setInterval(() => this.checkScheduledNotes(), 10000); // Checa a cada 10 seg
             }
 
             initAuth() {
@@ -235,12 +236,10 @@
                         this.user = u;
                         const uDoc = await getDoc(doc(db, "usuarios", u.uid));
                         if(uDoc.exists()) this.isAdmin = uDoc.data().isAdmin || false;
-                        
                         document.getElementById('view-login').style.display = 'none';
                         document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
-                        
                         await this.loadFromCloud();
-                        this.setupListeners(); // Só configura os botões após garantir que o usuário está logado
+                        this.setupListeners(); 
                         this.initUI();
                     } else {
                         document.getElementById('view-login').style.display = 'flex';
@@ -249,7 +248,42 @@
                 document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
-            // --- CALCULADORA (CORRIGIDA PARA VÍRGULA) ---
+            async handleLogin() {
+                const u = document.getElementById('loginUser').value.trim();
+                const p = document.getElementById('loginPass').value;
+                if(!u || !p) return;
+                try {
+                    await signInWithEmailAndPassword(auth, u + DOMAIN, p);
+                } catch(e) {
+                    const err = document.getElementById('loginError');
+                    err.innerText = "Usuário ou senha inválidos."; err.style.display = 'block';
+                }
+            }
+
+            setupNotifications() {
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    Notification.requestPermission();
+                }
+            }
+
+            checkScheduledNotes() {
+                const agora = new Date();
+                const d = agora.toISOString().split('T')[0];
+                const h = agora.toTimeString().slice(0, 5);
+                let mudou = false;
+                this.notas.forEach(n => {
+                    if (n.data === d && n.hora === h && !n.notificado) {
+                        if (Notification.permission === "granted") {
+                            new Notification("Alkimista OS", { body: n.txt, icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png' });
+                        } else {
+                            alert("AGENDA: " + n.txt);
+                        }
+                        n.notificado = true; mudou = true;
+                    }
+                });
+                if(mudou) { this.save(); this.render(); }
+            }
+
             calc() {
                 let valRaw = document.getElementById('vOrig').value.replace(',', '.');
                 const v = parseFloat(valRaw) || 0;
@@ -269,7 +303,6 @@
                 document.getElementById('vOrig').focus();
             }
 
-            // --- PRODUTOS (EDIÇÃO EM MODAL) ---
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
                 this.resetProdForm();
@@ -292,25 +325,13 @@
             async addFullProd() {
                 if(!this.isAdmin) return;
                 const id = document.getElementById('pId').value;
-                const p = { 
-                    id: id ? parseInt(id) : Date.now(), 
-                    nome: document.getElementById('pNome').value, 
-                    ativos: document.getElementById('pAtivos').value, 
-                    serve: document.getElementById('pServe').value, 
-                    poso: document.getElementById('pPoso').value 
-                };
+                const p = { id: id ? parseInt(id) : Date.now(), nome: document.getElementById('pNome').value, ativos: document.getElementById('pAtivos').value, serve: document.getElementById('pServe').value, poso: document.getElementById('pPoso').value };
                 if(!p.nome) return;
-
                 if(id) {
                     const idx = this.produtos.findIndex(x => x.id === p.id);
                     if(idx !== -1) this.produtos[idx] = p;
-                } else {
-                    this.produtos.push(p);
-                }
-                
-                await this.save();
-                this.renderProds();
-                this.closeProdModal();
+                } else { this.produtos.push(p); }
+                await this.save(); this.renderProds(); this.closeProdModal();
             }
 
             renderProds() {
@@ -328,19 +349,10 @@
                 </div>`).join('');
             }
 
-            resetProdForm() {
-                document.getElementById('pId').value = "";
-                ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value="");
-            }
+            resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
 
-            async delProd(id) {
-                this.openConfirm(async () => {
-                    this.produtos = this.produtos.filter(p => p.id !== id);
-                    this.renderProds(); await this.save();
-                });
-            }
+            async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
 
-            // --- RESTANTE DAS FUNÇÕES (NOTAS, SERVIÇOS, ETC) ---
             async addNota() {
                 const t = document.getElementById('nTexto').value.trim();
                 if(!t) return;
@@ -410,21 +422,43 @@
             }
 
             setupListeners() {
-                document.getElementById('vOrig').oninput = () => this.calc();
-                document.getElementById('vOrig').onkeydown = (e) => e.key === 'Enter' && this.somar();
+                // CORREÇÃO CALCULADORA: Reatribuindo eventos corretamente
+                const vOrig = document.getElementById('vOrig');
+                vOrig.oninput = () => this.calc();
+                vOrig.onkeydown = (e) => { if(e.key === 'Enter') this.somar(); };
+                
                 document.getElementById('btnSomar').onclick = () => this.somar();
                 document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
                 document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
+                
+                // PRODUTOS
                 document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
                 document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
                 document.getElementById('pBusca').oninput = () => this.renderProds();
+                
+                // NOTAS
                 document.getElementById('btnAddNota').onclick = () => this.addNota();
+
+                // CORREÇÃO SERVIÇOS: Adicionar Fase e Gotas
+                document.getElementById('btnAddFase').onclick = () => this.addFase();
+                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
+                
+                const gGotas = document.getElementById('gGotas');
+                gGotas.oninput = (e) => {
+                    const res = (parseFloat(e.target.value) / 20) || 0;
+                    document.getElementById('gRes').innerText = res.toFixed(2) + " mL";
+                };
             }
 
-            // Métodos de Serviços (simplificados para manter o código leve)
-            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
+            async logout() { await signOut(auth); location.reload(); }
+
+            addFase() { 
+                this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); 
+                this.renderFases(); 
+            }
             removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); }
             updateFase(id, field, val) { const f = this.fases.find(x => x.id === id); if(f) f[field] = val; this.calcTotalFases(); }
+            
             calcTotalFases() {
                 let tC = 0, tM = 0, tG = 0, hasG = false, hasM = false, hasC = false;
                 this.fases.forEach(f => {
@@ -436,19 +470,22 @@
                 let res = []; if(hasC) res.push(`${tC} Cáps`); if(hasG || hasM) res.push(`${(tM + tG).toFixed(2)} mL`);
                 document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL";
             }
+
             renderFases() {
                 document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
                 <div style="border:1px solid var(--border); padding:15px; border-radius:18px; margin-bottom:12px; position:relative;">
-                    ${this.fases.length > 1 ? `<button style="position:absolute;top:5px;right:5px;width:30px;padding:5px" class="btn-red" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
+                    ${this.fases.length > 1 ? `<button style="position:absolute;top:5px;right:5px;width:30px;padding:5px;background:red;color:white;border:none;border-radius:5px" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                        <input type="number" placeholder="Dose" value="${f.dose}" oninput="window.App.updateFase(${f.id},'dose',this.value)">
-                        <input type="number" placeholder="x/dia" value="${f.freq}" oninput="window.App.updateFase(${f.id},'freq',this.value)">
-                        <input type="number" placeholder="Dias" value="${f.dias}" oninput="window.App.updateFase(${f.id},'dias',this.value)">
-                        <select onchange="window.App.updateFase(${f.id},'tipo',this.value)">
-                            <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
-                            <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
-                            <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
-                        </select>
+                        <div><label>Dose</label><input type="number" value="${f.dose}" oninput="window.App.updateFase(${f.id},'dose',this.value)"></div>
+                        <div><label>x/dia</label><input type="number" value="${f.freq}" oninput="window.App.updateFase(${f.id},'freq',this.value)"></div>
+                        <div><label>Dias</label><input type="number" value="${f.dias}" oninput="window.App.updateFase(${f.id},'dias',this.value)"></div>
+                        <div><label>Tipo</label>
+                            <select onchange="window.App.updateFase(${f.id},'tipo',this.value)">
+                                <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
+                                <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
+                                <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
+                            </select>
+                        </div>
                     </div>
                 </div>`).join('');
                 this.calcTotalFases();
