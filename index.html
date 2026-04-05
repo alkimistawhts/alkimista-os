@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.9 - Estável</title>
+    <title>Alkimista OS v14.0 - IA Audit</title>
     
     <style>
         :root {
@@ -69,6 +68,12 @@
         .theme-fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--bg-sidebar); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; z-index: 1000; }
         #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; z-index: 5000; display: none; }
 
+        /* Estilos Novos Auditoria */
+        .spinner { width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid #0047AB; border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #auditContent p { margin-bottom: 8px; font-size: 0.9rem; }
+        #auditContent li { margin-left: 15px; font-size: 0.85rem; }
+
         @media (max-width: 600px) {
             .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; border-radius: 20px 20px 0 0; }
             .nav-item span { display: none; }
@@ -125,6 +130,7 @@
     <aside class="sidebar">
         <div class="nav-item active" onclick="window.App.switch('calc')" id="nav-calc"><i>🧮</i><span>Calculadora</span></div>
         <div class="nav-item" onclick="window.App.switch('prod')" id="nav-prod"><i>🧪</i><span>Produtos</span></div>
+        <div class="nav-item" onclick="window.App.switch('audit')" id="nav-audit"><i>🛡️</i><span>Auditoria</span></div>
         <div class="nav-item" onclick="window.App.switch('notes')" id="nav-notes"><i>📝</i><span>Anotações</span></div>
         <div class="nav-item" onclick="window.App.switch('serv')" id="nav-serv"><i>📏</i><span>Serviços</span></div>
         <div class="nav-item" onclick="window.App.logout()" style="margin-top: auto; opacity: 0.4;"><i>🚪</i><span>Sair</span></div>
@@ -137,8 +143,7 @@
                 <div class="card">
                     <label>Valor Original</label>
                     <input type="text" id="vOrig" placeholder="0,00" inputmode="decimal">
-                    <div class="display-box">
-                        <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
+                    <div class="display-box"><br>                        <div class="display-line"><span>Bruto</span> <span id="bruto">R$ 0,00</span></div>
                         <div class="display-line"><b>Com Desconto</b> <b id="comDesconto" style="color: #10b981;">R$ 0,00</b></div>
                     </div>
                     <div class="total-banner">
@@ -159,6 +164,25 @@
                 <button class="btn-blue" id="btnAbreNovoProd" style="display:none; margin-bottom:15px">+ Adicionar Novo Produto</button>
                 <input type="text" id="pBusca" placeholder="🔍 Buscar por nome, ativos ou indicação..." style="margin-bottom:15px">
                 <div id="prodLista"></div>
+            </div>
+
+            <div id="view-audit" class="view">
+                <h1>🛡️ Auditoria de Receita</h1>
+                <div class="card">
+                    <h2>Verificador Clínico IA</h2>
+                    <textarea id="auditInput" rows="6" placeholder="Cole a receita completa ou ativos e doses aqui..."></textarea>
+                    <button class="btn-blue" id="btnRunAudit">🔍 Analisar Dosagem</button>
+                    
+                    <div id="auditLoading" style="display:none; text-align:center; padding:10px;">
+                        <div class="spinner"></div>
+                        <small>Consultando inteligência farmacêutica...</small>
+                    </div>
+
+                    <div id="auditResultBox" style="display:none; margin-top:15px; padding:15px; border-radius:18px;">
+                        <b id="auditStatus" style="display:block; margin-bottom:8px;"></b>
+                        <div id="auditContent"></div>
+                    </div>
+                </div>
             </div>
 
             <div id="view-notes" class="view">
@@ -218,6 +242,7 @@
         const auth = getAuth(firebaseApp);
         const db = getFirestore(firebaseApp);
         const DOMAIN = "@alkimista.com";
+        const GEMINI_KEY = "AIzaSyBbZnNUzXCVFGDfNK-SgzpcUj_2KitzK0E"; 
 
         class AlkimistaApp {
             constructor() {
@@ -253,12 +278,10 @@
                 catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
             }
 
-            // CORREÇÃO TECLADO: Limpa o valor para o cálculo mas não bloqueia a tecla
             calc() {
                 const input = document.getElementById('vOrig');
                 let valStr = input.value.replace(',', '.');
                 const val = parseFloat(valStr) || 0;
-                
                 this.tempV = val * 0.8;
                 document.getElementById('bruto').innerText = this.fmt(val);
                 document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
@@ -278,14 +301,10 @@
 
             setupListeners() {
                 const vOrig = document.getElementById('vOrig');
-                
-                // Evento oninput para cálculo em tempo real
                 vOrig.addEventListener('input', () => this.calc());
-                
-                // CORREÇÃO: Função Enter para somar
                 vOrig.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
-                        e.preventDefault(); // Evita recarregar a página
+                        e.preventDefault();
                         this.somar();
                     }
                 });
@@ -293,20 +312,54 @@
                 document.getElementById('btnSomar').onclick = () => this.somar();
                 document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
                 document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
-                
                 document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
                 document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
                 document.getElementById('pBusca').oninput = () => this.renderProds();
-                
                 document.getElementById('btnAddNota').onclick = () => this.addNota();
                 document.getElementById('btnAddFase').onclick = () => this.addFase();
                 document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
                 
+                // Listener Auditoria
+                document.getElementById('btnRunAudit').onclick = () => this.execAudit();
+
                 const gGotas = document.getElementById('gGotas');
                 gGotas.oninput = (e) => {
                     let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
                     document.getElementById('gRes').innerText = (val/20).toFixed(2) + " mL"; 
                 };
+            }
+
+            async execAudit() {
+                const input = document.getElementById('auditInput').value;
+                const box = document.getElementById('auditResultBox');
+                const content = document.getElementById('auditContent');
+                const status = document.getElementById('auditStatus');
+                const loading = document.getElementById('auditLoading');
+                
+                if(!input.trim()) return alert("Cole o texto da receita primeiro.");
+
+                loading.style.display = 'block';
+                box.style.display = 'none';
+
+                const prompt = `Você é um Consultor Farmacêutico. Analise: "${input}". Verifique se as doses excedem limites diários de segurança. Responda em HTML simples (p, b, li). Inicie com [SEGURO], [ATENÇÃO] ou [PERIGOSO]. Justifique com base em toxicidade ou posologia padrão.`;
+
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await res.json();
+                    const text = data.candidates[0].content.parts[0].text;
+
+                    if(text.includes("[PERIGOSO]")) { box.style.background = "#fee2e2"; status.innerText = "🚨 RISCO DETECTADO"; status.style.color = "#b91c1c"; }
+                    else if(text.includes("[ATENÇÃO]")) { box.style.background = "#fef3c7"; status.innerText = "⚠️ ATENÇÃO"; status.style.color = "#b45309"; }
+                    else { box.style.background = "#dcfce7"; status.innerText = "✅ CONDIZENTE"; status.style.color = "#15803d"; }
+
+                    content.innerHTML = text.replace(/\[SEGURO\]|\[ATENÇÃO\]|\[PERIGOSO\]/g, "");
+                    box.style.display = 'block';
+                } catch (e) { alert("Erro ao consultar IA."); }
+                finally { loading.style.display = 'none'; }
             }
 
             openProdModal(id = null) {
@@ -376,65 +429,13 @@
             closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
             resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
             async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
-            
             addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
             removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); }
-            
-            updateFase(id, field, val) { 
-                const f = this.fases.find(x => x.id === id); 
-                if(f) {
-                    if (field === 'tipo') f[field] = val;
-                    else f[field] = val.replace(',', '.').replace(/[^0-9.]/g, ''); 
-                }
-                this.calcTotalFases(); 
-            }
-
-            calcTotalFases() {
-                let tC = 0, tL = 0; 
-                this.fases.forEach(f => {
-                    let d = parseFloat(f.dose) || 0;
-                    let fr = parseFloat(f.freq) || 0;
-                    let di = parseFloat(f.dias) || 0;
-                    let sub = d * fr * di;
-                    if(f.tipo === 'gotas') tL += (sub/20);
-                    else if(f.tipo === 'ml') tL += sub;
-                    else tC += sub;
-                });
-                let res = [];
-                if(tC > 0) res.push(`${Math.ceil(tC)} Cáps`);
-                if(tL > 0) res.push(`${tL.toFixed(2)} mL`);
-                document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL";
-            }
-
-            renderFases() {
-                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
-                <div style="border:1px solid var(--border); padding:15px; border-radius:18px; margin-bottom:12px; position:relative;">
-                    ${this.fases.length > 1 ? `<button style="position:absolute;top:5px;right:5px;width:30px;padding:5px;background:red;color:white;border:none;border-radius:5px" onclick="window.App.removeFase(${f.id})">✕</button>` : ''}
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                        <div><label>Dose</label><input type="text" value="${f.dose}" inputmode="decimal" oninput="window.App.updateFase(${f.id},'dose',this.value)"></div>
-                        <div><label>x/dia</label><input type="text" value="${f.freq}" inputmode="numeric" oninput="window.App.updateFase(${f.id},'freq',this.value)"></div>
-                        <div><label>Dias</label><input type="text" value="${f.dias}" inputmode="numeric" oninput="window.App.updateFase(${f.id},'dias',this.value)"></div>
-                        <div><label>Tipo</label><select onchange="window.App.updateFase(${f.id},'tipo',this.value)"><option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option><option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option><option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option></select></div>
-                    </div>
-                </div>`).join('');
-                this.calcTotalFases();
-            }
-
-            render() {
-                document.getElementById('totalVal').innerText = this.fmt(this.total);
-                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `<div class="display-line" style="font-size:0.8rem; border-bottom:1px solid var(--border)"><span>De ${this.fmt(h.o)}</span><b>→ ${this.fmt(h.f)}</b></div>`).join('');
-                document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `<div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}"><div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6"><span>📅 ${n.data.split('-').reverse().join('/')} ${n.hora}</span><span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span></div><b>${n.txt}</b></div>`).join('');
-                this.renderProds();
-            }
-
-            initUI() { 
-                const now = new Date(); 
-                document.getElementById('nData').value = now.toISOString().split('T')[0]; 
-                document.getElementById('nHora').value = now.toTimeString().slice(0,5);
-                if(this.isDark) document.body.classList.add('dark-mode'); 
-                this.render(); 
-                this.renderFases(); 
-            }
+            updateFase(id, field, val) { const f = this.fases.find(x => x.id === id); if(f) { if (field === 'tipo') f[field] = val; else f[field] = val.replace(',', '.').replace(/[^0-9.]/g, ''); } this.calcTotalFases(); }
+            calcTotalFases() { let tC = 0, tL = 0; this.fases.forEach(f => { let d = parseFloat(f.dose) || 0; let fr = parseFloat(f.freq) || 0; let di = parseFloat(f.dias) || 0; let sub = d * fr * di; if(f.tipo === 'gotas') tL += (sub/20); else if(f.tipo === 'ml') tL += sub; else tC += sub; }); let res = []; if(tC > 0) res.push(`${Math.ceil(tC)} Cáps`); if(tL > 0) res.push(`${tL.toFixed(2)} mL`); document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL"; }
+            renderFases() { document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => ` <div style="border:1px solid var(--border); padding:15px; border-radius:18px; margin-bottom:12px; position:relative;"> ${this.fases.length > 1 ? `<button style="position:absolute;top:5px;right:5px;width:30px;padding:5px;background:red;color:white;border:none;border-radius:5px" onclick="window.App.removeFase(${f.id})">✕</button>` : ''} <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"> <div><label>Dose</label><input type="text" value="${f.dose}" inputmode="decimal" oninput="window.App.updateFase(${f.id},'dose',this.value)"></div> <div><label>x/dia</label><input type="text" value="${f.freq}" inputmode="numeric" oninput="window.App.updateFase(${f.id},'freq',this.value)"></div> <div><label>Dias</label><input type="text" value="${f.dias}" inputmode="numeric" oninput="window.App.updateFase(${f.id},'dias',this.value)"></div> <div><label>Tipo</label><select onchange="window.App.updateFase(${f.id},'tipo',this.value)"><option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option><option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option><option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option></select></div> </div> </div>`).join(''); this.calcTotalFases(); }
+            render() { document.getElementById('totalVal').innerText = this.fmt(this.total); document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `<div class="display-line" style="font-size:0.8rem; border-bottom:1px solid var(--border)"><span>De ${this.fmt(h.o)}</span><b>→ ${this.fmt(h.f)}</b></div>`).join(''); document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `<div class="nota-card" style="border-left-color:${n.cat=='urgente'?'red':n.cat=='verificação'?'#10b981':'#0047AB'}"><div style="display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.6"><span>📅 ${n.data.split('-').reverse().join('/')} ${n.hora}</span><span style="color:red;cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span></div><b>${n.txt}</b></div>`).join(''); this.renderProds(); }
+            initUI() { const now = new Date(); document.getElementById('nData').value = now.toISOString().split('T')[0]; document.getElementById('nHora').value = now.toTimeString().slice(0,5); if(this.isDark) document.body.classList.add('dark-mode'); this.render(); this.renderFases(); }
             async logout() { await signOut(auth); location.reload(); }
         }
 
