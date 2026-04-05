@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.2 - Corrigido</title>
+    <title>Alkimista OS v13.3 - Design Original</title>
     
     <style>
         :root {
@@ -21,10 +21,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; transition: 0.2s ease; }
         body { background-color: var(--bg-body); min-height: 100vh; display: flex; color: var(--text-main); overflow-x: hidden; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .overlay.active { display: flex; }
-        .modal-container { background: var(--bg-card); width: 95%; max-width: 400px; padding: 30px; border-radius: 28px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
-
+        /* SIDEBAR PREMIUM */
         .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); height: 100vh; display: flex; flex-direction: column; padding: 20px 10px; position: fixed; left: 0; top: 0; z-index: 2000; overflow: hidden; white-space: nowrap; }
         .sidebar:hover { width: 220px; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
         .nav-item { width: 100%; height: 50px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; padding: 0 13px; cursor: pointer; color: white; opacity: 0.6; }
@@ -33,38 +30,51 @@
         .sidebar:hover .nav-item span { opacity: 1; }
         .nav-item.active { opacity: 1; background: rgba(255,255,255,0.15); }
 
+        /* MAIN CONTENT */
         .main { flex: 1; margin-left: var(--sidebar-w); padding: 20px; display: flex; justify-content: center; }
         .app-container { max-width: 600px; width: 100%; }
         .view { display: none; animation: fadeIn 0.3s; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--bg-card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; }
+        /* CARDS & INPUTS */
+        .card { background: var(--bg-card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         h1 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; font-weight: 800; }
+        h2 { font-size: 0.8rem; text-transform: uppercase; color: var(--accent); margin-bottom: 15px; font-weight: 900; }
         label { font-size: 0.7rem; font-weight: 800; opacity: 0.6; margin-bottom: 4px; display: block; }
-        input, select, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-body); color: var(--text-main); margin-bottom: 10px; }
+        
+        input, select, textarea { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; background: var(--bg-body); color: var(--text-main); margin-bottom: 10px; }
+        input:focus { border-color: var(--accent); }
 
+        /* DISPLAY BOXES */
+        .display-box { background: var(--bg-body); padding: 15px; border-radius: 18px; margin-bottom: 15px; }
         .total-banner { background: linear-gradient(135deg, #0047AB, #002B6A); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
         .total-banner b { font-size: 2.2rem; font-weight: 800; }
 
+        /* BUTTONS */
         button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; color: white; margin-bottom: 8px; }
         .btn-green { background: #10b981; }
         .btn-blue { background: #0047AB; }
         .btn-red { background: var(--danger); }
         .btn-gray { background: #64748b; }
-        
+        .btn-outline { background: transparent; border: 2px dashed var(--accent); color: var(--accent); }
+
+        /* PRODUTOS & NOTAS CARDS */
+        .item-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; }
+        .nota-card { border-left: 6px solid #0047AB; }
+
         #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 50px; display: none; z-index: 5000; }
 
         @media (max-width: 600px) {
             .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; justify-content: space-around; padding: 0; border-radius: 20px 20px 0 0; }
             .nav-item span { display: none; }
-            .main { margin-left: 0; margin-bottom: 80px; }
+            .main { margin-left: 0; margin-bottom: 80px; padding: 15px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="toast">Copiado!</div>
+    <div id="toast">Ação concluída!</div>
 
     <aside class="sidebar">
         <div class="nav-item active" onclick="window.App.switch('calc')" id="nav-calc"><i>🧮</i><span>Calculadora</span></div>
@@ -80,17 +90,24 @@
                 <h1>Calculadora 20%</h1>
                 <div class="card">
                     <label>Valor Original</label>
-                    <input type="number" id="vOrig" placeholder="0,00" step="0.01">
-                    <div style="background: var(--bg-body); padding: 15px; border-radius: 15px; margin-bottom: 15px;">
-                        <div style="display:flex; justify-content: space-between"><span>Bruto:</span> <span id="bruto">R$ 0,00</span></div>
-                        <div style="display:flex; justify-content: space-between"><b>Com Desconto:</b> <b id="comDesconto" style="color:#10b981">R$ 0,00</b></div>
+                    <input type="number" id="vOrig" placeholder="R$ 0,00" step="0.01">
+                    
+                    <div class="display-box">
+                        <div style="display:flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Bruto:</span> <span id="bruto">R$ 0,00</span>
+                        </div>
+                        <div style="display:flex; justify-content: space-between">
+                            <b>Com Desconto:</b> <b id="comDesconto" style="color:var(--success)">R$ 0,00</b>
+                        </div>
                     </div>
+
                     <div class="total-banner">
                         <small>TOTAL ACUMULADO</small><br>
                         <b id="totalVal">R$ 0,00</b>
                     </div>
-                    <button class="btn-green" id="btnSomar">➕ Somar Valor</button>
-                    <button id="btnResetTotal" class="btn-red">Zerar Histórico</button>
+
+                    <button class="btn-green" id="btnSomar">➕ Somar ao Total</button>
+                    <button class="btn-red" id="btnZerar" style="opacity: 0.8">Zerar Tudo</button>
                 </div>
                 <div id="histLista"></div>
             </div>
@@ -99,25 +116,27 @@
                 <h1>Catálogo Alkimista</h1>
                 <div class="card">
                     <input type="hidden" id="pId">
-                    <input type="text" id="pNome" placeholder="Nome do Produto">
-                    <input type="text" id="pAtivos" placeholder="Ativos">
+                    <label>Dados do Produto</label>
+                    <input type="text" id="pNome" placeholder="Nome">
+                    <input type="text" id="pAtivos" placeholder="Composição/Ativos">
                     <input type="text" id="pServe" placeholder="Indicação">
-                    <textarea id="pPoso" rows="2" placeholder="Posologia"></textarea>
-                    <button class="btn-green" id="btnAddProd">Salvar Produto</button>
+                    <textarea id="pPoso" rows="2" placeholder="Posologia sugerida"></textarea>
+                    <button class="btn-blue" id="btnSaveProd">Salvar no Banco</button>
                 </div>
-                <input type="text" id="pBusca" placeholder="🔍 Buscar no catálogo..." style="margin-bottom:15px">
+                <input type="text" id="pBusca" placeholder="🔍 Pesquisar produtos..." style="margin-bottom:15px">
                 <div id="prodLista"></div>
             </div>
 
             <div id="view-notes" class="view">
-                <h1>Anotações Agendadas</h1>
+                <h1>Anotações & Lembretes</h1>
                 <div class="card">
+                    <label>Agendar para:</label>
                     <div style="display: flex; gap: 10px;">
                         <input type="date" id="nData">
                         <input type="time" id="nHora">
                     </div>
-                    <textarea id="nTexto" rows="3" placeholder="O que deseja lembrar?"></textarea>
-                    <button class="btn-blue" id="btnAddNota">Agendar Lembrete</button>
+                    <textarea id="nTexto" rows="3" placeholder="Sua nota aqui..."></textarea>
+                    <button class="btn-blue" id="btnSaveNota">Salvar Lembrete</button>
                 </div>
                 <div id="notasLista"></div>
             </div>
@@ -125,11 +144,12 @@
             <div id="view-serv" class="view">
                 <h1>Serviços Clínicos</h1>
                 <div class="card">
-                    <h2>Cálculo de Cápsulas/mL</h2>
+                    <h2>Calculadora de Tratamento</h2>
                     <div id="fasesContainer"></div>
-                    <button class="btn-blue" onclick="window.App.addFase()">+ Adicionar Fase</button>
-                    <div class="total-banner" style="margin-top:15px;">
-                        <b id="resGeral">0 uni</b>
+                    <button class="btn-outline" onclick="window.App.addFase()">+ Adicionar Nova Fase</button>
+                    <div class="total-banner" style="margin-top: 15px; padding: 15px;">
+                        <small>RESULTADO:</small><br>
+                        <b id="resGeral" style="font-size: 1.5rem;">0 uni/mL</b>
                     </div>
                 </div>
             </div>
@@ -138,93 +158,84 @@
     </main>
 
     <script type="module">
-        // Firebase e Lógica
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDb8cQwqo1T0ZezgS9eEKGpbrceDm8PV4E",
-            projectId: "alkimista-os",
-            // ... (restante do seu config)
-        };
-
-        const fApp = initializeApp(firebaseConfig);
-        const db = getFirestore(fApp);
-
         class AlkimistaApp {
             constructor() {
                 this.total = 0;
                 this.historico = [];
                 this.produtos = [];
                 this.notas = [];
-                this.fases = [{id: 1, dose: '', freq: '', dias: '', tipo: 'caps'}];
+                this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
+                
                 this.init();
             }
 
-            async init() {
-                await this.load();
-                this.setupEvents();
+            init() {
+                this.load();
+                this.setupListeners();
                 this.render();
-                this.checkNotifications();
-                setInterval(() => this.checkNotifications(), 10000); // Checa a cada 10s
+                this.renderFases();
+                this.setDefaultDate();
                 
-                // Pedir permissão de notificação logo ao abrir
+                // Sistema de Notificações
                 if ("Notification" in window) Notification.requestPermission();
+                setInterval(() => this.checkNotes(), 15000);
             }
 
-            setupEvents() {
-                // Eventos Calculadora
+            setupListeners() {
+                // Calculadora
                 const vOrig = document.getElementById('vOrig');
-                vOrig.addEventListener('input', () => {
+                vOrig.oninput = () => {
                     const val = parseFloat(vOrig.value) || 0;
                     document.getElementById('bruto').innerText = this.fmt(val);
                     document.getElementById('comDesconto').innerText = this.fmt(val * 0.8);
-                });
-                
+                };
+                vOrig.onkeydown = (e) => e.key === 'Enter' && this.somar();
                 document.getElementById('btnSomar').onclick = () => this.somar();
-                document.getElementById('btnResetTotal').onclick = () => { if(confirm("Zerar?")) { this.total = 0; this.historico = []; this.render(); this.save(); } };
-                
-                // Eventos Produtos
-                document.getElementById('btnAddProd').onclick = () => this.saveProd();
+                document.getElementById('btnZerar').onclick = () => { if(confirm("Deseja zerar o acumulado?")) { this.total = 0; this.historico = []; this.save(); this.render(); }};
+
+                // Produtos
+                document.getElementById('btnSaveProd').onclick = () => this.saveProd();
                 document.getElementById('pBusca').oninput = () => this.renderProds();
 
-                // Eventos Notas
-                document.getElementById('btnAddNota').onclick = () => this.saveNota();
+                // Notas
+                document.getElementById('btnSaveNota').onclick = () => this.saveNota();
             }
 
-            // --- CALCULADORA ---
+            // --- LÓGICA CALCULADORA ---
             somar() {
                 const val = parseFloat(document.getElementById('vOrig').value) || 0;
                 if(val <= 0) return;
-                const desc = val * 0.8;
-                this.total += desc;
-                this.historico.push({bruto: val, liquido: desc});
+                const liq = val * 0.8;
+                this.total += liq;
+                this.historico.push({bruto: val, liquido: liq});
                 document.getElementById('vOrig').value = "";
-                this.render();
-                this.save();
+                document.getElementById('bruto').innerText = "R$ 0,00";
+                document.getElementById('comDesconto').innerText = "R$ 0,00";
+                this.save(); this.render();
             }
 
-            // --- PRODUTOS (COM EDITAR) ---
+            // --- LÓGICA PRODUTOS (COM EDIÇÃO) ---
             saveProd() {
                 const id = document.getElementById('pId').value;
-                const novo = {
+                const p = {
                     id: id ? parseInt(id) : Date.now(),
                     nome: document.getElementById('pNome').value,
                     ativos: document.getElementById('pAtivos').value,
                     serve: document.getElementById('pServe').value,
                     poso: document.getElementById('pPoso').value
                 };
+                if(!p.nome) return;
 
                 if(id) {
-                    const idx = this.produtos.findIndex(p => p.id == id);
-                    this.produtos[idx] = novo;
+                    const idx = this.produtos.findIndex(x => x.id == id);
+                    this.produtos[idx] = p;
                 } else {
-                    this.produtos.push(novo);
+                    this.produtos.push(p);
                 }
 
-                ['pId', 'pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(i => document.getElementById(i).value = "");
-                this.renderProds();
-                this.save();
+                ['pId','pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value = "");
+                this.save(); this.renderProds();
+                this.showToast("Produto Salvo!");
             }
 
             editProd(id) {
@@ -234,11 +245,17 @@
                 document.getElementById('pAtivos').value = p.ativos;
                 document.getElementById('pServe').value = p.serve;
                 document.getElementById('pPoso').value = p.poso;
-                this.switch('prod');
-                window.scrollTo(0,0);
+                window.scrollTo({top: 0, behavior: 'smooth'});
             }
 
-            // --- NOTIFICAÇÕES ---
+            delProd(id) {
+                if(confirm("Excluir este produto?")) {
+                    this.produtos = this.produtos.filter(p => p.id != id);
+                    this.save(); this.renderProds();
+                }
+            }
+
+            // --- LÓGICA NOTIFICAÇÕES ---
             saveNota() {
                 const n = {
                     id: Date.now(),
@@ -249,12 +266,11 @@
                 };
                 if(!n.txt || !n.hora) return;
                 this.notas.push(n);
-                this.renderNotas();
-                this.save();
                 document.getElementById('nTexto').value = "";
+                this.save(); this.renderNotas();
             }
 
-            checkNotifications() {
+            checkNotes() {
                 const agora = new Date();
                 const d = agora.toISOString().split('T')[0];
                 const h = agora.toTimeString().slice(0,5);
@@ -263,19 +279,52 @@
                     if(n.data === d && n.hora === h && !n.done) {
                         n.done = true;
                         if (Notification.permission === "granted") {
-                            new Notification("Lembrete Alkimista", { body: n.txt, icon: 'https://cdn-icons-png.flaticon.com/512/190/190411.png' });
+                            new Notification("Alkimista OS", { body: n.txt });
                         } else {
-                            alert("ALERTA: " + n.txt);
+                            alert("LEMBRETE: " + n.txt);
                         }
-                        this.save();
-                        this.renderNotas();
+                        this.save(); this.renderNotas();
                     }
                 });
             }
 
-            // --- AUXILIARES ---
-            fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-            
+            // --- SERVIÇOS ---
+            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
+            updateFase(id, field, val) {
+                const f = this.fases.find(x => x.id == id);
+                f[field] = val;
+                this.calcServ();
+            }
+            calcServ() {
+                let caps = 0, ml = 0;
+                this.fases.forEach(f => {
+                    const sub = (parseFloat(f.dose)||0) * (parseFloat(f.freq)||0) * (parseFloat(f.dias)||0);
+                    if(f.tipo === 'caps') caps += sub;
+                    else if(f.tipo === 'ml') ml += sub;
+                    else ml += (sub/20);
+                });
+                document.getElementById('resGeral').innerText = `${caps > 0 ? caps+' Cáps ' : ''}${ml > 0 ? ml.toFixed(2)+' mL' : ''}` || "0 uni";
+            }
+
+            renderFases() {
+                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
+                    <div class="display-box" style="position:relative">
+                        <label>Fase ${i+1}</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                            <input type="number" placeholder="Dose" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)">
+                            <input type="number" placeholder="x/dia" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)">
+                            <input type="number" placeholder="Dias" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)">
+                            <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
+                                <option value="caps" ${f.tipo=='caps'?'selected':''}>Cáps</option>
+                                <option value="ml" ${f.tipo=='ml'?'selected':''}>mL</option>
+                                <option value="gotas" ${f.tipo=='gotas'?'selected':''}>Gotas</option>
+                            </select>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // --- GERAL ---
             switch(v) {
                 document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -283,25 +332,32 @@
                 document.getElementById('nav-'+v).classList.add('active');
             }
 
-            async save() {
-                // Simulação de salvamento (se tiver UID do usuário, use doc(db, "usuarios", uid))
-                localStorage.setItem('alk_data', JSON.stringify({t: this.total, h: this.historico, p: this.produtos, n: this.notas}));
+            fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+            
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                t.innerText = msg; t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 2500);
             }
 
-            async load() {
-                const local = JSON.parse(localStorage.getItem('alk_data'));
-                if(local) {
-                    this.total = local.t || 0;
-                    this.historico = local.h || [];
-                    this.produtos = local.p || [];
-                    this.notas = local.n || [];
+            setDefaultDate() {
+                const now = new Date();
+                document.getElementById('nData').value = now.toISOString().split('T')[0];
+            }
+
+            save() { localStorage.setItem('alk_data_v13', JSON.stringify({t: this.total, h: this.historico, p: this.produtos, n: this.notas})); }
+            load() {
+                const data = JSON.parse(localStorage.getItem('alk_data_v13'));
+                if(data) {
+                    this.total = data.t || 0; this.historico = data.h || [];
+                    this.produtos = data.p || []; this.notas = data.n || [];
                 }
             }
 
             render() {
                 document.getElementById('totalVal').innerText = this.fmt(this.total);
                 document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(i => `
-                    <div style="display:flex;justify-content:space-between;padding:5px;border-bottom:1px solid #ddd;font-size:0.8rem">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; padding:8px; border-bottom:1px solid var(--border)">
                         <span>Bruto: ${this.fmt(i.bruto)}</span>
                         <b>→ ${this.fmt(i.liquido)}</b>
                     </div>`).join('');
@@ -313,25 +369,29 @@
                 const b = document.getElementById('pBusca').value.toLowerCase();
                 const list = this.produtos.filter(p => p.nome.toLowerCase().includes(b));
                 document.getElementById('prodLista').innerHTML = list.map(p => `
-                    <div class="card" style="padding:15px; margin-bottom:10px">
-                        <b>${p.nome}</b><br><small>${p.ativos}</small>
-                        <div style="display:flex;gap:5px;margin-top:10px">
-                            <button class="btn-blue" style="padding:5px" onclick="window.App.editProd(${p.id})">Editar</button>
-                            <button class="btn-red" style="padding:5px" onclick="window.App.delProd(${p.id})">X</button>
+                    <div class="item-card">
+                        <b style="color:var(--accent)">${p.nome}</b><br>
+                        <small><b>Ativos:</b> ${p.ativos}</small><br>
+                        <small><b>Indicação:</b> ${p.serve}</small>
+                        <div style="display:flex; gap:10px; margin-top:10px">
+                            <button class="btn-blue" style="padding:6px" onclick="window.App.editProd(${p.id})">Editar</button>
+                            <button class="btn-red" style="padding:6px; width:60px" onclick="window.App.delProd(${p.id})">🗑️</button>
                         </div>
                     </div>`).join('');
             }
 
             renderNotas() {
                 document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="card" style="border-left:5px solid ${n.done ? 'gray' : '#0047AB'}">
-                        <small>${n.data} às ${n.hora}</small><br>
-                        <b>${n.txt}</b>
-                        ${n.done ? '<br><small style="color:green">✓ Notificado</small>' : ''}
+                    <div class="item-card nota-card" style="border-left-color: ${n.done ? '#cbd5e1' : '#0047AB'}">
+                        <div style="display:flex; justify-content:space-between; opacity:0.6; font-size:0.7rem">
+                            <span>📅 ${n.data} - ${n.hora}</span>
+                            <span style="color:red; cursor:pointer" onclick="window.App.delNota(${n.id})">Excluir</span>
+                        </div>
+                        <p style="margin-top:5px; font-weight:600">${n.txt}</p>
+                        ${n.done ? '<small style="color:var(--success)">✓ Notificado</small>' : ''}
                     </div>`).join('');
             }
-            
-            delProd(id) { if(confirm("Excluir?")) { this.produtos = this.produtos.filter(p => p.id != id); this.renderProds(); this.save(); } }
+            delNota(id) { this.notas = this.notas.filter(n => n.id != id); this.save(); this.renderNotas(); }
         }
 
         window.App = new AlkimistaApp();
