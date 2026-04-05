@@ -194,6 +194,24 @@
                     <h2>💧 Gotas para mL</h2>
                     <input type="text" id="gGotas" placeholder="Número de Gotas" inputmode="numeric">
                     <div class="display-box" style="text-align:center; font-weight:bold; color:var(--success); margin-bottom:0;" id="gRes">0.00 mL</div>
+
+            <div id="view-audit" class="view" style="display:none;">
+                <h1>🛡️ Auditoria de Receita</h1>
+                <div class="card">
+                    <p>Cole a prescrição abaixo para verificar dosagens e riscos.</p>
+                    <textarea id="auditInput" rows="8" placeholder="Ex: Paracetamol 1g de 4 em 4 horas por 5 dias..." style="width:100%; border-radius:10px; padding:10px; border:1px solid #ddd; margin-bottom:15px;"></textarea>
+        
+                    <button class="btn-blue" id="btnRunAudit" style="width:100%; font-weight:bold;">
+                        🔍 Analisar com Inteligência Artificial
+                    </button>
+
+                    <div id="auditLoading" style="display:none; text-align:center; margin-top:20px;">
+                    <div class="spinner"></div> <p>Consultando base farmacológica...</p>
+                    </div>
+
+                    <div id="auditResultBox" style="display:none; margin-top:20px; padding:15px; border-radius:10px; line-height:1.5;">
+                        <h3 id="auditStatus">Resultado</h3>
+                        <div id="auditContent"></div>
                 </div>
             </div>
         </div>
