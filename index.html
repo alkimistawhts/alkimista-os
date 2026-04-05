@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0047AB">
-    <title>Alkimista OS v13.5 - Final</title>
+    <title>Alkimista OS v13.7</title>
     
     <style>
         :root {
@@ -39,7 +39,6 @@
         .app-container { max-width: 600px; width: 100%; }
         .view { display: none; animation: fadeIn 0.3s; }
         .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card { background: var(--bg-card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         h1 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; font-weight: 800; }
@@ -56,7 +55,6 @@
         .nota-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid var(--border); border-left: 6px solid #0047AB; }
 
         button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; color: white; margin-bottom: 8px; }
-        button:disabled { opacity: 0.3 !important; cursor: not-allowed; }
         .btn-green { background: #10b981; }
         .btn-blue { background: #0047AB; }
         .btn-red { background: var(--danger); }
@@ -159,7 +157,7 @@
             </div>
 
             <div id="view-notes" class="view">
-                <h1>Anotações</h1>
+                <h1>Anotações & Agenda</h1>
                 <div class="card">
                     <select id="nCat">
                         <option value="aviso">🔵 Aviso</option>
@@ -224,7 +222,14 @@
                 this.isDark = false; this.tempV = 0; this.listenersLoaded = false;
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 this.initAuth();
-                setInterval(() => this.checkScheduledNotes(), 30000);
+                this.initServiceWorker();
+                setInterval(() => this.checkScheduledNotes(), 15000); 
+            }
+
+            initServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdwdXNoJywgZnVuY3Rpb24oZSl7dmFyIG9wdHM9e2JvZHk6ZS5kYXRhLnRleHQoKX07ZS53YWl0VW50aWwoc2VsZi5yZWdpc3RyYXRpb24uc2hvd05vdGlmaWNhdGlvbignQWxraW1pc3RhIE9TJywgb3B0cykpO30pOw==');
+                }
             }
 
             initAuth() {
@@ -238,6 +243,7 @@
                         await this.loadFromCloud();
                         if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
                         this.initUI();
+                        this.requestNotif();
                     } else {
                         document.getElementById('view-login').style.display = 'flex';
                     }
@@ -245,11 +251,8 @@
                 document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
-            async handleLogin() {
-                const u = document.getElementById('loginUser').value.trim();
-                const p = document.getElementById('loginPass').value;
-                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } 
-                catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
+            async requestNotif() {
+                if ('Notification' in window) { await Notification.requestPermission(); }
             }
 
             checkScheduledNotes() {
@@ -257,14 +260,33 @@
                 const d = agora.toISOString().split('T')[0];
                 const h = agora.toTimeString().slice(0, 5);
                 let mudou = false;
+                
                 this.notas.forEach(n => {
                     if (n.data === d && n.hora === h && !n.notificado) {
-                        if (Notification.permission === "granted") { new Notification("Agenda Alkimista", { body: n.txt }); }
-                        else { alert("Lembrete: " + n.txt); }
+                        if (Notification.permission === "granted") {
+                            // Envia via Service Worker para suporte Mobile Push e Windows
+                            navigator.serviceWorker.ready.then(reg => {
+                                reg.showNotification("AGENDA ALKIMISTA", {
+                                    body: n.txt,
+                                    icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+                                    badge: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+                                    vibrate: [200, 100, 200]
+                                });
+                            });
+                        } else {
+                            alert("AGENDA: " + n.txt);
+                        }
                         n.notificado = true; mudou = true;
                     }
                 });
                 if(mudou) { this.save(); this.render(); }
+            }
+
+            async handleLogin() {
+                const u = document.getElementById('loginUser').value.trim();
+                const p = document.getElementById('loginPass').value;
+                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } 
+                catch(e) { document.getElementById('loginError').innerText = "Erro ao entrar."; document.getElementById('loginError').style.display = 'block'; }
             }
 
             calc() {
