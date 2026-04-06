@@ -470,23 +470,30 @@
             }
 
             renderProds() {
-                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
-                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
-                document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
-                <div class="prod-card">
-                    <div style="color:var(--accent);font-weight:800;font-size:1.1rem">${p.nome}</div>
-                    <div style="font-size:0.85rem;margin:12px 0; color:var(--text-sub)">
-                        <b>Ativos:</b> ${p.ativos}<br>
-                        <b>Indicação:</b> ${p.serve}<br>
-                        <b>Posologia:</b> ${p.poso || 'Não informada'}
+                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
+                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
+                
+                document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
+                <div class="prod-card" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="color:var(--accent); font-weight:800; font-size:1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                        ${p.nome.toUpperCase()}
                     </div>
-                    <div style="display:flex;gap:8px">
-                        <button class="btn-blue" style="padding:10px" onclick="window.App.copyProd(${p.id})">COPIAR INFO</button>
-                        ${this.isAdmin ? `<button class="btn-gray" style="padding:10px" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
-                        ${this.isAdmin ? `<button class="btn-red" style="width:50px;padding:10px" onclick="window.App.delProd(${p.id})">🗑️</button>` : ''}
-                    </div>
-                </div>`).join('');
-            }
+                    
+                    <div style="font-size:0.85rem; color:var(--text-main); line-height: 1.4;">
+                        <div style="margin-bottom: 4px;"><b>🧪 Ativos:</b> <span style="color:var(--text-sub)">${p.ativos}</span></div>
+                        <div style="margin-bottom: 4px;"><b>🎯 Indicação:</b> <span style="color:var(--text-sub)">${p.serve}</span></div>
+                        <div style="background: var(--highlight-bg); padding: 8px; border-radius: 12px; margin-top: 8px; border-left: 3px solid var(--accent);">
+                            <b>💊 Posologia:</b> <span style="color:var(--text-sub)">${p.poso || 'Verificar bula/receita'}</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:8px; margin-top: 5px;">
+                        <button class="btn-blue" style="padding:10px; flex: 2;" onclick="window.App.copyProd(${p.id})">COPIAR INFO</button>
+                        ${this.isAdmin ? `<button class="btn-gray" style="padding:10px; flex: 1;" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
+                        ${this.isAdmin ? `<button class="btn-red" style="width:45px; padding:10px; flex: 0;" onclick="window.App.delProd(${p.id})">🗑️</button>` : ''}
+                    </div>
+                </div>`).join('');
+            }
 
             copyProd(id) {
                 const p = this.produtos.find(x => x.id === id);
