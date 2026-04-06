@@ -121,7 +121,7 @@
 </head>
 <body>
 
-    <div id="view-login" class="overlay" style="display: flex; background: var(--bg-body); z-index: 9999;">
+    <div id="view-login" class="overlay" style="display: none; background: var(--bg-body); z-index: 9999;">
         <div class="modal-container" style="text-align: center;">
             <div style="font-size: 3rem; margin-bottom: 10px;">⚗️</div>
             <h1 style="color:var(--bg-sidebar); margin-bottom: 5px;">Alkimista OS</h1>
@@ -325,6 +325,8 @@
 
             initAuth() {
                 onAuthStateChanged(auth, async (u) => {
+                    const loginScreen = document.getElementById('view-login');
+                    
                     if (u) {
                         this.user = u;
                         const uDoc = await getDoc(doc(db, "usuarios", u.uid));
@@ -333,18 +335,21 @@
                             this.isDark = uDoc.data().isDark || false;
                             if(this.isDark) document.body.classList.add('dark-mode');
                         }
-                        document.getElementById('view-login').style.display = 'none';
+                        
+                        // Garante que o login suma e o botão de novo produto respeite o admin
+                        loginScreen.style.display = 'none'; 
                         document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
+                        
                         await this.loadFromCloud();
                         if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
                         this.initUI();
                     } else {
-                        document.getElementById('view-login').style.display = 'flex';
+                        // Só mostra a tela de login após o Firebase confirmar que não há sessão
+                        loginScreen.style.display = 'flex';
                     }
                 });
                 document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
-
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
