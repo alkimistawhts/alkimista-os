@@ -470,19 +470,23 @@
             }
 
             renderProds() {
-                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
-                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
-                document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
-                <div class="prod-card">
-                    <div style="color:var(--accent);font-weight:800;font-size:1.1rem">${p.nome}</div>
-                    <div style="font-size:0.85rem;margin:12px 0; color:var(--text-sub)"><b>Ativos:</b> ${p.ativos}<br><b>Indicação:</b> ${p.serve}</div>
-                    <div style="display:flex;gap:8px">
-                        <button class="btn-blue" style="padding:10px" onclick="window.App.copyProd(${p.id})">COPIAR INFO</button>
-                        ${this.isAdmin ? `<button class="btn-gray" style="padding:10px" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
-                        ${this.isAdmin ? `<button class="btn-red" style="width:50px;padding:10px" onclick="window.App.delProd(${p.id})">🗑️</button>` : ''}
+                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
+                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
+                document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
+                <div class="prod-card">
+                    <div style="color:var(--accent);font-weight:800;font-size:1.1rem">${p.nome}</div>
+                    <div style="font-size:0.85rem;margin:12px 0; color:var(--text-sub)">
+                        <b>Ativos:</b> ${p.ativos}<br>
+                        <b>Indicação:</b> ${p.serve}<br>
+                        <b>Posologia:</b> ${p.poso || 'Não informada'}
                     </div>
-                </div>`).join('');
-            }
+                    <div style="display:flex;gap:8px">
+                        <button class="btn-blue" style="padding:10px" onclick="window.App.copyProd(${p.id})">COPIAR INFO</button>
+                        ${this.isAdmin ? `<button class="btn-gray" style="padding:10px" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : ''}
+                        ${this.isAdmin ? `<button class="btn-red" style="width:50px;padding:10px" onclick="window.App.delProd(${p.id})">🗑️</button>` : ''}
+                    </div>
+                </div>`).join('');
+            }
 
             copyProd(id) {
                 const p = this.produtos.find(x => x.id === id);
