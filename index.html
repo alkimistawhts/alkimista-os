@@ -351,13 +351,27 @@
             }
 
             async handleLogin() {
-                const u = document.getElementById('loginUser').value.trim();
-                const p = document.getElementById('loginPass').value;
-                try { await signInWithEmailAndPassword(auth, u + DOMAIN, p); } 
-                catch(e) { 
-                    const err = document.getElementById('loginError');
-                    err.innerText = "Usuário ou senha inválidos."; 
-                    err.style.display = 'block'; 
+                const u = document.getElementById('user').value;
+                const p = document.getElementById('pass').value;
+                const btn = document.getElementById('loginBtn');
+                const err = document.getElementById('loginErr');
+                const DOMAIN = "@alkimista.com"; // Verifique se esta linha é a 533
+
+                if(!u || !p) return;
+                
+                btn.disabled = true;
+                btn.innerText = "Entrando...";
+                err.innerText = "";
+
+                try {
+                    // Aqui limpamos a junção do e-mail para evitar caracteres inválidos
+                    const email = u.trim() + DOMAIN;
+                    await auth.signInWithEmailAndPassword(email, p);
+                } catch (e) {
+                    console.error(e);
+                    err.innerText = "Usuário ou senha inválidos";
+                    btn.disabled = false;
+                    btn.innerText = "Entrar";
                 }
             }
 
