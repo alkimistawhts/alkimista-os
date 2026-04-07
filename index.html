@@ -497,18 +497,26 @@
                         headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
                         body: JSON.stringify({
                             model: "llama-3.3-70b-versatile",
-                            messages: [ { role: "system", content: promptWiki }, { role: "user", content: `Explique detalhadamente o ativo: ${input}` } ],
+                            messages: [ 
+                                { role: "system", content: "Você é um PhD em Farmacologia. Retorne APENAS o código HTML solicitado, sem textos introdutórios ou conclusivos." }, 
+                                { role: "user", content: promptWiki } 
+                            ],
                             temperature: 0.3
                         })
                     });
                     const data = await response.json();
                     const text = data.choices[0].message.content;
+                    
+                    // Limpa o conteúdo e insere o HTML gerado pela IA
                     content.innerHTML = text;
                     box.style.display = 'block';
-                } catch (e) { console.error("Erro Wiki:", e); alert("Erro na consulta: " + e.message); } 
-                finally { loading.style.display = 'none'; }
+                } catch (e) { 
+                    console.error("Erro Wiki:", e); 
+                    alert("Erro na consulta: " + e.message); 
+                } finally { 
+                    loading.style.display = 'none'; 
+                }
             }
-
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
                 this.resetProdForm();
