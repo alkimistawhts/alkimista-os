@@ -121,7 +121,7 @@
 </head>
 <body>
 
-    <div id="view-login" class="overlay" style="display: none; background: var(--bg-body); z-index: 9999;">
+    <div id="view-login" class="overlay" style="display: flex; background: var(--bg-body); z-index: 9999;">
         <div class="modal-container" style="text-align: center;">
             <div style="font-size: 3rem; margin-bottom: 10px;">⚗️</div>
             <h1 style="color:var(--bg-sidebar); margin-bottom: 5px;">Alkimista OS</h1>
@@ -171,7 +171,8 @@
     <aside class="sidebar">
         <div class="nav-item active" onclick="window.App.switch('calc')" id="nav-calc"><i>🧮</i><span>Calculadora</span></div>
         <div class="nav-item" onclick="window.App.switch('prod')" id="nav-prod"><i>🧪</i><span>Produtos</span></div>
-        <div class="nav-item" onclick="window.App.switch('audit')" id="nav-audit"><i>🛡️</i><span>Auditoria</span></div>
+        <div class="nav-item" onclick="window.App.switch('audit')" id="nav-audit"><i>🛡️</i><span>Auditoria IA</span></div>
+        <div class="nav-item" onclick="window.App.switch('wiki')" id="nav-wiki"><i>🔬</i><span>Dicionário IA</span></div>
         <div class="nav-item" onclick="window.App.switch('notes')" id="nav-notes"><i>📝</i><span>Anotações</span></div>
         <div class="nav-item" onclick="window.App.switch('serv')" id="nav-serv"><i>📏</i><span>Serviços</span></div>
         <div class="nav-item" onclick="window.App.logout()" style="margin-top: auto; opacity: 0.3;"><i>🚪</i><span>Sair</span></div>
@@ -291,7 +292,34 @@
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div id="view-wiki" class="view">
+                <h1>🔬 Dicionário de Ativos</h1>
+                <div class="card">
+                    <h2>Consultar Farmacodinâmica</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 15px;">
+                        Descreva o ativo para entender o mecanismo de ação e como ele atua no organismo.
+                    </p>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <input type="text" id="wikiInput" placeholder="Ex: Metilcobalamina, Coenzima Q10..." style="margin-bottom: 0;">
+                        <button class="btn-blue" id="btnRunWiki" style="width:140px;">🔍 Consultar</button>
+                    </div>
+                    
+                    <div id="wikiLoading" style="display:none; text-align:center; padding:30px;">
+                        <div class="spinner" style="width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
+                        <p style="font-size: 0.9rem; color: var(--text-sub);">Consultando literatura farmacêutica...</p>
+                    </div>
+
+                    <div id="wikiResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden;">
+                        <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold;">
+                            🔬 MECANISMO DE AÇÃO & FISIOLOGIA
+                        </div>
+                        <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);">
+                        </div>
+                    </div>
+                </div>
+            </div>
     </main>
 
     <script type="module">
@@ -399,7 +427,7 @@
                 document.getElementById('btnAddFase').onclick = () => this.addFase();
                 document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
                 document.getElementById('btnRunAudit').onclick = () => this.execAudit();
-
+                document.getElementById('btnRunWiki').onclick = () => this.execWiki();
                 const gGotas = document.getElementById('gGotas');
                 gGotas.oninput = (e) => {
                     let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
@@ -487,6 +515,58 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
                 }
             }
 
+            async execWiki() {
+    const input = document.getElementById('wikiInput').value;
+    const box = document.getElementById('wikiResultBox');
+    const content = document.getElementById('wikiContent');
+    const loading = document.getElementById('wikiLoading');
+    
+    if(!input.trim()) return alert("Digite o nome do ativo ou fórmula.");
+
+    loading.style.display = 'block';
+    box.style.display = 'none';
+
+    const promptWiki = `Você é um Especialista em Farmacologia e Bioquímica Clínica. 
+    Sua missão é explicar para que serve o ativo e como ele interage com o corpo humano (mecanismo de ação).
+    
+    ESTRUTURA DE RESPOSTA (HTML):
+    1. <b>O que é:</b> Definição curta.
+    2. <b>Mecanismo de Ação:</b> Como age nos receptores/enzimas.
+    3. <b>Principais Benefícios:</b> Lista curta.
+    4. <b>Fisiologia:</b> O que ele faz no corpo de forma prática.
+    
+    Use <p>, <b> e <br> para formatação. Seja técnico, porém didático.`;
+
+    try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${GROQ_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: promptWiki },
+                    { role: "user", content: `Explique detalhadamente o ativo: ${input}` }
+                ],
+                temperature: 0.3
+            })
+        });
+
+        const data = await response.json();
+        const text = data.choices[0].message.content;
+
+        content.innerHTML = text;
+        box.style.display = 'block';
+
+    } catch (e) { 
+        console.error("Erro Wiki:", e);
+        alert("Erro na consulta: " + e.message); 
+    } finally { 
+        loading.style.display = 'none'; 
+    }
+}
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
                 this.resetProdForm();
@@ -517,7 +597,11 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
             renderProds() {
                 const buscaInput = document.getElementById('pBusca').value.toLowerCase();
                 const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
-                
+                const html = filtrados.length > 0 
+                    ? filtrados.slice().reverse().map(p => `...`).join('') 
+                    : '<p style="text-align:center; opacity:0.5;">Nenhum produto encontrado.</p>';
+
+                document.getElementById('prodLista').innerHTML = html;
                 document.getElementById('prodLista').innerHTML = filtrados.slice().reverse().map(p => `
                 <div class="prod-card" style="display: flex; flex-direction: column; gap: 10px;">
                     <div style="color:var(--accent); font-weight:800; font-size:1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
@@ -541,13 +625,17 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
             }
 
             copyProd(id) {
-                const p = this.produtos.find(x => x.id === id);
-                const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}\n\n*SUGESTÃO DE USO:* ${p.poso}`;
-                navigator.clipboard.writeText(txt);
-                const t = document.getElementById('toast');
-                t.style.display = 'block';
-                setTimeout(() => t.style.display = 'none', 2000);
-            }
+    const p = this.produtos.find(x => x.id === id);
+    const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}\n\n*SUGESTÃO DE USO:* ${p.poso}`;
+    
+    navigator.clipboard.writeText(txt).then(() => {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
+    }).catch(err => {
+        console.error('Erro ao copiar: ', err);
+    });
+}
 
             async addNota() {
                 const t = document.getElementById('nTexto').value.trim();
@@ -577,7 +665,7 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
 
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
             
-            switch(v) { 
+            changeView(v) { 
                 document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active')); 
                 document.getElementById('view-' + v)?.classList.add('active'); 
                 document.getElementById('nav-' + v)?.classList.add('active'); 
