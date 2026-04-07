@@ -421,7 +421,7 @@
                 box.style.display = 'none';
 
                 // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
-                const promptAudit = "🚨 AUDITORIA FARMACOLÓGICA v2.0 - CRF/SP #12345
+                const promptAudit = `🚨 AUDITORIA FARMACOLÓGICA v2.0 - CRF/SP #12345
 Farmacêutico Clínico com 18 anos UTI/Farmacovigilância
 SUA ÚNICA MISSÃO: Detectar riscos posológicos REAIS com dados verificáveis.
 RECEITA ANALISADA: "${input}"
@@ -482,7 +482,7 @@ Retorne APENAS o HTML abaixo:
 ✅ Calcular % exato vs LMAX. 
 ✅ Definir urgência da conduta.
 ✅ Se PERIGOSO, sugerir dose de manutenção segura.
-✅ Usar **negrito** para medicamentos e doses.`";
+✅ Usar **negrito** para medicamentos e doses.`;
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -534,7 +534,7 @@ Retorne APENAS o HTML abaixo:
                 loading.style.display = 'block'; 
                 box.style.display = 'none';
 
-                const promptWiki = "const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO DUAL v3.1 - COMPLETO E DETALHADO
+                const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO DUAL v3.1 - COMPLETO E DETALHADO
 Você é um Farmacêutico-Bioquímico PhD (CRF/SP #54321) com 20 anos de experiência clínica. 
 CRIA 2 VERSÕES: TÉCNICA (FARMACÊUTICO) + SIMPLES E DETALHADA (PACIENTE).
 ATIVO ANALISADO: "${input}"
