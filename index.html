@@ -421,69 +421,66 @@
 
                 // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
                 const promptAudit = `🚨 AUDITORIA FARMACOLÓGICA v2.0 - CRF/SP #12345
-                Farmacêutico Clínico com 18 anos UTI/Farmacovigilância
-                SUA ÚNICA MISSÃO: Detectar riscos posológicos REAIS com dados verificáveis.
-                RECEITA ANALISADA: "${input}"
-                ---
-                🔬 PROTOCOLO DE VERIFICAÇÃO (6 PASSOS OBRIGATÓRIOS):
-                1️⃣ DOSE TOTAL DIÁRIA vs LIMITE MÁXIMO (Anvisa/Bula/FDA)
-                2️⃣ INTERVALO entre doses (horas mínimas)
-                3️⃣ DURAÇÃO total do tratamento (dias)
-                4️⃣ AJUSTES obrigatórios (peso/idade/função renal)
-                5️⃣ INTERAÇÕES CRÍTICAS detectadas na receita
-                6️⃣ CONTRAINDICAÇÕES ABSOLUTAS presentes
-                ---
-                ⚖️ CLASSIFICAÇÃO BASEADA EM EVIDÊNCIA:
-                🟢 SEGURO = Dose ≤75% LMAX + sem interações D/E + duração padrão
-                🟡 ATENÇÃO = Dose 75-100% LMAX OU interação C OU >14 dias  
-                🔴 PERIGOSO = Dose >100% LMAX OU interação D/E OU contraindicação
-                INTERAÇÕES Lexicomp:
-                C=Monitorar | D=Ajustar dose | E=Contraindicado
-                ---
-                📊 FORMATO HTML MÉDICO (OBRIGATÓRIO - EXATO):
-                Retorne APENAS o HTML abaixo ajustando os fundos para RGBA para compatibilidade com modo Dark:
-                
-                🔴🟡🟢 [VEREDITO] | [MEDICAMENTO MAIS CRÍTICO] 
+Farmacêutico Clínico com 18 anos UTI/Farmacovigilância
+SUA ÚNICA MISSÃO: Detectar riscos posológicos REAIS com dados verificáveis.
+RECEITA ANALISADA: "${input}"
+---
+🔬 PROTOCOLO DE VERIFICAÇÃO (6 PASSOS OBRIGATÓRIOS):
+1️⃣ DOSE TOTAL DIÁRIA vs LIMITE MÁXIMO (Anvisa/Bula/FDA)
+2️⃣ INTERVALO entre doses (horas mínimas)
+3️⃣ DURAÇÃO total do tratamento (dias)
+4️⃣ AJUSTES obrigatórios (peso/idade/função renal)
+5️⃣ INTERAÇÕES CRÍTICAS detectadas na receita
+6️⃣ CONTRAINDICAÇÕES ABSOLUTAS presentes
+---
+⚖️ CLASSIFICAÇÃO BASEADA EM EVIDÊNCIA:
+🟢 SEGURO = Dose ≤75% LMAX + sem interações D/E + duração padrão
+🟡 ATENÇÃO = Dose 75-100% LMAX OU interação C OU >14 dias  
+🔴 PERIGOSO = Dose >100% LMAX OU interação D/E OU contraindicação
+INTERAÇÕES Lexicomp: C=Monitorar | D=Ajustar dose | E=Contraindicado
+---
+📊 FORMATO HTML MÉDICO (OBRIGATÓRIO - EXATO):
+Retorne APENAS o HTML abaixo:
 
-                <div style="background:rgba(224, 242, 254, 0.15);border:2px solid #0ea5e9;padding:20px;border-radius:16px;margin:16px 0">
-                <h4 style="color:#0ea5e9;margin:0 0 12px 0">📊 CÁLCULO DOSIMÉTRICO</h4>
-                <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-                • <b>Dose total:</b> [X mg/dia = Y% LMAX] <b>(fonte)</b><br>
-                • <b>Frequência:</b> [X×/dia = Z horas intervalo]<br>
-                • <b>Duração:</b> [X dias vs limite Y dias]<br>
-                • <b>Ajuste peso/renal:</b> [calculado ou necessário]
-                </p>
-                </div>
+🔴🟡🟢 [VEREDITO] | [MEDICAMENTO MAIS CRÍTICO]
 
-                <div style="background:rgba(254, 243, 199, 0.15);border:2px solid #f59e0b;padding:20px;border-radius:16px;margin:16px 0">
-                <h4 style="color:#f59e0b;margin:0 0 12px 0">🚨 RISCOS IDENTIFICADOS</h4>
-                <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-                • <mark style="background:#f59e0b; color:#fff">[RISCO #1]:</mark> [descrição + % acima limite + fonte]<br>
-                • <mark style="background:#f59e0b; color:#fff">[RISCO #2]:</mark> [interação específica Lexicomp D/E]<br>
-                • <mark style="background:#f59e0b; color:#fff">[RISCO #3]:</mark> [contraindicação ou ajuste necessário]
-                </p>
-                </div>
+<div style="background:rgba(224, 242, 254, 0.15);border:2px solid #0ea5e9;padding:20px;border-radius:16px;margin:16px 0">
+<h4 style="color:#0ea5e9;margin:0 0 12px 0">📊 CÁLCULO DOSIMÉTRICO</h4>
+<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
+• <b>Dose total:</b> [X mg/dia = Y% LMAX] <b>(fonte)</b><br>
+• <b>Frequência:</b> [X×/dia = Z horas intervalo]<br>
+• <b>Duração:</b> [X dias vs limite Y dias]<br>
+• <b>Ajuste peso/renal:</b> [calculado ou necessário]
+</p>
+</div>
 
-                <div style="background:rgba(209, 250, 229, 0.15);border:2px solid #10b981;padding:20px;border-radius:16px;margin:16px 0">
-                <h4 style="color:#10b981;margin:0 0 12px 0">🩺 CONDUTA FARMACÊUTICA</h4>
-                <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-                • <b>IMEDIATO:</b> [reduzir Xmg | suspender | trocar]<br>
-                • <b>MONITORAR:</b> [TGO/TPG | CrCl | INR | PA]<br>
-                • <b>ALTERNATIVA:</b> [medicamento + dose segura]<br>
-                • <b>COMUNICAR:</b> [médico responsável + prazo]
-                </p>
-                </div>
+<div style="background:rgba(254, 243, 199, 0.15);border:2px solid #f59e0b;padding:20px;border-radius:16px;margin:16px 0">
+<h4 style="color:#f59e0b;margin:0 0 12px 0">🚨 RISCOS IDENTIFICADOS</h4>
+<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
+• <mark style="background:#f59e0b; color:#fff">[RISCO #1]:</mark> [descrição + % acima limite + fonte]<br>
+• <mark style="background:#f59e0b; color:#fff">[RISCO #2]:</mark> [interação específica Lexicomp D/E]<br>
+• <mark style="background:#f59e0b; color:#fff">[RISCO #3]:</mark> [contraindicação ou ajuste necessário]
+</p>
+</div>
 
-                <hr style="border:0;height:4px;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);border-radius:4px">
+<div style="background:rgba(209, 250, 229, 0.15);border:2px solid #10b981;padding:20px;border-radius:16px;margin:16px 0">
+<h4 style="color:#10b981;margin:0 0 12px 0">🩺 CONDUTA FARMACÊUTICA</h4>
+<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
+• <b>IMEDIATO:</b> [reduzir Xmg | suspender | trocar]<br>
+• <b>MONITORAR:</b> [exames]<br>
+• <b>ALTERNATIVA:</b> [opção segura]<br>
+• <b>COMUNICAR:</b> [prazo]
+</p>
+</div>
 
-                <p style="font-size:14px;color:var(--text-sub);line-height:1.5">
-                <b>📚 EVIDÊNCIAS:</b> [Bula Anvisa RDC 203/17 | FDA Orange Book | PMID X | Lexicomp]
-                </p>
-                ---
-                🔒 REGRAS ANTI-FALHAS (NÃO QUEBRE):
-                ❌ PROIBIDO: Dados sem fonte, %LMAX sem cálculo, Respostas >400 palavras.
-                ✅ OBRIGATÓRIO: Citar LIMITE MÁXIMO EXATO, Calcular % EXATO, 3 DIVS COLORIDAS SEMPRE, Alternativa terapêutica concreta.
-                **PROTEJA O PACIENTE PRIMEIRO** 🩺⚡`;
+<hr style="border:0;height:4px;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);border-radius:4px">
+<p style="font-size:14px;color:var(--text-sub)"><b>📚 EVIDÊNCIAS:</b> [Fontes]</p>
+
+---
+🔒 REGRAS ANTI-FALHAS:
+❌ PROIBIDO: Dados sem fonte, %LMAX sem cálculo matemático.
+✅ OBRIGATÓRIO: Citar LIMITE MÁXIMO EXATO (mg/dia), 3 DIVS COLORIDAS SEMPRE.
+**PROTEJA O PACIENTE PRIMEIRO** 🩺⚡`;
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -537,29 +534,25 @@
 
                 // PROMPT v3.1 INTEGRADO SEM REMOVER NADA
                 const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO DUAL v3.1 - COMPLETO E DETALHADO
-                Você é um Farmacêutico-Bioquímico PhD (CRF/SP #54321) com 20 anos de experiência clínica. 
-                CRIA 2 VERSÕES: TÉCNICA (FARMACÊUTICO) + SIMPLES E DETALHADA (PACIENTE).
-                ATIVO ANALISADO: "${input}"
-                ---
-                RESPOSTA 1: TÉCNICA (DIV AZUL)
-                <div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0"><h4 style="color:#3b82f6;margin:0 0 12px 0">🔬 ANÁLISE MOLECULAR PROFISSIONAL</h4><p style="line-height:1.5;font-size:0.95em;color:var(--text-main)"><b>ATC:</b> [código] | <b>MW:</b> [g/mol] | <b>Classe:</b> [agonista/inibidor]<br><b>ALVO:</b> <mark>[receptor/enzima]</mark> | Ki/IC50=[nM/µM] | <b>CYP:</b> [3A4/2D6]<br><b>MECANISMO:</b> [cascata molecular] | <b>Ref:</b> [PMID/Bula Anvisa]</p></div>
-                ---
-                RESPOSTA 2: CLIENTE (4 DIVS DETALHADAS)
-                <div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ PARA QUE SERVE (DETALHADO)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Resolve estes problemas:</b><br>• [problema 1]<br>• [problema 2]<br>• [problema 3]<br><br><b>🎯 Você vai notar estas melhoras:</b><br>• [melhora 1]<br>• [melhora 2]<br>• [melhora 3]<br><br><b>👥 Indicado especialmente para:</b><br>[público]</p></div>
-                <div style="background:rgba(255, 243, 205, 0.1);padding:20px;border-radius:16px;border-left:6px solid #ffc107;margin:16px 0"><h4 style="color:#ffc107;margin:0 0 12px 0">💊 COMO TOMAR (ORIENTAÇÃO COMPLETA)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>💊 Dose usual:</b> [quantidade]<br><b>📅 Horário ideal:</b> [horário]<br><b>⏱️ Inicio de ação:</b> [tempo]<br><b>📦 Duração típica:</b> [dias]<br><b>💧 Jejum/comida:</b> [instrução]</p></div>
-                <div style="background:rgba(248, 215, 218, 0.1);padding:20px;border-radius:16px;border-left:6px solid #dc3545;margin:16px 0"><h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CUIDADOS E CONTRAINDICAÇÕES</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>❌ NÃO tomar se você:</b><br>• [alergia]<br>• [doença]<br>• [gravidez]<br><br><b>⚠️ Avisar médico se aparecer:</b><br>• [sintoma]</p></div>
-                <div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border-left:6px solid #17a2b8;margin:16px 0"><h4 style="color:#17a2b8;margin:0 0 12px 0">💡 DICAS PRÁTICAS DO FARMACÊUTICO</h4><ul style="font-size:16px;line-height:1.7;margin:8px 0 0 0;padding-left:24px;color:var(--text-main)"><li><b>✅ Melhor resultado:</b> [hábito]<li><b>💧 Como tomar:</b> [ingestão]<li><b>❄️ Conservar:</b> [local]<li><b>🚫 Evitar:</b> [interação]<li><b>📞 Quando ligar:</b> [alerta]</ul></div>
-                ---
-                REGRAS CORRIGIDAS v3.1:
-                ✅ "PARA QUE SERVE" EXPANDIDO: 3 seções (problemas/melhoras/público)
-                ✅ Cada div com 80-120 palavras (detalhado mas conciso)
-                ✅ Exemplos CONCRETOS (não genéricos)
-                ✅ 3-5 bullets POR seção
-                ✅ Linguagem coloquial mas profissional
-                ✅ Sempre "Você vai sentir/notar" (concreto)
-                TÉCNICA: Máx 120 palavras | CLIENTE: 250-350 palavras totais
-                ORDEM: DIV AZUL + 4 DIVS COLORIDAS
-                **AGORA FICA COMPLETO E ÚTIL PARA AMBOS!** 🧪📱✨`;
+Você é um Farmacêutico-Bioquímico PhD (CRF/SP #54321) com 20 anos de experiência clínica. 
+CRIA 2 VERSÕES: TÉCNICA (FARMACÊUTICO) + SIMPLES E DETALHADA (PACIENTE).
+ATIVO ANALISADO: "${input}"
+---
+RESPOSTA 1: TÉCNICA (DIV AZUL)
+<div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0"><h4 style="color:#3b82f6;margin:0 0 12px 0">🔬 ANÁLISE MOLECULAR PROFISSIONAL</h4><p style="line-height:1.5;font-size:0.95em;color:var(--text-main)"><b>ATC:</b> [código] | <b>MW:</b> [g/mol] | <b>Classe:</b> [agonista/inibidor]<br><b>ALVO:</b> <mark>[receptor/enzima]</mark> | Ki/IC50=[nM/µM] | <b>CYP:</b> [3A4/2D6]<br><b>MECANISMO:</b> [cascata molecular] | <b>Ref:</b> [PMID/Bula Anvisa]</p></div>
+---
+RESPOSTA 2: CLIENTE (4 DIVS DETALHADAS)
+<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ PARA QUE SERVE (DETALHADO)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Resolve estes problemas:</b><br>• [problema 1]<br>• [problema 2]<br>• [problema 3]<br><br><b>🎯 Você vai notar estas melhoras:</b><br>• [melhora 1]<br>• [melhora 2]<br>• [melhora 3]<br><br><b>👥 Indicado especialmente para:</b><br>[público]</p></div>
+<div style="background:rgba(255, 243, 205, 0.1);padding:20px;border-radius:16px;border-left:6px solid #ffc107;margin:16px 0"><h4 style="color:#ffc107;margin:0 0 12px 0">💊 COMO TOMAR (ORIENTAÇÃO COMPLETA)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>💊 Dose usual:</b> [quantidade]<br><b>📅 Horário ideal:</b> [horário]<br><b>⏱️ Inicio de ação:</b> [tempo]<br><b>📦 Duração típica:</b> [dias]<br><b>💧 Jejum/comida:</b> [instrução]</p></div>
+<div style="background:rgba(248, 215, 218, 0.1);padding:20px;border-radius:16px;border-left:6px solid #dc3545;margin:16px 0"><h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CUIDADOS E CONTRAINDICAÇÕES</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>❌ NÃO tomar se você:</b><br>• [alergia]<br>• [doença]<br>• [gravidez]<br><br><b>⚠️ Avisar médico se aparecer:</b><br>• [sintoma]</p></div>
+<div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border-left:6px solid #17a2b8;margin:16px 0"><h4 style="color:#17a2b8;margin:0 0 12px 0">💡 DICAS PRÁTICAS DO FARMACÊUTICO</h4><ul style="font-size:16px;line-height:1.7;margin:8px 0 0 0;padding-left:24px;color:var(--text-main)"><li><b>✅ Melhor resultado:</b> [hábito]<li><b>💧 Como tomar:</b> [ingestão]<li><b>❄️ Conservar:</b> [local]<li><b>🚫 Evitar:</b> [interação]<li><b>📞 Quando ligar:</b> [alerta]</ul></div>
+---
+REGRAS CORRIGIDAS v3.1:
+✅ "PARA QUE SERVE" EXPANDIDO: 3 seções (problemas/melhoras/público)
+✅ Cada div com 80-120 palavras (detalhado mas conciso)
+✅ 3-5 bullets POR seção
+✅ Sempre "Você vai sentir/notar"
+ORDEM: DIV AZUL + 4 DIVS COLORIDAS`;
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
