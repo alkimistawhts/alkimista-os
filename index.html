@@ -516,17 +516,17 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
             }
 
             async execWiki() {
-    const input = document.getElementById('wikiInput').value;
-    const box = document.getElementById('wikiResultBox');
-    const content = document.getElementById('wikiContent');
-    const loading = document.getElementById('wikiLoading');
+                const input = document.getElementById('wikiInput').value;
+                const box = document.getElementById('wikiResultBox');
+                const content = document.getElementById('wikiContent');
+                const loading = document.getElementById('wikiLoading');
     
-    if(!input.trim()) return alert("Digite o nome do ativo ou fórmula.");
+                if(!input.trim()) return alert("Digite o nome do ativo ou fórmula.");
 
-    loading.style.display = 'block';
-    box.style.display = 'none';
+                loading.style.display = 'block';
+                box.style.display = 'none';
 
-    const promptWiki = `Você é um Especialista em Farmacologia e Bioquímica Clínica. 
+                const promptWiki = `Você é um Especialista em Farmacologia e Bioquímica Clínica. 
     Sua missão é explicar para que serve o ativo e como ele interage com o corpo humano (mecanismo de ação).
     
     ESTRUTURA DE RESPOSTA (HTML):
@@ -537,36 +537,37 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
     
     Use <p>, <b> e <br> para formatação. Seja técnico, porém didático.`;
 
-    try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${GROQ_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [
-                    { role: "system", content: promptWiki },
-                    { role: "user", content: `Explique detalhadamente o ativo: ${input}` }
-                ],
-                temperature: 0.3
-            })
-        });
+                try {
+                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${GROQ_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [
+                                { role: "system", content: promptWiki },
+                                { role: "user", content: `Explique detalhadamente o ativo: ${input}` }
+                            ],
+                            temperature: 0.3
+                        })
+                    });
 
-        const data = await response.json();
-        const text = data.choices[0].message.content;
+                    const data = await response.json();
+                    const text = data.choices[0].message.content;
 
-        content.innerHTML = text;
-        box.style.display = 'block';
+                    content.innerHTML = text;
+                    box.style.display = 'block';
 
-    } catch (e) { 
-        console.error("Erro Wiki:", e);
-        alert("Erro na consulta: " + e.message); 
-    } finally { 
-        loading.style.display = 'none'; 
-    }
-}
+                } catch (e) { 
+                    console.error("Erro Wiki:", e);
+                    alert("Erro na consulta: " + e.message); 
+                } finally { 
+                    loading.style.display = 'none'; 
+                }
+            }
+
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
                 this.resetProdForm();
@@ -625,17 +626,17 @@ MÁXIMA PRIORIDADE: PROTEJA O PACIENTE 🩺⚡`;
             }
 
             copyProd(id) {
-    const p = this.produtos.find(x => x.id === id);
-    const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}\n\n*SUGESTÃO DE USO:* ${p.poso}`;
+                const p = this.produtos.find(x => x.id === id);
+                const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}\n\n*SUGESTÃO DE USO:* ${p.poso}`;
     
-    navigator.clipboard.writeText(txt).then(() => {
-        const t = document.getElementById('toast');
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 2000);
-    }).catch(err => {
-        console.error('Erro ao copiar: ', err);
-    });
-}
+                navigator.clipboard.writeText(txt).then(() => {
+                    const t = document.getElementById('toast');
+                    t.style.display = 'block';
+                    setTimeout(() => t.style.display = 'none', 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                });
+            }
 
             async addNota() {
                 const t = document.getElementById('nTexto').value.trim();
