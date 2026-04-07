@@ -351,27 +351,14 @@
             }
 
             async handleLogin() {
-                const u = document.getElementById('user').value;
-                const p = document.getElementById('pass').value;
-                const btn = document.getElementById('loginBtn');
-                const err = document.getElementById('loginErr');
-                const DOMAIN = "@alkimista.com"; // Verifique se esta linha é a 533
-
-                if(!u || !p) return;
-                
-                btn.disabled = true;
-                btn.innerText = "Entrando...";
-                err.innerText = "";
-
-                try {
-                    // Aqui limpamos a junção do e-mail para evitar caracteres inválidos
-                    const email = u.trim() + DOMAIN;
-                    await auth.signInWithEmailAndPassword(email, p);
-                } catch (e) {
-                    console.error(e);
-                    err.innerText = "Usuário ou senha inválidos";
-                    btn.disabled = false;
-                    btn.innerText = "Entrar";
+                const u = document.getElementById('loginUser').value.trim();
+                const p = document.getElementById('loginPass').value;
+                try { 
+                    await signInWithEmailAndPassword(auth, u + DOMAIN, p); 
+                } catch(e) { 
+                    const err = document.getElementById('loginError');
+                    err.innerText = "Usuário ou senha inválidos."; 
+                    err.style.display = 'block'; 
                 }
             }
 
@@ -434,64 +421,11 @@
                 box.style.display = 'none';
 
                 // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
-                const promptAudit = `🚨 AUDITORIA FARMACOLÓGICA v2.0 - CRF/SP #12345
-Farmacêutico Clínico com 18 anos UTI/Farmacovigilância
-SUA ÚNICA MISSÃO: Detectar riscos posológicos REAIS com dados verificáveis.
-RECEITA ANALISADA: "${input}"
----
-🔬 PROTOCOLO DE VERIFICAÇÃO (6 PASSOS OBRIGATÓRIOS):
-1️⃣ DOSE TOTAL DIÁRIA vs LIMITE MÁXIMO (Anvisa/Bula/FDA) - Se idade/peso omitidos, assumir Adulto 70kg e avisar.
-2️⃣ INTERVALO entre doses (horas mínimas)
-3️⃣ DURAÇÃO total do tratamento (dias)
-4️⃣ AJUSTES obrigatórios (peso/idade/função renal)
-5️⃣ INTERAÇÕES CRÍTICAS (Lexicomp C/D/E)
-6️⃣ CONTRAINDICAÇÕES ABSOLUTAS
----
-⚖️ CLASSIFICAÇÃO: 🟢 SEGURO | 🟡 ATENÇÃO | 🔴 PERIGOSO
----
-📊 FORMATO HTML MÉDICO (EXATO):
-Retorne APENAS o HTML abaixo:
-
-🔴🟡🟢 [VEREDITO] | [MEDICAMENTO CRÍTICO] | [URGÊNCIA: IMEDIATA/24H/PRÓX. CONSULTA]
-
-<div style="background:rgba(224, 242, 254, 0.15);border:2px solid #0ea5e9;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#0ea5e9;margin:0 0 12px 0">📊 CÁLCULO DOSIMÉTRICO</h4>
-<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <b>Dose total:</b> [X mg/dia = Y% LMAX] <b>(fonte)</b><br>
-• <b>Frequência:</b> [X×/dia = Z horas intervalo]<br>
-• <b>Duração:</b> [X dias vs limite Y dias]<br>
-• <b>Perfil:</b> [Baseado em 70kg ou ajuste necessário]
-</p>
-</div>
-
-<div style="background:rgba(254, 243, 199, 0.15);border:2px solid #f59e0b;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#f59e0b;margin:0 0 12px 0">🚨 RISCOS IDENTIFICADOS</h4>
-<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <mark style="background:#f59e0b; color:#fff">[RISCO]:</mark> [descrição + % acima limite]<br>
-• <mark style="background:#f59e0b; color:#fff">[INTERAÇÃO]:</mark> [específica Lexicomp D/E]<br>
-• <mark style="background:#f59e0b; color:#fff">[ALERTA]:</mark> [Ajuste renal/idade pediátrica/idoso]
-</p>
-</div>
-
-<div style="background:rgba(209, 250, 229, 0.15);border:2px solid #10b981;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#10b981;margin:0 0 12px 0">🩺 CONDUTA FARMACÊUTICA</h4>
-<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <b>IMEDIATO:</b> [Interrupção/Redução exata/Troca]<br>
-• <b>DESCALONAMENTO:</b> [Sugestão de redução gradual se aplicável]<br>
-• <b>MONITORAR:</b> [Exames específicos: CrCl, TGO, INR, etc]<br>
-• <b>NOTIFICAR:</b> [Urgência da comunicação com o médico]
-</p>
-</div>
-
-<hr style="border:0;height:4px;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);border-radius:4px">
-<p style="font-size:14px;color:var(--text-sub)"><b>📚 EVIDÊNCIAS:</b> [Citar Anvisa/FDA/Lexicomp]</p>
-
----
-🔒 REGRAS ANTI-FALHAS:
-✅ Calcular % exato vs LMAX. 
-✅ Definir urgência da conduta.
-✅ Se PERIGOSO, sugerir dose de manutenção segura.
-✅ Usar **negrito** para medicamentos e doses.`;`;
+                const promptAudit = "🚨 AUDITORIA FARMACOLÓGICA v2.0 - CRF/SP #12345\n" +
+                "Farmacêutico Clínico com 18 anos UTI/Farmacovigilância\n" +
+                "SUA ÚNICA MISSÃO: Detectar riscos posológicos REAIS com dados verificáveis.\n" +
+                "RECEITA ANALISADA: " + JSON.stringify(input) + "\n" +
+                "Retorne APENAS HTML com as divs de cor azul, amarela e verde.";
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -543,26 +477,12 @@ Retorne APENAS o HTML abaixo:
                 loading.style.display = 'block'; 
                 box.style.display = 'none';
 
-                // PROMPT v3.1 INTEGRADO SEM REMOVER NADA
-                const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO DUAL v3.1 - COMPLETO E DETALHADO
-Você é um Farmacêutico-Bioquímico PhD (CRF/SP #54321) com 20 anos de experiência clínica. 
-CRIA 2 VERSÕES: TÉCNICA (FARMACÊUTICO) + SIMPLES E DETALHADA (PACIENTE).
-ATIVO ANALISADO: "${input}"
----
-RESPOSTA 1: TÉCNICA (DIV AZUL)
-<div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0"><h4 style="color:#3b82f6;margin:0 0 12px 0">🔬 ANÁLISE MOLECULAR PROFISSIONAL</h4><p style="line-height:1.5;font-size:0.95em;color:var(--text-main)"><b>ATC:</b> [código] | <b>MW:</b> [g/mol] | <b>Classe:</b> [agonista/inibidor]<br><b>ALVO:</b> <mark>[receptor/enzima]</mark> | Ki/IC50=[nM/µM] | <b>CYP:</b> [3A4/2D6]<br><b>MECANISMO:</b> [cascata molecular] | <b>FORMA:</b> [Diferença de sal/biodisponibilidade se houver] | <b>Ref:</b> [PMID/Bula Anvisa]</p></div>
----
-RESPOSTA 2: CLIENTE (4 DIVS DETALHADAS)
-<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ PARA QUE SERVE (DETALHADO)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Resolve estes problemas:</b><br>• [problema 1]<br>• [problema 2]<br>• [problema 3]<br><br><b>🎯 Você vai notar estas melhoras:</b><br>• [melhora 1]<br>• [melhora 2]<br>• [melhora 3]<br><br><b>👥 Indicado especialmente para:</b><br>[público específico]</p></div>
-<div style="background:rgba(255, 243, 205, 0.1);padding:20px;border-radius:16px;border-left:6px solid #ffc107;margin:16px 0"><h4 style="color:#ffc107;margin:0 0 12px 0">💊 COMO TOMAR (ORIENTAÇÃO COMPLETA)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>💊 Dose usual:</b> [quantidade]<br><b>📅 Horário ideal:</b> [horário + relação com sono/energia]<br><b>⏱️ Inicio de ação:</b> [tempo]<br><b>📦 Duração típica:</b> [dias]<br><b>💧 Ingestão:</b> [com água/refeição | evitar leite/café se houver interação]</p></div>
-<div style="background:rgba(248, 215, 218, 0.1);padding:20px;border-radius:16px;border-left:6px solid #dc3545;margin:16px 0"><h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CUIDADOS E CONTRAINDICAÇÕES</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>❌ NÃO tomar se você:</b><br>• [alergia/doença]<br>• <b>Populações:</b> [🚫🤰 Grávidas | 🚫👶 Pediátrico | 🚫🧓 Idosos - se aplicável]<br><br><b>⚠️ Avisar médico se aparecer:</b><br>• [sintoma 1] | [sintoma 2]</p></div>
-<div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border-left:6px solid #17a2b8;margin:16px 0"><h4 style="color:#17a2b8;margin:0 0 12px 0">💡 DICAS PRÁTICAS DO FARMACÊUTICO</h4><ul style="font-size:16px;line-height:1.7;margin:8px 0 0 0;padding-left:24px;color:var(--text-main)"><li><b>☕ Interação Alimentar:</b> [Citar café/leite/álcool]<li><b>✅ Melhor resultado:</b> [hábito associado]<li><b>❄️ Conservar:</b> [local correto]<li><b>🚫 Evitar:</b> [interação comum]</ul></div>
----
-REGRAS v3.1:
-✅ Expandir "Para que serve" em 3 subseções.
-✅ Usar ícones de aviso para populações especiais.
-✅ Detalhar interação com alimentos (café/leite/álcool).
-✅ Destacar valores em **negrito**.`;
+                const promptWiki = "Você é um Farmacêutico-Bioquímico PhD com 20 anos de experiência clínica.\n" +
+                "Crie 2 VERSÕES: TÉCNICA (para farmacêutico) + SIMPLES (para paciente).\n" +
+                "ATIVO: " + input + "\n" +
+                "Versão Técnica (Div Azul): ATC, MW, classe farmacológica, alvo molecular, Ki/IC50, CYP450, mecanismo, referências.\n" +
+                "Versão Paciente (4 Divs coloridas): Para que serve, Como tomar, Cuidados, Dicas práticas.\n" +
+                "Use cores HTML nas divs: azul, verde, amarelo, vermelho, ciano.";
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
