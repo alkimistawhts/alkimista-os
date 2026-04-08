@@ -488,11 +488,25 @@ Retorne APENAS o HTML abaixo:
 </div>
 
 ---
+📱 RESUMO DE SEGURANÇA PARA O CLIENTE (TEXTO PURO)
+Gere este bloco ao final (Use * para negritos aqui):
+
+⚠️ *Aviso Importante sobre sua Receita* ⚠️
+
+Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um ponto de atenção no item *[Nome do Medicamento]*.
+
+🔍 *O que detectamos:* [Explicação muito simples do erro, ex: 'A dose está acima do limite permitido pela ANVISA'].
+🩺 *Recomendação:* [O que o cliente deve fazer, ex: 'Vamos entrar em contato com seu médico para confirmar a dosagem ou sugerir o ajuste seguro'].
+
+---
 🔒 REGRAS ANTI-FALHAS:
+✅ HTML: Use apenas tags <b>. Proibido asteriscos no HTML.
+✅ WHATSAPP: Use apenas asteriscos *. Proibido tags HTML no resumo.
 ✅ Calcular % exato vs LMAX BRASIL. 
 ✅ Proibido validar doses internacionais que violem a segurança nacional.
 ✅ Se PERIGOSO, sugerir obrigatoriamente a correção para a dose da Bula BR.
-✅ Usar *negrito* para medicamentos e doses.`;
+✅ Usar *negrito* para medicamentos e doses.
+✅ Temperatura 0`;
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -609,6 +623,9 @@ Após gerar todos os cards acima, gere obrigatoriamente um resumo em texto puro 
 🔒 REGRAS v5.0:
 ✅ Analisar INDIVIDUALMENTE cada ativo antes da sinergia.
 ✅ Se for apenas 1 ativo, omitir o card de Sinergia.
+✅ NOS CARDS HTML: Use exclusivamente as tags <b>Texto</b> para negrito.
+✅ NO RESUMO WHATSAPP: Use exclusivamente os asteriscos *Texto* para negrito.
+✅ Proibido misturar as duas formatações no mesmo bloco.
 ✅ Linguagem simples para WhatsApp, mas baseada na ANVISA.
 ✅ Gerar o resumo em texto puro obrigatoriamente no final.
 ✅ Usar *negrito* no HTML e *asteriscos* no texto do WhatsApp.
