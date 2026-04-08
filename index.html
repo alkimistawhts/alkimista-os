@@ -533,11 +533,11 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
 ✅ Temperatura 0`;
 
                 try {
-                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
+                    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                        method: 'POST',
                         headers: { 
-                            "Authorization": "Bearer " + GROQ_KEY, 
-                            "Content-Type": "application/json" 
+                            'Authorization': `Bearer ` + GROQ_KEY, 
+                            'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
                             model: "llama-3.3-70b-versatile",
@@ -658,11 +658,11 @@ Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS D
 ✅ Temperatura 0.1.`;
 
                 try {
-                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
+                    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                        method: 'POST',
                         headers: { 
-                            "Authorization": "Bearer " + GROQ_KEY, 
-                            "Content-Type": "application/json" 
+                            'Authorization': `Bearer ` + GROQ_KEY, 
+                            'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
                             model: "llama-3.3-70b-versatile",
