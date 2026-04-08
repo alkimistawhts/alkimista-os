@@ -422,77 +422,74 @@
                 box.style.display = 'none';
 
                 // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
-                const promptAudit = `🚨 AUDITORIA FARMACOLÓGICA v3.0 - PADRÃO BRASIL 🇧🇷
-Farmacêutico Clínico (18 anos UTI/Farmacovigilância)
-MISSÃO: Auditoria de segurança máxima com Score de Gravidade e Cascata de Desfecho.
-RECEITA ANALISADA: "${input}"
+                const promptAudit = `🔬 DICIONÁRIO FARMACODINÂMICO v5.0 - WHATSAPP VIP 🇧🇷
+Especialista em Farmacologia e Atendimento Consultivo.
+
+ATIVOS ANALISADOS: "${input}"
 
 ---
-🇧🇷 DIRETRIZ DE SOBERANIA SANITÁRIA (FONTES OBRIGATÓRIAS):
-1️⃣ ALOPATIA/FITOTERAPIA: Uso estrito de Anvisa (IN 02/2014), Memento Fitoterápico e fornecedores: Infinity Pharma, Galena, Florien e Fagron Brasil.
-2️⃣ HOMEOPATIA: Farmacopeia Homeopática Brasileira e normas da ABFH.
-3️⃣ GINKGO BILOBA BR: Teto absoluto 160mg/dia. Acima disso = 🔴 PERIGOSO.
-4️⃣ TOLERÂNCIA ZERO: Bloquear doses globais (FDA/OMS) que violem a norma brasileira.
+🇧🇷 DIRETRIZ DE SOBERANIA NACIONAL (TRAVA BRASIL):
+1. FONTES: ANVISA (DCB), Farmacopeia Brasileira e manuais técnicos (Infinity, Galena, Florien, Fagron).
+2. DOSAGENS: Respeitar o teto de segurança nacional. Bloquear padrões internacionais inseguros no BR.
+3. HOMEOPATIA: Uso exclusivo da Farmacopeia Homeopática Brasileira e ABFH.
 
 ---
-🔬 PROTOCOLO DE VERIFICAÇÃO CRÍTICA:
-1️⃣ SCORE DE GRAVIDADE: Avaliar o impacto sistêmico do erro posológico ou interação.
-2️⃣ CASCATA DE DESFECHO: Descrever a sequência de eventos fisiopatológicos se a dose não for corrigida.
-3️⃣ AJUSTES BR: Cruzar dados com limites de bula e guias de insumos nacionais.
+🧠 PROTOCOLO HÍBRIDO (INDIVIDUAL + SINERGIA):
+1. FASE DE ISOLAMENTO: Analise cada ativo de forma independente. Gere as RESPOSTAS 1 e 2 para cada um antes de passar ao próximo.
+2. FASE DE TEIA: Somente ao final, gere a "Análise de Teia" se houver relação de fórmula entre os ativos.
+3. FASE WHATSAPP: Após todo o conteúdo visual, gere o resumo em texto puro para cópia imediata.
 
 ---
-⚖️ CLASSIFICAÇÃO E SCORE:
-🟢 SEGURO: Em conformidade com ANVISA/Bula.
-🟡 ATENÇÃO (Score 1-4): Risco moderado, efeitos colaterais tratáveis ou dose limítrofe.
-🔴 PERIGOSO (Score 5-10): Risco de óbito, hemorragia, falência orgânica ou hospitalização.
-
----
-📊 FORMATO HTML MÉDICO (EXATO):
-Retorne APENAS o HTML abaixo:
-
-[VEREDITO BRASIL] | [SCORE: X/10] | [URGÊNCIA: IMEDIATA/24H/PRÓX. CONSULTA]
-
-<div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;border-left:8px solid #0284c7;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#3b82f6;margin:0 0 12px 0">📊 CÁLCULO DOSIMÉTRICO E SCORE (PADRÃO BR)</h4>
+RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL - POR ATIVO)
+<div style="background:rgba(2, 132, 199, 0.05);border:1px solid #0284c7;border-left:8px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0">
+<h4 style="color:#3b82f6;margin:0 0 10px 0">🔬 COMO ESTE ATIVO AGE: [NOME DO ATIVO]</h4>
 <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <b>Dose total:</b> [X mg/dia = Y% LMAX BR] <b>(Fonte Nacional)</b><br>
-• <b>Frequência/Duração:</b> [X×/dia por Y dias]<br>
-• <b>Score de Gravidade:</b> [X/10 - Justificativa rápida]<br>
-• <b>Perfil:</b> [Ajuste baseado em diretrizes brasileiras]
-</p>
-</div>
-
-<div style="background:rgba(248, 215, 218, 0.1);border:2px solid #dc3545;border-left:8px solid #dc3545;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CASCATA DE DESFECHO E RISCOS</h4>
-<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <mark style="background:#dc3545; color:#fff; padding:2px 5px; border-radius:4px">FISIOPATOLOGIA:</mark> [Descrever a cascata de eventos: ex: Inibição de COX > Lesão Gástrica > Hemorragia]<br>
-• <mark style="background:rgba(220, 53, 69, 0.1); color:#dc3545; padding:2px 5px; border-radius:4px">DESFECHO:</mark> [O que acontecerá com o paciente se não houver intervenção?]<br>
-• <mark style="background:rgba(220, 53, 69, 0.1); color:#dc3545; padding:2px 5px; border-radius:4px">INTERAÇÃO:</mark> [Análise de risco real detectada]
-</p>
-</div>
-
-<div style="background:rgba(232, 245, 232, 0.1);border:2px solid #28a745;border-left:8px solid #28a745;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#28a745;margin:0 0 12px 0">🩺 CONDUTA E COMUNICAÇÃO FARMACÊUTICA</h4>
-<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <b>INTERVENÇÃO:</b> [Ação imediata recomendada pelo Farmacêutico]<br>
-• <b>TEXTO P/ MÉDICO:</b> [Sugestão formal de comunicação ao prescritor: "Prezado, conforme ANVISA..."]<br>
-• <b>MONITORAR:</b> [Exames e sinais clínicos específicos]<br>
-</p>
-</div>
-
-<div style="background:rgba(248, 215, 218, 0.1);border:2px solid #dc3545;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#dc3545;margin:0 0 12px 0">📚 EVIDÊNCIAS E FONTES NACIONAIS</h4>
-<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-[Citar obrigatoriamente: Anvisa IN 02/14, Farmacopeia BR, Guia Infinity/Galena/Fagron]
-</p>
-</div>
+<b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples: 'Ajuda a relaxar os vasos para o sangue fluir melhor...']<br><br>
+<b>🎯 PRINCIPAL BENEFÍCIO:</b> [O que o cliente ganha? 'Mais disposição e menos inchaço.']<br><br>
+<b>📝 NOTA DE ABSORÇÃO (BIO):</b> [Explicação simples: 'Esta forma é mais leve para o estômago e o corpo absorve rápido.']<br><br>
+<b>🕒 TEMPO DE RESPOSTA:</b> [Em quanto tempo o ativo começa a fazer efeito?]
+</p></div>
 
 ---
-🔒 REGRAS ANTI-FALHAS:
-✅ Calcular % exato vs LMAX BRASIL. 
-✅ Proibido validar doses internacionais que violem a segurança nacional.
-✅ Se PERIGOSO, sugerir obrigatoriamente a correção para a dose da Bula BR.
-✅ Usar **negrito** para medicamentos e doses.`;
+RESPOSTA 2: GUIA DO CLIENTE (CARDS COLORIDOS - REPETIR POR ATIVO)
+<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ PARA QUE SERVE (DETALHADO)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Resolve:</b> [problema 1, 2, 3]<br><b>🎯 Melhoras esperadas:</b> [melhora 1, 2, 3]<br><b>👥 Indicado para:</b> [Público alvo conforme ANVISA]</p></div>
+
+<div style="background:rgba(255, 243, 205, 0.1);padding:20px;border-radius:16px;border-left:6px solid #ffc107;margin:16px 0"><h4 style="color:#ffc107;margin:0 0 12px 0">💊 COMO TOMAR (ORIENTAÇÃO COMPLETA)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>💊 Dose usual BR:</b> [X mg/dia]<br><b>📅 Horário:</b> [Ideal + relação com sono/energia]<br><b>💧 Ingestão:</b> [água/refeição | evitar leite/café se houver interação]</p></div>
+
+<div style="background:rgba(248, 215, 218, 0.1);padding:20px;border-radius:16px;border-left:6px solid #dc3545;margin:16px 0"><h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CUIDADOS E CONTRAINDICAÇÕES</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>❌ NÃO tomar se:</b> [alergia/doença]<br><b>Populações:</b> [🚫🤰 Grávidas | 🚫👶 Pediátrico | 🚫🧓 Idosos]<br><b>⚠️ Avisar médico se:</b> [sintomas críticos]</p></div>
+
+<div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border-left:6px solid #17a2b8;margin:16px 0"><h4 style="color:#17a2b8;margin:0 0 12px 0">💡 DICAS PRÁTICAS DO FARMACÊUTICO</h4><ul style="font-size:16px;line-height:1.7;margin:8px 0 0 0;padding-left:24px;color:var(--text-main)"><li><b>☕ Interação Alimentar:</b> [Café/Leite/Álcool]<li><b>✅ Melhor resultado:</b> [Hábito associado]<li><b>🚫 Evitar:</b> [Interação comum no BR]</ul></div>
+
+---
+RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - GERAR NO FINAL)
+<div style="background:rgba(21, 183, 213, 0.05);border:2px solid #17a2b8;border-left:12px solid #17a2b8;padding:20px;border-radius:16px;margin:16px 0">
+<h4 style="color:#17a2b8;margin:0 0 12px 0">🧬 ANÁLISE DE TEIA: INTELIGÊNCIA DA FÓRMULA</h4>
+<p style="font-size:16px;line-height:1.7;color:var(--text-main)">
+<b>🤝 SINERGIA CLÍNICA:</b> [Como os ativos se potencializam mutuamente]<br>
+<b>⚖️ EQUILÍBRIO DA TEIA:</b> [Análise simples da carga da fórmula]<br>
+<b>⚠️ INCOMPATIBILIDADE:</b> [Conflitos de absorção ou avisos importantes]
+</p></div>
+
+---
+📱 RESUMO PRONTO PARA WHATSAPP (TEXTO PURO)
+Após gerar todos os cards acima, gere obrigatoriamente um resumo em texto puro formatado para o WhatsApp:
+
+*O seu Composto:* *[Nome do Ativo]* 🔬
+
+✅ *O que ele faz por você:* [Benefício real e simples em até 2 frases].
+💊 *Como usar:* [Dose e melhor horário para tomar].
+💡 *Dica de Ouro:* [Uma dica prática de alimentação ou hábito para melhorar o resultado].
+
+*(Se houver mais de um ativo, repita o resumo acima para cada um).*
+
+---
+🔒 REGRAS v5.0:
+✅ Analisar INDIVIDUALMENTE cada ativo antes da sinergia.
+✅ Se for apenas 1 ativo, omitir o card de Sinergia.
+✅ Linguagem simples para WhatsApp, mas baseada na ANVISA.
+✅ Gerar o resumo em texto puro obrigatoriamente no final.
+✅ Usar **negrito** no HTML e *asteriscos* no texto do WhatsApp.
+✅ Temperatura 0.1.`;
 
                 try {
                     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
