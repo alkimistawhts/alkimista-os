@@ -216,13 +216,14 @@
                         <p style="font-size: 0.9rem; color: var(--text-sub);">Consultando bases farmacêuticas...</p>
                     </div>
                     <div id="auditResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden; margin-top: 20px;">
+    <div id="auditResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden; margin-top: 20px;">
     <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
         <span>🛡️ RESULTADO DA ANÁLISE CLÍNICA</span>
         <div style="display: flex; gap: 10px; align-items: center;">
-        <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
-        <small id="auditStatus" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 8px; font-size: 0.7rem;"></small>
-    </div>
-    <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
+            <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
+            <small id="auditStatus" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 8px; font-size: 0.7rem;"></small>
+        </div>
+    </div> <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
 </div>
                 </div>
             </div>
@@ -293,6 +294,8 @@
                         <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                             <span>🔬 MECANISMO DE AÇÃO & FISIOLOGIA</span>
                             <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
+                        </div>
+                        <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
                     </div>
                 </div>
             </div>
