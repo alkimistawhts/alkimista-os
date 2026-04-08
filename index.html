@@ -427,6 +427,11 @@ Farmacêutico Clínico com 18 anos UTI/Farmacovigilância
 SUA ÚNICA MISSÃO: Detectar riscos posológicos REAIS com dados verificáveis.
 RECEITA ANALISADA: "${input}"
 ---
+🔬 REGRAS DE OURO:
+1️⃣ GINKGO BILOBA: Limite máximo usual é 240mg/dia. Qualquer dose acima de 360mg/dia DEVE ser marcada como 🔴 PERIGOSO por risco de sangramento.
+2️⃣ ERRO DE DOSAGEM: Se a dose diária total exceder a dose máxima recomendada (LMAX), você está PROIBIDO de dizer que é seguro.
+3️⃣ INTERAÇÕES: Verifique risco de sangramento (AAS, Varfarina, AINEs) e convulsão.
+---
 🔬 PROTOCOLO DE VERIFICAÇÃO (6 PASSOS OBRIGATÓRIOS):
 1️⃣ DOSE TOTAL DIÁRIA vs LIMITE MÁXIMO (Anvisa/Bula/FDA) - Se idade/peso omitidos, assumir Adulto 70kg e avisar.
 2️⃣ INTERVALO entre doses (horas mínimas)
@@ -498,7 +503,7 @@ Retorne APENAS o HTML abaixo:
                                 { role: "system", content: "Você é um Auditor Farmacêutico. Retorne APENAS o código HTML solicitado, sem introduções. Use var(--text-main) para cores de texto." }, 
                                 { role: "user", content: promptAudit } 
                             ],
-                            temperature: 0.1
+                            temperature: 0,
                         })
                     });
 
@@ -536,22 +541,50 @@ Retorne APENAS o HTML abaixo:
                 loading.style.display = 'block'; 
                 box.style.display = 'none';
 
-                const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO DUAL v3.1 - COMPLETO E DETALHADO
+                const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO DUAL v3.5 - FÓRMULAS E COMPOSTOS
 Você é um Farmacêutico-Bioquímico PhD (CRF/SP #54321) com 20 anos de experiência clínica. 
-CRIA 2 VERSÕES: TÉCNICA (FARMACÊUTICO) + SIMPLES E DETALHADA (PACIENTE).
-ATIVO ANALISADO: "${input}"
+ATIVOS ANALISADOS: "${input}"
+
+---
+🧠 PROTOCOLO MULTI-ATIVOS:
+1. VISÃO INDIVIDUAL: Se houver mais de 1 ativo, você deve gerar as RESPOSTAS 1 e 2 para CADA UM deles individualmente.
+2. DETECÇÃO DE CONFLITOS: Se houver substâncias que "brigam" (ex: Ferro e Cálcio no mesmo horário, ou ativos que competem pelo mesmo receptor), gere um ALERTA VERMELHO DE INCOMPATIBILIDADE no início da resposta.
+3. ANÁLISE DE SINERGIA: Ao final de todos os ativos, gere o card de SINERGIA (DIV CIANO).
+
 ---
 RESPOSTA 1: TÉCNICA (DIV AZUL)
-<div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0"><h4 style="color:#3b82f6;margin:0 0 12px 0">🔬 ANÁLISE MOLECULAR PROFISSIONAL</h4><p style="line-height:1.5;font-size:0.95em;color:var(--text-main)"><b>ATC:</b> [código] | <b>MW:</b> [g/mol] | <b>Classe:</b> [agonista/inibidor]<br><b>ALVO:</b> <mark>[receptor/enzima]</mark> | Ki/IC50=[nM/µM] | <b>CYP:</b> [3A4/2D6]<br><b>MECANISMO:</b> [cascata molecular] | <b>FORMA:</b> [Diferença de sal/biodisponibilidade se houver] | <b>Ref:</b> [PMID/Bula Anvisa]</p></div>
+<div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0"><h4 style="color:#3b82f6;margin:0 0 12px 0">🔬 ANÁLISE MOLECULAR PROFISSIONAL: [NOME DO ATIVO]</h4><p style="line-height:1.5;font-size:0.95em;color:var(--text-main)"><b>ATC:</b> [código] | <b>MW:</b> [g/mol] | <b>Classe:</b> [agonista/inibidor]<br><b>ALVO:</b> <mark>[receptor/enzima]</mark> | Ki/IC50=[nM/µM] | <b>CYP:</b> [3A4/2D6]<br><b>MECANISMO:</b> [cascata molecular] | <b>FORMA:</b> [Diferença de sal/biodisponibilidade] | <b>Ref:</b> [PMID/Bula Anvisa]</p></div>
+
 ---
-RESPOSTA 2: CLIENTE (4 DIVS DETALHADAS)
-<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ PARA QUE SERVE (DETALHADO)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Resolve estes problemas:</b><br>• [problema 1]<br>• [problema 2]<br>• [problema 3]<br><br><b>🎯 Você vai notar estas melhoras:</b><br>• [melhora 1]<br>• [melhora 2]<br>• [melhora 3]<br><br><b>👥 Indicado especialmente para:</b><br>[público específico]</p></div>
-<div style="background:rgba(255, 243, 205, 0.1);padding:20px;border-radius:16px;border-left:6px solid #ffc107;margin:16px 0"><h4 style="color:#ffc107;margin:0 0 12px 0">💊 COMO TOMAR (ORIENTAÇÃO COMPLETA)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>💊 Dose usual:</b> [quantidade]<br><b>📅 Horário ideal:</b> [horário + relação com sono/energia]<br><b>⏱️ Inicio de ação:</b> [tempo]<br><b>📦 Duração típica:</b> [dias]<br><b>💧 Ingestão:</b> [com água/refeição | evitar leite/café se houver interação]</p></div>
-<div style="background:rgba(248, 215, 218, 0.1);padding:20px;border-radius:16px;border-left:6px solid #dc3545;margin:16px 0"><h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CUIDADOS E CONTRAINDICAÇÕES</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>❌ NÃO tomar se você:</b><br>• [alergia/doença]<br>• <b>Populações:</b> [🚫🤰 Grávidas | 🚫👶 Pediátrico | 🚫🧓 Idosos - se aplicável]<br><br><b>⚠️ Avisar médico se aparecer:</b><br>• [sintoma 1] | [sintoma 2]</p></div>
-<div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border-left:6px solid #17a2b8;margin:16px 0"><h4 style="color:#17a2b8;margin:0 0 12px 0">💡 DICAS PRÁTICAS DO FARMACÊUTICO</h4><ul style="font-size:16px;line-height:1.7;margin:8px 0 0 0;padding-left:24px;color:var(--text-main)"><li><b>☕ Interação Alimentar:</b> [Citar café/leite/álcool]<li><b>✅ Melhor resultado:</b> [hábito associado]<li><b>❄️ Conservar:</b> [local correto]<li><b>🚫 Evitar:</b> [interação comum]</ul></div>
+RESPOSTA 2: CLIENTE (4 DIVS DETALHADAS POR ATIVO)
+<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ PARA QUE SERVE (DETALHADO)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Resolve estes problemas:</b> [problema 1, 2, 3]<br><b>🎯 Você vai notar estas melhoras:</b> [melhora 1, 2, 3]<br><b>👥 Indicado para:</b> [público]</p></div>
+
+<div style="background:rgba(255, 243, 205, 0.1);padding:20px;border-radius:16px;border-left:6px solid #ffc107;margin:16px 0"><h4 style="color:#ffc107;margin:0 0 12px 0">💊 COMO TOMAR (ORIENTAÇÃO COMPLETA)</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>💊 Dose usual:</b> [quantidade]<br><b>📅 Horário:</b> [horário]<br><b>⏱️ Início:</b> [tempo]<br><b>💧 Ingestão:</b> [água/refeição | evitar leite/café se houver interação]</p></div>
+
+<div style="background:rgba(248, 215, 218, 0.1);padding:20px;border-radius:16px;border-left:6px solid #dc3545;margin:16px 0"><h4 style="color:#dc3545;margin:0 0 12px 0">🚨 CUIDADOS E CONTRAINDICAÇÕES</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>❌ NÃO tomar se:</b> [alergia/doença]<br><b>Populações:</b> [🚫🤰 Grávidas | 🚫👶 Pediátrico | 🚫🧓 Idosos]<br><b>⚠️ Avisar médico se:</b> [sintomas]</p></div>
+
+<div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border-left:6px solid #17a2b8;margin:16px 0"><h4 style="color:#17a2b8;margin:0 0 12px 0">💡 DICAS PRÁTICAS DO FARMACÊUTICO</h4><ul style="font-size:16px;line-height:1.7;margin:8px 0 0 0;padding-left:24px;color:var(--text-main)"><li><b>☕ Interação Alimentar:</b> [Citar café/leite/álcool]<li><b>✅ Melhor resultado:</b> [hábito]<li><b>🚫 Evitar:</b> [interação comum]</ul></div>
+
 ---
-REGRAS v3.1:
-✅ Expandir "Para que serve" em 3 subseções.
+RESPOSTA FINAL: SINERGIA (SOMENTE SE HOUVER +1 ATIVO)
+<div style="background:rgba(209, 236, 241, 0.1);padding:20px;border-radius:16px;border:2px solid #17a2b8;border-left:8px solid #17a2b8;margin:16px 0">
+<h4 style="color:#17a2b8;margin:0 0 12px 0">🔍 ANÁLISE DE SINERGIA E INTERAÇÕES DO COMPOSTO</h4>
+<p style="font-size:16px;line-height:1.7;color:var(--text-main)">
+<b>🤝 Sinergia:</b> [Como um ativo potencializa o outro]<br>
+<b>⚖️ Equilíbrio da Fórmula:</b> [Se a carga metabólica e farmacodinâmica é adequada]<br>
+<b>⚠️ Incompatibilidades:</b> [Se algo anula o outro ou compete por absorção]
+</p></div>
+
+---
+REGRAS DE PROCESSAMENTO:
+✅ Se o usuário enviar uma lista, trate cada item como uma entidade independente.
+✅ FOCO INDIVIDUAL: Gere o conjunto completo de cards (Técnico + Cliente) para o Ativo A, depois para o Ativo B, sucessivamente.
+✅ Proibido resumir múltiplos ativos em um único card.
+✅ Somente gere o card de SINERGIA se houver uma clara relação de fórmula magistral entre eles; caso contrário, mantenha as análises isoladas.
+---
+REGRAS v3.5:
+✅ Processar CADA ativo da lista individualmente antes da sinergia.
+✅ Se detectar ativos que competem (ex: minerais competindo por transportador), gerar alerta claro.
 ✅ Usar ícones de aviso para populações especiais.
 ✅ Detalhar interação com alimentos (café/leite/álcool).
 ✅ Destacar valores em **negrito**.`;
@@ -569,7 +602,7 @@ REGRAS v3.1:
                                 { role: "system", content: "Você é um PhD em Farmacologia. Retorne APENAS o código HTML solicitado, usando as cores e estrutura fornecidas no prompt. Não adicione texto fora das divs." }, 
                                 { role: "user", content: promptWiki } 
                             ],
-                            temperature: 0.3
+                            temperature: 0.1
                         })
                     });
                     const data = await response.json();
