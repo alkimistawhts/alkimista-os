@@ -218,6 +218,8 @@
                     <div id="auditResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden; margin-top: 20px;">
     <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
         <span>🛡️ RESULTADO DA ANÁLISE CLÍNICA</span>
+        <div style="display: flex; gap: 10px; align-items: center;">
+        <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
         <small id="auditStatus" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 8px; font-size: 0.7rem;"></small>
     </div>
     <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
@@ -288,8 +290,9 @@
                         <p style="font-size: 0.9rem; color: var(--text-sub);">Consultando literatura farmacêutica...</p>
                     </div>
                     <div id="wikiResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden;">
-                        <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold;">🔬 MECANISMO DE AÇÃO & FISIOLOGIA</div>
-                        <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
+                        <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                            <span>🔬 MECANISMO DE AÇÃO & FISIOLOGIA</span>
+                            <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
                     </div>
                 </div>
             </div>
@@ -326,6 +329,24 @@
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 this.initAuth();
             }
+            copiarResumo() {
+                const resumoElemento = document.getElementById('resumoWhatsApp');
+                if (resumoElemento) {
+                    const textoParaCopiar = resumoElemento.innerText;
+                    navigator.clipboard.writeText(textoParaCopiar).then(() => {
+                    // Reutiliza o seu toast que já existe no sistema
+                    const t = document.getElementById('toast');
+                    t.innerText = "Resumo copiado para o WhatsApp!";
+                    t.style.display = 'block'; 
+                    setTimeout(() => t.style.display = 'none', 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                    alert('Erro ao copiar texto.');
+                });
+            } else {
+                alert('O resumo para WhatsApp não foi encontrado nesta resposta.');
+            }
+        }
 
             initAuth() {
                 onAuthStateChanged(auth, async (u) => {
@@ -489,15 +510,16 @@ Retorne APENAS o HTML abaixo:
 
 ---
 📱 RESUMO DE SEGURANÇA PARA O CLIENTE (TEXTO PURO)
-Gere este bloco ao final (Use * para negritos aqui):
+Gere o conteúdo abaixo obrigatoriamente dentro da tag <pre id="resumoWhatsApp">:
 
+<pre id="resumoWhatsApp" style="white-space: pre-wrap; font-family: sans-serif;">
 ⚠️ *Aviso Importante sobre sua Receita* ⚠️
 
 Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um ponto de atenção no item *[Nome do Medicamento]*.
 
-🔍 *O que detectamos:* [Explicação muito simples do erro, ex: 'A dose está acima do limite permitido pela ANVISA'].
-🩺 *Recomendação:* [O que o cliente deve fazer, ex: 'Vamos entrar em contato com seu médico para confirmar a dosagem ou sugerir o ajuste seguro'].
-
+🔍 *O que detectamos:* [Explicação muito simples do erro].
+🩺 *Recomendação:* [O que o cliente deve fazer].
+</pre>
 ---
 🔒 REGRAS ANTI-FALHAS:
 ✅ HTML: Use apenas tags <b>. Proibido asteriscos no HTML.
@@ -605,14 +627,16 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - GERAR NO FINAL)
 
 ---
 📱 RESUMO PRONTO PARA WHATSAPP (TEXTO PURO)
-Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS DE LINHA entre os campos e entre os ativos:
+Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS DE LINHA entre os campos e entre os ativos dentro da tag <pre id="resumoWhatsApp">::
 
+<pre id="resumoWhatsApp" style="white-space: pre-wrap; font-family: sans-serif;">
+[Repetir para cada ativo:]
 *O seu Composto:* *[Nome do Ativo]* 🔬
 
 ✅ *O que ele faz por você:* [Focar no benefício real: Ex: 'Diferente da B12 comum, esta é a forma ativa que seu corpo usa de imediato para dar energia e proteger os nervos.].
 💊 *Como usar:* [Dose e melhor horário para tomar].
 💡 *Dica de Ouro:* [Dica prática: Ex: 'Evite tomar com café para não bloquear a absorção].
-
+</pre>
 *(Se houver mais de um ativo, repita o resumo acima para cada um).*
 
 ---
@@ -627,6 +651,7 @@ Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS D
 ✅ Proibido misturar as duas formatações no mesmo bloco.
 ✅ Linguagem simples para WhatsApp, mas baseada na ANVISA.
 ✅ Gerar o resumo em texto puro obrigatoriamente no final.
+✅ OBRIGATÓRIO incluir quebras de linha entre os campos no resumo.
 ✅ Usar *negrito* no HTML e *asteriscos* no texto do WhatsApp.
 ✅ Temperatura 0.1.`;
 
