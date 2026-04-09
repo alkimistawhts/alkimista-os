@@ -219,7 +219,7 @@
         <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
             <span>🛡️ RESULTADO DA ANÁLISE CLÍNICA</span>
             <div style="display: flex; gap: 10px; align-items: center;">
-                <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
+                <button onclick="window.App.copiarTexto('resumoWhatsAppAudit')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
                 <small id="auditStatus" style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 8px; font-size: 0.7rem;"></small>
             </div>
         </div> <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
@@ -292,7 +292,7 @@
                     <div id="wikiResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden;">
                         <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                             <span>🔬 MECANISMO DE AÇÃO & FISIOLOGIA</span>
-                            <button onclick="window.App.copiarResumo()" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
+                            <button onclick="window.App.copiarTexto('resumoWhatsAppWiki')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar WhatsApp</button>
                         </div>
                         <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
                     </div>
@@ -331,14 +331,14 @@
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 this.initAuth();
             }
-            copiarResumo() {
-                const resumoElemento = document.getElementById('resumoWhatsApp');
-                if (resumoElemento) {
-                    const textoParaCopiar = resumoElemento.innerText;
-                    navigator.clipboard.writeText(textoParaCopiar).then(() => {
+            copiarTexto() {
+                const elemento = document.getElementById(idElemento);
+                if (elemento) {
+                    const texto = elemento.innerText;
+                    navigator.clipboard.writeText(texto).then(() => {
                     // Reutiliza o seu toast que já existe no sistema
                     const t = document.getElementById('toast');
-                    t.innerText = "Resumo copiado para o WhatsApp!";
+                    t.innerText = "Copiado com sucesso!";
                     t.style.display = 'block'; 
                     setTimeout(() => t.style.display = 'none', 2000);
                 }).catch(err => {
@@ -512,9 +512,9 @@ Retorne APENAS o HTML abaixo:
 
 ---
 📱 RESUMO DE SEGURANÇA PARA O CLIENTE (TEXTO PURO)
-Gere o conteúdo abaixo obrigatoriamente dentro da tag <pre id="resumoWhatsApp">:
+Gere o conteúdo abaixo obrigatoriamente dentro da tag <pre id="resumoWhatsAppAudit">:
 
-<pre id="resumoWhatsApp" style="white-space: pre-wrap; font-family: sans-serif;">
+<pre id="resumoWhatsAppAudit" style="white-space: pre-wrap; font-family: sans-serif;">
 ⚠️ *Aviso Importante sobre sua Receita* ⚠️
 
 Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um ponto de atenção no item *[Nome do Medicamento]*.
@@ -629,9 +629,9 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - GERAR NO FINAL)
 
 ---
 📱 RESUMO PRONTO PARA WHATSAPP (TEXTO PURO)
-Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS DE LINHA entre os campos e entre os ativos dentro da tag <pre id="resumoWhatsApp">::
+Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS DE LINHA entre os campos e entre os ativos dentro da tag <pre id="resumoWhatsAppWiki">::
 
-<pre id="resumoWhatsApp" style="white-space: pre-wrap; font-family: sans-serif;">
+<pre id="resumoWhatsAppWiki" style="white-space: pre-wrap; font-family: sans-serif;">
 [Repetir para cada ativo:]
 *O ativo:* *[Nome do Ativo]* 🔬
 
