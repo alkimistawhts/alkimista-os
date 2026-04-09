@@ -550,7 +550,7 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
-                            model: "llama-3.1-8b-instant",
+                            model: "llama-3.3-70b-versatile",
                             messages: [ 
                                 { role: "system", content: systemInstruction }, 
                                 { role: "user", content: input } 
@@ -675,7 +675,7 @@ Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS D
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
-                            model: "llama-3.1-8b-instant",
+                            model: "llama-3.3-70b-versatile",
                             messages: [ 
                                 { role: "system", content: "Você é um PhD em Farmacologia Clínica e Farmácia Magistral Brasileira. Domina a farmacodinâmica de ativos e a legislação da ANVISA. Retorne APENAS o código HTML solicitado, usando as cores e estrutura fornecidas. Não adicione texto fora das divs." }, 
                                 { role: "user", content: promptWiki } 
