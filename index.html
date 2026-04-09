@@ -167,6 +167,7 @@
 
     <main class="main">
     <div class="app-container">
+        
         <div id="view-calc" class="view active">
             <h1>Calculadora 20%</h1>
             <div class="card">
@@ -213,12 +214,12 @@
                 <button class="btn-blue" id="btnRunAudit" style="height: 55px;">🔍 Iniciar Análise Groq</button>
                 <div id="auditLoading" style="display:none; text-align:center; padding:30px;">
                     <div class="spinner"></div>
-                    <p>Consultando bases farmacêuticas...</p>
+                    <p style="font-size: 0.9rem; color: var(--text-sub);">Consultando bases farmacêuticas...</p>
                 </div>
                 <div id="auditResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden; margin-top: 20px;">
                     <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                         <span>🛡️ RESULTADO DA ANÁLISE CLÍNICA</span>
-                        <button onclick="window.App.copiarTexto('resumoWhatsAppAudit')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar</button>
+                        <button onclick="window.App.copiarTexto('resumoWhatsAppAudit')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar WhatsApp</button>
                     </div>
                     <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
                 </div>
@@ -229,18 +230,19 @@
             <h1>🔬 Dicionário de Ativos</h1>
             <div class="card">
                 <h2>Consultar Farmacodinâmica</h2>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 15px;">Descreva o ativo para entender o mecanismo de ação.</p>
                 <div style="display:flex; gap:10px; margin-bottom:20px;">
                     <input type="text" id="wikiInput" placeholder="Ex: Metilcobalamina, Coenzima Q10..." style="margin-bottom: 0;">
                     <button class="btn-blue" id="btnRunWiki" style="width:140px;">🔍 Consultar</button>
                 </div>
                 <div id="wikiLoading" style="display:none; text-align:center; padding:30px;">
                     <div class="spinner"></div>
-                    <p>Consultando literatura farmacêutica...</p>
+                    <p style="font-size: 0.9rem; color: var(--text-sub);">Consultando literatura...</p>
                 </div>
                 <div id="wikiResultBox" style="display:none; border-radius:24px; border: 2px solid var(--accent); background: var(--highlight-bg); overflow: hidden;">
                     <div style="background: var(--accent); color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
                         <span>🔬 MECANISMO DE AÇÃO</span>
-                        <button onclick="window.App.copiarTexto('resumoWhatsAppWiki')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px;">📋 Copiar</button>
+                        <button onclick="window.App.copiarTexto('resumoWhatsAppWiki')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar WhatsApp</button>
                     </div>
                     <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
                 </div>
@@ -256,6 +258,17 @@
                     <option value="urgente">🔴 Urgência / Falta</option>
                     <option value="verificação">🟢 Conferência</option>
                 </select>
+                <div style="display: flex; gap: 12px;">
+                    <div style="flex:1">
+                        <label>Data</label>
+                        <input type="date" id="nData">
+                    </div>
+                    <div style="flex:1">
+                        <label>Hora</label>
+                        <input type="time" id="nHora">
+                    </div>
+                </div>
+                <label>Descrição</label>
                 <textarea id="nTexto" rows="3" placeholder="Detalhes da anotação..."></textarea>
                 <button class="btn-blue" id="btnAddNota">Salvar Lembrete</button>
             </div>
@@ -269,8 +282,19 @@
                 <div id="fasesContainer"></div>
                 <button class="btn-outline" id="btnAddFase">+ Adicionar Fase</button>
                 <div class="total-banner" style="margin-top:25px;">
-                    <span style="color: var(--text-sub)">QUANTIDADE ESTIMADA:</span>
+                    <span style="color: var(--text-sub)">VOLUME TOTAL ESTIMADO:</span>
                     <b id="resGeral" style="font-size: 1.8rem; color: var(--accent);">0 uni/mL</b>
+                </div>
+                <button class="btn-gray" id="btnResetFases" style="margin-top: 10px;">Limpar Campos</button>
+            </div>
+            
+            <div class="card">
+                <h2>💧 Conversão de Gotas</h2>
+                <label>Quantidade de Gotas</label>
+                <input type="text" id="gGotas" placeholder="0" inputmode="numeric">
+                <div class="display-box" style="text-align:center; margin-bottom:0;">
+                    <span style="font-size: 0.8rem; color: var(--text-sub); display: block; margin-bottom: 5px;">EQUIVALE A:</span>
+                    <b id="gRes" style="font-size: 1.5rem; color: var(--success);">0.00 mL</b>
                 </div>
             </div>
         </div>
