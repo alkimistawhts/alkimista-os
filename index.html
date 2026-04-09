@@ -107,6 +107,17 @@
             .main { margin-left: 0; margin-bottom: 80px; padding: 20px 15px; }
             .theme-fab { bottom: 90px; right: 20px; width: 50px; height: 50px; }
         }
+        #resumoWhatsAppWiki {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #475569;
+            white-space: pre-wrap;
+            font-family: sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -582,13 +593,17 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
             }
 
             async execWiki() {
-                const input = document.getElementById('wikiInput').value;
-                const box = document.getElementById('wikiResultBox');
-                const content = document.getElementById('wikiContent');
+                const input = document.getElementById('wikiInput').value.trim();
+                if (!input) return;
+                
+                const btn = document.getElementById('btnRunWiki');
                 const loading = document.getElementById('wikiLoading');
+                const resultBox = document.getElementById('wikiResultBox');
+                const content = document.getElementById('wikiContent');
                 
                 if(!input.trim()) return alert("Digite o nome do ativo ou fórmula.");
-                
+
+                btn.disabled = true;
                 content.innerHTML = "";
                 loading.style.display = 'block'; 
                 box.style.display = 'none';
@@ -606,48 +621,59 @@ ATIVOS ANALISADOS: "${input}"
 
 ---
 🧠 PROTOCOLO HÍBRIDO (INDIVIDUAL + SINERGIA):
-1. FASE DE ISOLAMENTO: Analise cada ativo de forma independente. Gere as RESPOSTAS 1 e 2 para cada um antes de passar ao próximo.
-2. FASE DE TEIA: Somente ao final, gere a "Análise de Teia" se houver relação de fórmula entre os ativos.
-3. FASE WHATSAPP: Após todo o conteúdo visual, gere o resumo em texto puro para cópia imediata.
+1. FASE DE ISOLAMENTO: Analise CADA ativo de forma independente. É PROIBIDO omitir qualquer ativo. Gere as RESPOSTAS 1, 2 e 3 para cada um antes de passar ao próximo.
+2. FASE DE TEIA: Somente ao final, gere a "Análise de Teia" explicando como a receita solicitada pelo médico agirá no corpo do cliente em conjunto.
+3. FASE WHATSAPP: Gere o resumo em texto puro para cópia imediata.
 
 ---
 RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL - POR ATIVO)
 <div style="background:rgba(2, 132, 199, 0.05);border:1px solid #0284c7;border-left:8px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0">
 <h4 style="color:#3b82f6;margin:0 0 10px 0">🔬 COMO ESTE ATIVO AGE: [NOME DO ATIVO]</h4>
 <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-<b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples: 'Ajuda a relaxar os vasos para o sangue fluir melhor...']<br><br>
-<b>🎯 PRINCIPAL BENEFÍCIO:</b> [O que o cliente ganha? 'Mais disposição e menos inchaço.']<br><br>
-<b>📝 NOTA DE ABSORÇÃO (BIO):</b> [Explicação simples: 'Esta forma é mais leve para o estômago e o corpo absorve rápido.']<br><br>
-<b>🕒 TEMPO DE RESPOSTA:</b> [Em quanto tempo o ativo começa a fazer efeito?]
+<b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples e didática sobre o mecanismo]<br><br>
+<b>🎯 PRINCIPAL BENEFÍCIO:</b> [O que o cliente ganha de forma prática]<br><br>
+<b>📝 NOTA DE ABSORÇÃO (BIO):</b> [Diferencial da forma química enviada]<br><br>
+<b>🕒 TEMPO DE RESPOSTA:</b> [Expectativa de início de efeito]
 </p></div>
 
 ---
 RESPOSTA 2: GUIA DO CLIENTE (CARDS COLORIDOS - REPETIR POR ATIVO)
-<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0"><h4 style="color:#28a745;margin:0 0 12px 0">✅ O QUE ELE TRATA NO SEU DIA A DIA</h4><p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)"><b>✅ Foco principal:</b> [Recuperação de X ou proteção de Y]<br><b>🎯 Como você se sentirá:</b> [Sensação real do cliente]<br><b>👥 Quem mais se beneficia:</b> [Perfil do público]</p></div>
-
-[... MANTER CARDS DE 'COMO TOMAR', 'CUIDADOS' E 'DICAS' ...]
+<div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0">
+<h4 style="color:#28a745;margin:0 0 12px 0">✅ O QUE ELE TRATA NO SEU DIA A DIA</h4>
+<p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)">
+<b>✅ Foco principal:</b> [Recuperação ou proteção]<br>
+<b>🎯 Como você se sentirá:</b> [Sensação real]<br>
+<b>👥 Público:</b> [Perfil recomendado]
+</p></div>
 
 ---
-RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - GERAR NO FINAL)
+RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - REPETIR POR ATIVO)
+<div style="background:rgba(239, 68, 68, 0.05);border:1px solid #ef4444;border-left:8px solid #ef4444;padding:18px;border-radius:12px;margin:12px 0">
+<h4 style="color:#ef4444;margin:0 0 10px 0">⚠️ CUIDADOS IMPORTANTES</h4>
+<p style="line-height:1.6;font-size:15px;color:var(--text-main)">
+<b>🚫 CONTRAINDICAÇÃO:</b> [Texto simples e didático sobre quem não deve tomar].<br><br>
+<b>⚠️ ALERTA DE DOSAGEM:</b> [Se a dose for alta (ex: >500mg para certos ativos), incluir: "Dosagens acima de Xmg é perigoso tomar sem recomendação médica" conforme legislação ANVISA].
+</p></div>
+
+---
+RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
 <div style="background:rgba(21, 183, 213, 0.05);border:2px solid #17a2b8;border-left:12px solid #17a2b8;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#17a2b8;margin:0 0 12px 0">🧬 ANÁLISE DE TEIA: INTELIGÊNCIA DA FÓRMULA</h4>
+<h4 style="color:#17a2b8;margin:0 0 12px 0">🧬 ANÁLISE DE TEIA: POR QUE VOCÊ TOMARÁ ESTA FÓRMULA</h4>
 <p style="font-size:16px;line-height:1.7;color:var(--text-main)">
-<b>🤝 SINERGIA CLÍNICA:</b> [Como os ativos se potencializam mutuamente]<br>
-<b>⚖️ EQUILÍBRIO DA TEIA:</b> [Análise simples da carga da fórmula]<br>
-<b>⚠️ INCOMPATIBILIDADE:</b> [Conflitos de absorção ou avisos importantes]
+<b>🤝 SINERGIA DA RECEITA:</b> [Como todos os ativos juntos trabalham para o objetivo do médico]<br>
+<b>⚖️ EQUILÍBRIO:</b> [Análise da combinação geral]<br>
+<b>⚠️ OBSERVAÇÃO TÉCNICA:</b> [Avisos de incompatibilidade se houver]
 </p></div>
 
 ---
 📱 RESUMO PRONTO PARA WHATSAPP (TEXTO PURO)
-Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS DE LINHA entre os campos e entre os ativos dentro da tag <pre id="resumoWhatsAppWiki">::
-
 <pre id="resumoWhatsAppWiki" style="white-space: pre-wrap; font-family: sans-serif;">
 [Repetir para cada ativo:]
-*O ativo:* *[Nome do Ativo]* 🔬
-
-✅ *O que ele faz por você:* [Focar no benefício real: Ex: 'Diferente da B12 comum, esta é a forma ativa que seu corpo usa de imediato para dar energia e proteger os nervos.].
-💊 *Como usar:* [Dose e melhor horário para tomar].
-💡 *Dica de Ouro:* [Dica prática: Ex: 'Evite tomar com café para não bloquear a absorção].
+*Ativo:* *[Nome]* 🔬
+✅ *O que faz:* [Benefício real simplificado]
+💊 *Uso:* [Dose/Horário]
+⚠️ *Aviso:* [Contraindicação/Dosagem]
+---------------------------
 </pre>
 *(Se houver mais de um ativo, repita o resumo acima para cada um).*
 
@@ -677,16 +703,19 @@ Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS D
                         body: JSON.stringify({
                             model: "llama-3.3-70b-versatile",
                             messages: [ 
-                                { role: "system", content: "Você é um PhD em Farmacologia Clínica e Farmácia Magistral Brasileira. Domina a farmacodinâmica de ativos e a legislação da ANVISA. Retorne APENAS o código HTML solicitado, usando as cores e estrutura fornecidas. Não adicione texto fora das divs." }, 
+                                { role: "system", content: "Você é um especialista em farmacologia da ANVISA. Responda usando exatamente a estrutura de cards HTML solicitada e finalize com o bloco <pre id='resumoWhatsAppWiki'>." }, 
                                 { role: "user", content: promptWiki } 
                             ],
                             temperature: 0.1
                         })
                     });
                     const data = await response.json();
+                    if (!data.choices || !data.choices[0]) throw new Error("Falha na resposta da IA.");
                     const text = data.choices[0].message.content;
+                    let res = data.choices[0].message.content;
                     
                     content.innerHTML = text;
+                    resultBox.style.display = 'block';
                     box.style.display = 'block';
                 } catch (e) { 
                     console.error("Erro Wiki:", e); 
