@@ -540,7 +540,7 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`, 
+                            'Authorization': `Bearer ${GROQ_KEY}`, 
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
