@@ -444,7 +444,7 @@
                 box.style.display = 'none';
 
                 // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
-                const promptAudit = `🚨 AUDITORIA FARMACOLÓGICA v3.0 - PADRÃO BRASIL 🇧🇷
+                const systemInstruction = `🚨 AUDITORIA FARMACOLÓGICA v3.0 - PADRÃO BRASIL 🇧🇷
 Farmacêutico Clínico (18 anos UTI/Farmacovigilância)
 MISSÃO: Auditoria de segurança máxima com Score de Gravidade e Cascata de Desfecho.
 RECEITA ANALISADA: "${input}"
@@ -535,14 +535,14 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: { 
-                            'Authorization': `Bearer ` + GROQ_KEY, 
+                            'Authorization': `Bearer ${this.apiKey}`, 
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
                             model: "llama-3.3-70b-versatile",
                             messages: [ 
-                                { role: "system", content: "Você é um Auditor Farmacêutico Brasileiro especializado em Segurança do Paciente e Vigilância Sanitária (ANVISA). Sua missão é ser rigoroso e conservador. Retorne APENAS o código HTML solicitado, sem introduções. Use var(--text-main) para cores de texto." }, 
-                                { role: "user", content: promptAudit } 
+                                { role: "system", content: systemInstruction }, 
+                                { role: "user", content: input } 
                             ],
                             temperature: 0,
                         })
