@@ -167,7 +167,7 @@
 
     <main class="main">
         <div class="app-container">
-            <div id="view-calc" class="view active">
+            <div id="view-calc" class="view">
                 <h1>Calculadora 20%</h1>
                 <div class="card">
                     <label>Valor Original da Fórmula</label>
@@ -205,7 +205,7 @@
                 <div id="prodLista"></div>
             </div>
 
-            <div id="view-audit" class="view">
+            <div id="view-audit" class="view" style="display:none;">>
                 <h1>🛡️ Auditoria IA</h1>
                 <div class="card">
                     <h2>Análise Posológica Clínica</h2>
@@ -222,9 +222,9 @@
         </div>
         <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>   
     </div> </div> <div id="view-wiki" class="view" style="display:none;">
-</div>
+</div> </div> </div> ```
                     
-            <div id="view-notes" class="view">
+            <div id="view-notes" class="view" class="view" style="display:none;">
                 <h1>Anotações</h1>
                 <div class="card">
                     <label>Tipo de Registro</label>
@@ -773,13 +773,20 @@ Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS D
             
             // Método para alternar entre views
             changeView(v) { 
-                document.querySelectorAll('.view').forEach(el => el.style.display = 'none');
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); 
+                document.querySelectorAll('.view').forEach(el => {
+                    el.style.display = 'none';
+                    el.classList.remove('active');
+                });
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 const targetView = document.getElementById('view-' + v);
+                const targetNav = document.getElementById('nav-' + v);
                 if (targetView) {
                     targetView.style.display = 'block';
+                    targetView.classList.add('active');
                 }
-                document.getElementById('nav-' + v)?.classList.add('active');
+                if (targetNav) {
+                    targetNav.classList.add('active');
+                }
                 if (window.innerWidth < 768) {
                     document.querySelector('.sidebar')?.classList.remove('active');
                 }
