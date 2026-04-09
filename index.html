@@ -600,19 +600,17 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
 
             async execWiki() {
                 const input = document.getElementById('wikiInput').value.trim();
-                if (!input) return;
+                if (!input) return alert("Digite o nome do ativo ou fórmula.");
                 
                 const btn = document.getElementById('btnRunWiki');
                 const loading = document.getElementById('wikiLoading');
                 const resultBox = document.getElementById('wikiResultBox');
                 const content = document.getElementById('wikiContent');
-                
-                if(!input.trim()) return alert("Digite o nome do ativo ou fórmula.");
 
                 btn.disabled = true;
-                content.innerHTML = "";
+                btn.innerText = "⏳ Consultando...";
                 loading.style.display = 'block'; 
-                box.style.display = 'none';
+                resultBox.style.display = 'none';
 
                 const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO v5.0 - WHATSAPP VIP 🇧🇷
 Especialista em Farmacologia e Atendimento Consultivo.
@@ -715,18 +713,22 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
                             temperature: 0.1
                         })
                     });
-                    const data = await response.json();
-                    let res = data.choices[0].message.content;
                     
+                    const data = await response.json();
+                    if (!data.choices || !data.choices[0]) {
+                        throw new Error(data.error?.message || "Falha na resposta da IA.");
+                    }
+                    const text = data.choices[0].message.content;
                     content.innerHTML = text;
                     resultBox.style.display = 'block';
-                    if (typeof box !== 'undefined') box.style.display = 'block';
                     
                 } catch (e) { 
                     console.error("Erro Wiki:", e); 
                     alert("Erro na consulta: " + e.message); 
                 } finally { 
-                    loading.style.display = 'none'; 
+                    btn.disabled = false;
+                    btn.innerText = "🔍 Consultar";
+                    loading.style.display = 'none';
                 }
             }
             openProdModal(id = null) {
