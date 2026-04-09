@@ -221,7 +221,8 @@
             <button onclick="window.App.copiarTexto('resumoWhatsAppAudit')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar WhatsApp</button>
         </div>
         <div id="auditContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>   
-    </div>
+    </div> </div> <div id="view-wiki" class="view" style="display:none;">
+</div>
                     
             <div id="view-notes" class="view">
                 <h1>Anotações</h1>
@@ -772,9 +773,16 @@ Após gerar todos os cards acima, gere este bloco obrigatoriamente COM QUEBRAS D
             
             // Método para alternar entre views
             changeView(v) { 
-                document.querySelectorAll('.view, .nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('view-' + v)?.classList.add('active'); 
-                document.getElementById('nav-' + v)?.classList.add('active'); 
+                document.querySelectorAll('.view').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); 
+                const targetView = document.getElementById('view-' + v);
+                if (targetView) {
+                    targetView.style.display = 'block';
+                }
+                document.getElementById('nav-' + v)?.classList.add('active');
+                if (window.innerWidth < 768) {
+                    document.querySelector('.sidebar')?.classList.remove('active');
+                }
             }
 
             toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
