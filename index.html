@@ -707,16 +707,16 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
                                 { role: "user", content: promptWiki } 
                             ],
                             temperature: 0.1
+                            max_tokens: 2000
                         })
                     });
                     const data = await response.json();
-                    if (!data.choices || !data.choices[0]) throw new Error("Falha na resposta da IA.");
-                    const text = data.choices[0].message.content;
                     let res = data.choices[0].message.content;
                     
                     content.innerHTML = text;
                     resultBox.style.display = 'block';
-                    box.style.display = 'block';
+                    if (typeof box !== 'undefined') box.style.display = 'block';
+                    
                 } catch (e) { 
                     console.error("Erro Wiki:", e); 
                     alert("Erro na consulta: " + e.message); 
