@@ -433,13 +433,17 @@
 
             async execAudit() {
                 const input = document.getElementById('auditInput').value;
+                if (!input) return;
+                
+                const btn = document.getElementById('btnRunAudit');
                 const box = document.getElementById('auditResultBox');
                 const content = document.getElementById('auditContent');
                 const status = document.getElementById('auditStatus');
                 const loading = document.getElementById('auditLoading');
 
                 if(!input.trim()) return alert("Cole o texto da receita primeiro.");
-                
+
+                btn.disabled = true;
                 content.innerHTML = "";
                 loading.style.display = 'block';
                 box.style.display = 'none';
