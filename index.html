@@ -174,6 +174,7 @@
         <div class="nav-item" onclick="window.App.changeView('prod')" id="nav-prod"><i>🧪</i><span>Produtos</span></div>
         <div class="nav-item" onclick="window.App.changeView('audit')" id="nav-audit"><i>🛡️</i><span>Auditoria IA</span></div>
         <div class="nav-item" onclick="window.App.changeView('wiki')" id="nav-wiki"><i>🔬</i><span>Dicionário IA</span></div>
+        <div class="nav-item" onclick="window.App.changeView('sinergia')" id="nav-sinergia"><i>🚀</i><span>Sinergia & Composto</span></div>
         <div class="nav-item" onclick="window.App.changeView('notes')" id="nav-notes"><i>📝</i><span>Anotações</span></div>
         <div class="nav-item" onclick="window.App.changeView('serv')" id="nav-serv"><i>📏</i><span>Serviços</span></div>
         <div class="nav-item" onclick="window.App.logout()" style="margin-top: auto; opacity: 0.3;"><i>🚪</i><span>Sair</span></div>
@@ -260,9 +261,29 @@
                         <button onclick="window.App.copiarTexto('resumoWhatsAppWiki')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar WhatsApp</button>
                     </div>
                     <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
+                
+        <div id="view-sinergia" class="view" style="display:none;">
+            <h1>🚀 Sinergia de Fórmulas</h1>
+            <div class="card">
+                <h2>Inteligência de Composto</h2>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 15px;">Analise como os ativos da sua fórmula trabalham em conjunto.</p>
+                <textarea id="sinergiaInput" rows="4" placeholder="Ex: Cafeína 200mg + L-Teanina 100mg + Magnésio Dimalato 300mg" style="margin-bottom: 15px;"></textarea>
+                <button class="btn-blue" id="btnRunSinergia" style="height: 55px;">🚀 Gerar Master Sinergia</button>
+        
+            <div id="sinergiaLoading" style="display:none; text-align:center; padding:30px;">
+                <div class="spinner"></div>
+                <p style="font-size: 0.9rem; color: var(--text-sub);">Calculando interações e benefícios do conjunto...</p>
+            </div>
+
+            <div id="sinergiaResultBox" style="display:none; border-radius:24px; border: 2px solid #15b7d5; background: rgba(21, 183, 213, 0.05); overflow: hidden; margin-top: 20px;">
+                <div style="background: #15b7d5; color: white; padding: 12px 20px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🚀 INTELIGÊNCIA DO COMPOSTO</span>
+                    <button onclick="window.App.copiarTexto('resumoWhatsAppSinergia')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar WhatsApp</button>
                 </div>
+                <div id="sinergiaContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
             </div>
         </div>
+    </div>
 
         <div id="view-notes" class="view" style="display:none;">
             <h1>Anotações</h1>
@@ -441,6 +462,7 @@
                 document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
                 document.getElementById('btnRunAudit').onclick = () => this.execAudit();
                 document.getElementById('btnRunWiki').onclick = () => this.execWiki();
+                document.getElementById('btnRunSinergia').onclick = () => this.execSinergia();
                 const gGotas = document.getElementById('gGotas');
                 gGotas.oninput = (e) => {
                     let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
@@ -635,37 +657,15 @@ Especialista em Farmacologia e Atendimento Consultivo.
 ATIVOS ANALISADOS: "${input}"
 
 ---
----
 🇧🇷 DIRETRIZ DE SOBERANIA NACIONAL (TRAVA BRASIL):
 1. FONTES: ANVISA (DCB), Farmacopeia Brasileira e manuais técnicos (Infinity, Galena, Florien, Fagron).
 2. DOSAGENS: Respeitar o teto de segurança nacional. Bloquear padrões internacionais inseguros no BR.
 3. HOMEOPATIA: Uso exclusivo da Farmacopeia Homeopática Brasileira e ABFH.
 4. 💊 REGRA DE DOSAGEM: Se a dose enviada for ACIMA do usual ou oferecer risco, a instrução de uso DEVE ser: "Tomar conforme orientação médica devido à dosagem específica".
-5. 🔍 INTERAÇÃO: Analisar obrigatoriamente se os ativos interagem entre si ou com fármacos comuns.
----
-🧠 PROTOCOLO HÍBRIDO DE ANÁLISE E EXECUÇÃO:
-
-🧠 PROTOCOLO DE EXECUÇÃO (ORDEM DE PROCESSAMENTO):
-
-1️⃣ DEFINIÇÃO DO MODO:
-- Se o input contiver "DETALHAR", "AULA" ou "DETALHE": Ative MODO ESTUDO (Gerar RESPOSTA 1, 2 e 3 para cada ativo).
-- Caso contrário: Ative MODO CONSULTA (Gerar apenas RESPOSTA 1 Curta para cada ativo).
-
-2️⃣ FASE DE ISOLAMENTO:
-- Analise cada ativo individualmente. Proibido omitir qualquer item.
-- 📖 LEGENDA OBRIGATÓRIA: Explique termos técnicos entre parênteses (ex: Bioavailability -> Absorção pelo corpo).
-
-3️⃣ FASE DE TEIA (Sinergia):
-- Se > 1 ativo, gere o card 🚀 RESULTADO DO COMPOSTO explicando o conjunto e o tempo de resposta médio.
-
-3️⃣ FASE WHATSAPP:
-* Gere o resumo em texto puro (resumoWhatsAppWiki) ao final de tudo.
 
 ---
 🕹️ GATILHOS E ACESSIBILIDADE:
-
-* MODO CONSULTA: Tom de voz amigável. RESPOSTA 1 (Versão Curta).
-* MODO ESTUDO: Tom de voz clínico. RESPOSTAS 1, 2 e 3 Completas.
+Tom de voz clínico. RESPOSTAS 1, 2 e 3 Completas.
 * 📖 REGRA DA LEGENDA: Termos técnicos devem vir com explicação simples entre parênteses.
 
 ---
@@ -681,6 +681,7 @@ RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL)
 <b>🕒 COMO TOMAR:</b> [Instrução técnica OU Alerta médico se dose for alta]<br><br>
 <b>🏋️ RELAÇÃO COM TREINO:</b> [Apenas se aplicável ao ativo. Caso contrário, omitir esta linha]<br><br>
 <b>🕒 TEMPO DE RESPOSTA:</b> [Expectativa de início de efeito]<br><br>
+<b>💡 Dica:</b> [Dica prática de uso ou melhor horário de administração]<br><br>
 <b>⚠️ INTERAÇÃO:</b> [Análise de interação com a lista ou fármacos comuns]
 </p></div>
 
@@ -706,22 +707,6 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
 </p></div>
 
 ---
-RESPOSTA FINAL: 🚀 RESULTADO DO COMPOSTO (CIANO/ROXO - NO FINAL)
-<div style="background: rgba(21, 183, 213, 0.05); border: 2px solid #15b7d5; border-left: 10px solid #15b7d5; padding: 20px; border-radius: 16px; margin: 20px 0;">
-    <span style="color:#0284c7; font-weight:bold; font-size:12px;">RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO</span>
-    <h4 style="color: #15b7d5; margin: 0 0 10px 0;">RESPOSTA FINAL: 🚀 RESULTADO DO COMPOSTO</h4>
-    <p style="line-height: 1.6; font-size: 15px; color: var(--text-main); margin-bottom: 15px;">
-        <b>Objetivo Principal:</b> [Ex: Emagrecimento e controle da ansiedade]
-    </p>
-    <p style="line-height: 1.6; font-size: 15px; color: var(--text-main);">
-        <b>Como eles trabalham juntos:</b> [Explicação da sinergia em linguagem simples e tempo de resposta médio]
-    </p>
-    <div style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 8px; font-size: 14px; color: #444; border: 1px dashed #15b7d5;">
-        <b>💡 Dica:</b> [Dica prática de uso ou melhor horário de administração]
-    </div>
-</div>
-
----
 📱 RESUMO PRONTO PARA WHATSAPP (TEXTO PURO)
 <pre id="resumoWhatsAppWiki" style="white-space: pre-wrap; font-family: sans-serif;">
 [Liste TODOS os ativos sem exceção:]
@@ -738,10 +723,6 @@ RESPOSTA FINAL: 🚀 RESULTADO DO COMPOSTO (CIANO/ROXO - NO FINAL)
 ✅ Proibido imprimir os títulos "RESPOSTA 1", "RESPOSTA 2", etc, fora dos cards HTML.
 ✅ É PROIBIDO omitir qualquer ativo enviado no input.
 ✅ FILTRO DE RELEVÂNCIA: O campo "RELAÇÃO COM TREINO" deve ser omitido (não exibir a linha) caso o ativo ou o objetivo da fórmula não tenham relação direta com performance física ou academia.
-✅ No MODO CONSULTA, oculte totalmente os blocos das Respostas 2 e 3.
-✅ Analisar INDIVIDUALMENTE cada ativo antes da sinergia.
-✅ Se for apenas 1 ativo, omitir o card de Sinergia.
-✅ Analisar interações entre os ativos digitados.
 ✅ Diferencie claramente Magnésio Dimalato de outros magnésios (foco em energia/músculo).
 ✅ Diferencie Metilcobalamina de B12 comum (foco em absorção imediata).
 ✅ NOS CARDS HTML: Use exclusivamente as tags <b>Texto</b> para negrito.
@@ -787,6 +768,121 @@ RESPOSTA FINAL: 🚀 RESULTADO DO COMPOSTO (CIANO/ROXO - NO FINAL)
                     btn.innerText = "🔍 Consultar";
                     loading.style.display = 'none';
                 }
+            
+            async function execSinergia() {
+                const input = document.getElementById('sinergiaInput').value.trim();
+                if (!input) return alert("Insira os componentes da fórmula.");
+    
+                const btn = document.getElementById('btnRunSinergia');
+                const loading = document.getElementById('sinergiaLoading');
+                const resultBox = document.getElementById('sinergiaResultBox');
+                const content = document.getElementById('sinergiaContent');
+
+                btn.disabled = true;
+                loading.style.display = 'block';
+                resultBox.style.display = 'none';
+
+                const promptSinergia = `🚀 MASTER SINERGIA v7.0 - INTELIGÊNCIA DE FÓRMULA 🇧🇷
+Especialista em Farmacologia Clínica e Sinergia Farmacêutica.
+
+OBJETIVO: Analisar como os ativos interagem entre si, o benefício do conjunto e gerar o resumo final para o cliente.
+ATIVOS ANALISADOS: "${input}"
+
+---
+🇧🇷 DIRETRIZ DE SOBERANIA NACIONAL (TRAVA BRASIL):
+1. FONTES: ANVISA (DCB), Farmacopeia Brasileira e manuais técnicos (Infinity, Galena, Florien, Fagron).
+2. SEGURANÇA: Bloquear padrões internacionais inseguros. Se a dose total ou a combinação oferecer risco, alertar imediatamente.
+3. 💊 REGRA DE DOSAGEM: Se a dose enviada for ACIMA do usual, a instrução DEVE ser: "Tomar conforme orientação médica devido à dosagem específica".
+4. 📖 REGRA DA LEGENDA: Termos técnicos DEVEM vir com explicação simples entre parênteses para leigos.
+5. 🔍 INTERAÇÃO: Analisar obrigatoriamente se os ativos interagem entre si ou com fármacos comuns.
+
+---
+🧠 PROTOCOLO DE ANÁLISE:
+1️⃣ FASE DE TEIA: Analisar a sinergia (como um ativo ajuda o outro a funcionar melhor).
+2️⃣ FASE DE SEGURANÇA: Verificar interações medicamentosas perigosas na fórmula.
+3️⃣ FASE DE RESULTADO: Gerar o Card de Sinergia (Ciano) e o Resumo WhatsApp.
+
+---
+📦 MODELO DE RESPOSTA (FORMATO HTML)
+
+<div style="background: rgba(21, 183, 213, 0.05); border: 2px solid #15b7d5; border-left: 10px solid #15b7d5; padding: 20px; border-radius: 16px; margin: 20px 0;">
+    <span style="color:#15b7d5; font-weight:bold; font-size:12px;">INTELIGÊNCIA DO COMPOSTO</span>
+    <h4 style="color: #15b7d5; margin: 0 0 10px 0;">🚀 RESULTADO DO SEU COMPOSTO</h4>
+    <p style="line-height: 1.6; font-size: 15px; color: var(--text-main); margin-bottom: 15px;">
+        <b>Objetivo Principal:</b> [Ex: Performance Mental e Redução de Fadiga]
+    </p>
+    <p style="line-height: 1.6; font-size: 15px; color: var(--text-main);">
+        <b>Como eles trabalham juntos:</b> [Explicação detalhada da sinergia com legendas entre parênteses e tempo de resposta médio do conjunto]
+    </p>
+    <div style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 8px; font-size: 14px; color: #444; border: 1px dashed #15b7d5;">
+        <b>💡 Dica de Ouro:</b> [Dica prática de uso ou melhor horário de administração]
+    </div>
+</div>
+
+---
+📱 RESUMO PRONTO PARA WHATSAPP (TEXTO PURO)
+<pre id="resumoWhatsAppSinergia" style="white-space: pre-wrap; font-family: sans-serif;">
+*RESUMO DA SUA FÓRMULA* 💊
+---------------------------
+[Liste TODOS os ativos sem exceção:]
+*Ativo:* *[Nome]* 🔬
+✅ *O que faz:* [Benefício simplificado]
+💊 *Uso:* [Instrução técnica ou Alerta]
+---------------------------
+💡 *Dica:* [Dica prática para o conjunto]
+⚠️ *Aviso:* [Se houver contraindicação/dosagem alta]
+</pre>
+
+---
+🔒 REGRAS v7.0:
+✅ Proibido imprimir títulos como "RESPOSTA FINAL" fora do card HTML.
+✅ É PROIBIDO omitir qualquer ativo enviado no input.
+✅ É OBRIGATÓRIO listar todos os ativos no resumo do WhatsApp (inclusive Metilcobalamina, etc).
+✅ Diferencie claramente Magnésio Dimalato (Energia) e Metilcobalamina (Absorção).
+✅ Proibido misturar as duas formatações no mesmo bloco.
+✅ NOS CARDS HTML: Use apenas <b> para negrito.
+✅ OBRIGATÓRIO incluir quebras de linha entre os campos no resumo.
+✅ Linguagem simples para WhatsApp, mas baseada na ANVISA
+✅ NO RESUMO WHATSAPP: Use apenas asteriscos * para negrito.
+✅ Usar *negrito* no HTML e *asteriscos* no texto do WhatsApp.
+✅ Linguagem 100% clara e acessível para leigos.
+✅ Temperatura 0.1.`;
+
+                try {
+                    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${this.apiKey}`, 
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [
+                                { role: "system", content: "Você é um especialista em sinergia farmacêutica. Retorne o HTML e o bloco <pre id='resumoWhatsAppSinergia'>." },
+                                { role: "user", content: promptSinergia }
+                            ],
+                            temperature: 0.1
+                        })
+                    });
+                        
+                    const data = await response.json();
+                    if (!data.choices || !data.choices[0]) {
+                        throw new Error(data.error?.message || "Falha na resposta da IA.");
+                    }
+                    const textSinergia = data.choices[0].message.content;
+                    const cleanSinergia = textSinergia.replace(/```html/g, "").replace(/```/g, "").trim();
+                    content.innerHTML = cleanSinergia;
+                    resultBox.style.display = 'block';
+                    
+                } catch (e) { 
+                    console.error("Erro Sinergia:", e); 
+                    alert("Erro na consulta: " + e.message); 
+                } finally { 
+                    btn.disabled = false;
+                    btn.innerText = "🔍 Consultar";
+                    loading.style.display = 'none';
+                }
+            
             }
             openProdModal(id = null) {
                 if(!this.isAdmin) return;
@@ -878,24 +974,34 @@ RESPOSTA FINAL: 🚀 RESULTADO DO COMPOSTO (CIANO/ROXO - NO FINAL)
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
             
             // Método para alternar entre views
-            changeView(v) { 
-                document.querySelectorAll('.view').forEach(el => {
-                    el.style.display = 'none';
-                    el.classList.remove('active');
+            changeView(v) {
+                // 1. Lista completa de todas as views (telas) do seu sistema
+                const views = ['calc', 'audit', 'wiki', 'sinergia', 'servs', 'prods', 'notas', 'config'];
+    
+                views.forEach(id => {
+                    const el = document.getElementById('view-' + id);
+                    if (el) {
+                        el.style.display = (id === v) ? 'block' : 'none';
+                    }
                 });
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                const targetView = document.getElementById('view-' + v);
-                const targetNav = document.getElementById('nav-' + v);
-                if (targetView) {
-                    targetView.style.display = 'block';
-                    targetView.classList.add('active');
-                }
-                if (targetNav) {
-                    targetNav.classList.add('active');
-                }
-                if (window.innerWidth < 768) {
-                    document.querySelector('.sidebar')?.classList.remove('active');
-                }
+
+                // 2. Mapeamento de todos os itens de navegação da sidebar para o efeito "Active"
+                const navs = {
+                    calc: document.getElementById('nav-calc'),
+                    prods: document.getElementById('nav-prods'),
+                    audit: document.getElementById('nav-audit'),
+                    wiki: document.getElementById('nav-wiki'),
+                    sinergia: document.getElementById('nav-sinergia'), // Nova aba
+                    notas: document.getElementById('nav-notas'),
+                    servs: document.getElementById('nav-servs'),
+                };
+
+                // 3. Aplica a classe active apenas no botão clicado
+                Object.keys(navs).forEach(k => {
+                    if (navs[k]) {
+                        navs[k].classList.toggle('active', k === v);
+                    }
+                });
             }
 
             toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
