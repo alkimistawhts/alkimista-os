@@ -593,9 +593,9 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                         content.innerHTML = text;
                     }
 
-                    const text = data.choices[0].message.content;
-                    const cleanText = text.replace(/```html/g, "").replace(/```/g, "").trim();
-                    content.innerHTML = cleanText;
+                    const textAudit = data.choices[0].message.content;
+                    const cleanAudit = textAudit.replace(/```html/g, "").replace(/```/g, "").trim();
+                    content.innerHTML = cleanAudit;
                     box.style.display = 'block';
                     
                 } catch (e) { 
@@ -739,8 +739,9 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
                     if (!data.choices || !data.choices[0]) {
                         throw new Error(data.error?.message || "Falha na resposta da IA.");
                     }
-                    const text = data.choices[0].message.content;
-                    content.innerHTML = text;
+                    const textWiki = data.choices[0].message.content;
+                    const cleanWiki = textWiki.replace(/```html/g, "").replace(/```/g, "").trim();
+                    content.innerHTML = cleanWiki;
                     resultBox.style.display = 'block';
                     
                 } catch (e) { 
