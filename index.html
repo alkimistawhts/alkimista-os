@@ -477,6 +477,7 @@ RECEITA ANALISADA: "${input}"
 2️⃣ HOMEOPATIA: Farmacopeia Homeopática Brasileira e normas da ABFH.
 3️⃣ GINKGO BILOBA BR: Teto absoluto 160mg/dia. Acima disso = 🔴 PERIGOSO.
 4️⃣ TOLERÂNCIA ZERO: Bloquear doses globais (FDA/OMS) que violem a norma brasileira.
+5️⃣ DOSAGEM USUAL: Citar obrigatoriamente a faixa terapêutica recomendada pelos fornecedores/Anvisa antes de condenar a dose
 
 ---
 🔬 PROTOCOLO DE VERIFICAÇÃO CRÍTICA:
@@ -485,24 +486,23 @@ RECEITA ANALISADA: "${input}"
 3️⃣ AJUSTES BR: Cruzar dados com limites de bula e guias de insumos nacionais.
 
 ---
-⚖️ CLASSIFICAÇÃO E SCORE:
-🟢 SEGURO: Em conformidade com ANVISA/Bula.
-🟡 ATENÇÃO (Score 1-4): Risco moderado, efeitos colaterais tratáveis ou dose limítrofe.
-🔴 PERIGOSO (Score 5-10): Risco de óbito, hemorragia, falência orgânica ou hospitalização.
-
+⚖️ LÓGICA DE CORES DO CARD 1 (DINÂMICO):
+- 🟢 SEGURO (Azul): background:rgba(2,132,199,0.05); border:2px solid #0284c7; border-left:8px solid #0284c7;
+- 🟡 ATENÇÃO/LIMITE (Amarelo): background:rgba(255,193,7,0.05); border:2px solid #ffc107; border-left:8px solid #ffc107;
+- 🔴 PERIGOSO/ACIMA LMAX (Vermelho): background:rgba(220,53,69,0.05); border:2px solid #dc3545; border-left:8px solid #dc3545;
 ---
 📊 FORMATO HTML MÉDICO (EXATO):
-Retorne APENAS o HTML abaixo:
+Retorne o HTML conforme a classificação de risco:
 
-[VEREDITO BRASIL] | [SCORE: X/10] | [URGÊNCIA: IMEDIATA/24H/PRÓX. CONSULTA]
+[VEREDITO] | [SCORE: X/10] | [URGÊNCIA: IMEDIATA/24H/PRÓX. CONSULTA]
 
-<div style="background:rgba(232, 244, 253, 0.1);border:2px solid #0284c7;border-left:8px solid #0284c7;padding:20px;border-radius:16px;margin:16px 0">
-<h4 style="color:#3b82f6;margin:0 0 12px 0">📊 CÁLCULO DOSIMÉTRICO E SCORE (PADRÃO BR)</h4>
+<div style="[INSERIR CORES AQUI]">
+<h4 style="margin:0 0 12px 0">📊 CÁLCULO E DOSAGEM USUAL (FONTE BR)</h4>
 <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-• <b>Dose total:</b> [X mg/dia = Y% LMAX BR] <b>(Fonte Nacional)</b><br>
-• <b>Frequência/Duração:</b> [X×/dia por Y dias]<br>
-• <b>Score de Gravidade:</b> [X/10 - Justificativa rápida]<br>
-• <b>Perfil:</b> [Ajuste baseado em diretrizes brasileiras]
+• <b>Dose Prescrita:</b> [X mg/dia]<br>
+• <b>Dose Usual (Bula/Guia):</b> [Citar a faixa segura recomendada no Brasil]<br>
+• <b>Diferença:</b> [Y% em relação à Dose Usual]<br>
+• <b>Score de Gravidade:</b> [X/10]
 </p>
 </div>
 
@@ -628,7 +628,13 @@ ATIVOS ANALISADOS: "${input}"
 1. FASE DE ISOLAMENTO: Analise CADA ativo de forma independente. É PROIBIDO omitir qualquer ativo. Gere as RESPOSTAS 1, 2 e 3 para cada um antes de passar ao próximo.
 2. FASE DE TEIA: Somente ao final, gere a "Análise de Teia" explicando como a receita solicitada pelo médico agirá no corpo do cliente em conjunto.
 3. FASE WHATSAPP: Gere o resumo em texto puro para cópia imediata.
-
+4. MELHOR FORMA DE TOMAR: Definir horário (manhã/noite), relação com comida (jejum/refeição) e relação com treino (pré/pós), baseado em farmacocinética (bulas Infinity/Galena).
+5. INTERAÇÃO MEDICAMENTOSA: Analisar se os ativos da lista interagem entre si ou com fármacos comuns, usando fontes seguras.
+6. DOSAGEM SEGURA: Indicar a dose usual recomendada (Ex: 1x ou 2x ao dia).
+7. 3. REGRAS DE ORIENTAÇÃO: 
+   - Se a dose for USUAL/SEGURA: Forneça a instrução técnica de uso (ex: 'Tomar 1x ao dia pela manhã').
+   - Se a dose for ACIMA DO USUAL OU TIVER RISCO: Indique obrigatoriamente "Tomar conforme orientação médica devido à dosagem específica".
+   
 ---
 RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL - POR ATIVO)
 <div style="background:rgba(2, 132, 199, 0.05);border:1px solid #0284c7;border-left:8px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0">
@@ -636,8 +642,11 @@ RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL - POR ATIVO)
 <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
 <b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples e didática sobre o mecanismo]<br><br>
 <b>🎯 PRINCIPAL BENEFÍCIO:</b> [O que o cliente ganha de forma prática]<br><br>
-<b>📝 NOTA DE ABSORÇÃO (BIO):</b> [Diferencial da forma química enviada]<br><br>
+<b>🕒 MELHOR FORMA DE TOMAR:</b> [Instrução técnica OU "Conforme orientação médica" se houver risco]<br><br>
+<b>🏋️ RELAÇÃO COM TREINO:</b> [Pré, Pós ou indiferente]<br><br>
 <b>🕒 TEMPO DE RESPOSTA:</b> [Expectativa de início de efeito]
+<b>📝 NOTA DE ABSORÇÃO (BIO):</b> [Diferencial da forma química enviada]<br><br>
+<b>⚠️ INTERAÇÃO:</b> [Citar se há interação com outros ativos da lista ou cuidados com remédios comuns]
 </p></div>
 
 ---
@@ -675,7 +684,8 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
 [Repetir para cada ativo:]
 *Ativo:* *[Nome]* 🔬
 ✅ *O que faz:* [Benefício real simplificado]
-💊 *Uso:* [Dose/Horário]
+💊 *Uso:* [Dose/Horário Instrução técnica ou Alerta Médico]
+💡 *Dica:* [Dica prática de uso]
 ⚠️ *Aviso:* [Contraindicação/Dosagem]
 ---------------------------
 </pre>
@@ -686,6 +696,7 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
 ✅ É PROIBIDO omitir qualquer ativo enviado no input.
 ✅ Analisar INDIVIDUALMENTE cada ativo antes da sinergia.
 ✅ Se for apenas 1 ativo, omitir o card de Sinergia.
+✅ Analisar interações entre os ativos digitados.
 ✅ Diferencie claramente Magnésio Dimalato de outros magnésios (foco em energia/músculo).
 ✅ Diferencie Metilcobalamina de B12 comum (foco em absorção imediata).
 ✅ NOS CARDS HTML: Use exclusivamente as tags <b>Texto</b> para negrito.
