@@ -640,19 +640,23 @@ ATIVOS ANALISADOS: "${input}"
 1. FONTES: ANVISA (DCB), Farmacopeia Brasileira e manuais técnicos (Infinity, Galena, Florien, Fagron).
 2. DOSAGENS: Respeitar o teto de segurança nacional. Bloquear padrões internacionais inseguros no BR.
 3. HOMEOPATIA: Uso exclusivo da Farmacopeia Homeopática Brasileira e ABFH.
-
+4. 💊 REGRA DE DOSAGEM: Se a dose enviada for ACIMA do usual ou oferecer risco, a instrução de uso DEVE ser: "Tomar conforme orientação médica devido à dosagem específica".
+5. 🔍 INTERAÇÃO: Analisar obrigatoriamente se os ativos interagem entre si ou com fármacos comuns.
 ---
 🧠 PROTOCOLO HÍBRIDO DE ANÁLISE E EXECUÇÃO:
 
-1️⃣ FASE DE ISOLAMENTO (Individual):
-* Analise CADA ativo de forma independente. É PROIBIDO omitir qualquer substância.
-* ⚠️ RIGOR DE LISTAGEM: Mesmo com 10 ou mais ativos, analise um por um.
-* 🔍 INTERAÇÃO: Analisar obrigatoriamente se os ativos interagem entre si ou com fármacos comuns.
-* 💊 DOSAGEM: Identificar a dose usual. Se a dose enviada for ACIMA do usual ou oferecer risco, a instrução de uso DEVE ser: "Tomar conforme orientação médica devido à dosagem específica".
+🧠 PROTOCOLO DE EXECUÇÃO (ORDEM DE PROCESSAMENTO):
 
-2️⃣ FASE DE TEIA (Sinergia):
-* Após os ativos, gere o card 🚀 RESUMO DO SEU COMPOSTO (Apenas se > 1 ativo).
-* No Card de Sinergia (Roxo), o 'Tempo de Resposta' deve refletir a média do conjunto, deixando claro para o cliente se o benefício é imediato (agudo) ou se depende de uso contínuo (acumulativo) para ser percebido.
+1️⃣ DEFINIÇÃO DO MODO:
+- Se o input contiver "DETALHAR", "AULA" ou "DETALHE": Ative MODO ESTUDO (Gerar RESPOSTA 1, 2 e 3 para cada ativo).
+- Caso contrário: Ative MODO CONSULTA (Gerar apenas RESPOSTA 1 Curta para cada ativo).
+
+2️⃣ FASE DE ISOLAMENTO:
+- Analise cada ativo individualmente. Proibido omitir qualquer item.
+- 📖 LEGENDA OBRIGATÓRIA: Explique termos técnicos entre parênteses (ex: Bioavailability -> Absorção pelo corpo).
+
+3️⃣ FASE DE TEIA (Sinergia):
+- Se > 1 ativo, gere o card 🚀 RESULTADO DO COMPOSTO explicando o conjunto e o tempo de resposta médio.
 
 3️⃣ FASE WHATSAPP:
 * Gere o resumo em texto puro (resumoWhatsAppWiki) ao final de tudo.
@@ -665,13 +669,13 @@ ATIVOS ANALISADOS: "${input}"
 * 📖 REGRA DA LEGENDA: Termos técnicos devem vir com explicação simples entre parênteses.
 
 ---
-### 📦 MODELOS DE RESPOSTA
+### 📦 MODELOS DE RESPOSTA (FORMATO HTML)
 
 RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL)
 <div style="background:rgba(2, 132, 199, 0.05);border:1px solid #0284c7;border-left:8px solid #0284c7;padding:18px;border-radius:12px;margin:12px 0">
 <h4 style="color:#3b82f6;margin:0 0 10px 0">🔬 COMO ESTE ATIVO AGE: [NOME DO ATIVO]</h4>
 <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
-<b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples com legenda entre parênteses]<br><br>
+<b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples e didatica com legenda entre parênteses]<br><br>
 <b>🎯 BENEFÍCIO:</b> [O que o cliente ganha de forma prática]<br><br>
 <b>🕒 COMO TOMAR:</b> [Instrução técnica OU Alerta médico se dose for alta]<br><br>
 <b>🏋️ RELAÇÃO COM TREINO:</b> [Apenas se aplicável ao ativo. Caso contrário, omitir esta linha]<br><br>
@@ -680,7 +684,7 @@ RESPOSTA 1: EXPLICAÇÃO PARA O CLIENTE (CARD AZUL)
 </p></div>
 
 ---
-RESPOSTA 2: GUIA DO CLIENTE (APENAS MODO ESTUDO)
+RESPOSTA 2: GUIA DO CLIENTE (CARD VERDE - APENAS MODO ESTUDO)
 <div style="background:rgba(232, 245, 232, 0.1);padding:20px;border-radius:16px;border-left:6px solid #28a745;margin:16px 0">
 <h4 style="color:#28a745;margin:0 0 12px 0">✅ O QUE ELE TRATA NO DIA A DIA</h4>
 <p style="font-size:16px;line-height:1.7;margin:0;color:var(--text-main)">
@@ -690,7 +694,7 @@ RESPOSTA 2: GUIA DO CLIENTE (APENAS MODO ESTUDO)
 </p></div>
 
 ---
-RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (APENAS MODO ESTUDO)
+RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
 <div style="background:rgba(239, 68, 68, 0.05);border:1px solid #ef4444;border-left:8px solid #ef4444;padding:18px;border-radius:12px;margin:12px 0">
 <h4 style="color:#ef4444;margin:0 0 10px 0">⚠️ CUIDADOS IMPORTANTES</h4>
 <p style="line-height:1.6;font-size:15px;color:var(--text-main)">
@@ -699,17 +703,17 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (APENAS MODO ESTUDO)
 </p></div>
 
 ---
-RESPOSTA FINAL: MASTER SINERGIA (CIANO/ROXO - NO FINAL)
+RESPOSTA FINAL: 🚀 RESULTADO DO COMPOSTO (CIANO/ROXO - NO FINAL)
 <div style="background: rgba(21, 183, 213, 0.05); border: 2px solid #15b7d5; border-left: 10px solid #15b7d5; padding: 20px; border-radius: 16px; margin: 20px 0;">
     <h4 style="color: #15b7d5; margin: 0 0 10px 0;">🚀 RESUMO DO SEU COMPOSTO</h4>
     <p style="line-height: 1.6; font-size: 15px; color: var(--text-main); margin-bottom: 15px;">
         <b>Objetivo Principal:</b> [Ex: Emagrecimento e controle da ansiedade]
     </p>
     <p style="line-height: 1.6; font-size: 15px; color: var(--text-main);">
-        <b>Como eles trabalham juntos:</b> [Explicação da sinergia em linguagem simples]
+        <b>Como eles trabalham juntos:</b> [Explicação da sinergia em linguagem simples e tempo de resposta médio]
     </p>
     <div style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 8px; font-size: 14px; color: #444; border: 1px dashed #15b7d5;">
-        <b>💡 Dica:</b> [Dica prática de uso ou horário]
+        <b>💡 Dica:</b> [Dica prática de uso ou melhor horário de administração]
     </div>
 </div>
 
@@ -721,12 +725,16 @@ RESPOSTA FINAL: MASTER SINERGIA (CIANO/ROXO - NO FINAL)
 ✅ *O que faz:* [Benefício simplificado]
 💊 *Uso:* [Instrução técnica ou Alerta]
 💡 *Dica:* [Dica prática]
+⚠️ *Aviso:* [Contraindicação/Dosagem]
 ---------------------------
 </pre>
 
 ---
 🔒 REGRAS v5.0:
+✅ Proibido imprimir os títulos "RESPOSTA 1", "RESPOSTA 2", etc, fora dos cards HTML.
 ✅ É PROIBIDO omitir qualquer ativo enviado no input.
+✅ FILTRO DE RELEVÂNCIA: O campo "RELAÇÃO COM TREINO" deve ser omitido (não exibir a linha) caso o ativo ou o objetivo da fórmula não tenham relação direta com performance física ou academia.
+✅ No MODO CONSULTA, oculte totalmente os blocos das Respostas 2 e 3.
 ✅ Analisar INDIVIDUALMENTE cada ativo antes da sinergia.
 ✅ Se for apenas 1 ativo, omitir o card de Sinergia.
 ✅ Analisar interações entre os ativos digitados.
@@ -737,7 +745,6 @@ RESPOSTA FINAL: MASTER SINERGIA (CIANO/ROXO - NO FINAL)
 ✅ Proibido misturar as duas formatações no mesmo bloco.
 ✅ Linguagem simples para WhatsApp, mas baseada na ANVISA.
 ✅ Gerar o resumo em texto puro obrigatoriamente no final.
-✅ FILTRO DE RELEVÂNCIA: O campo "RELAÇÃO COM TREINO" deve ser omitido (não exibir a linha) caso o ativo ou o objetivo da fórmula não tenham relação direta com performance física ou academia.
 ✅ OBRIGATÓRIO incluir quebras de linha entre os campos no resumo.
 ✅ Usar *negrito* no HTML e *asteriscos* no texto do WhatsApp.
 ✅ Temperatura 0.1.`;
