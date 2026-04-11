@@ -486,11 +486,17 @@ RECEITA ANALISADA: "${input}"
 3️⃣ AJUSTES BR: Cruzar dados com limites de bula e guias de insumos nacionais.
 
 ---
-⚖️ LÓGICA DE CORES DO CARD 1 (DINÂMICO):
-- 🟢 SEGURO (Azul): background:rgba(2,132,199,0.05); border:2px solid #0284c7; border-left:8px solid #0284c7;
-- 🟡 ATENÇÃO/LIMITE (Amarelo): background:rgba(255,193,7,0.05); border:2px solid #ffc107; border-left:8px solid #ffc107;
-- 🔴 PERIGOSO/ACIMA LMAX (Vermelho): background:rgba(220,53,69,0.05); border:2px solid #dc3545; border-left:8px solid #dc3545;
+⚖️ LÓGICA DE CORES DO CARD 1 (ASSERTIVIDADE MÁXIMA):
+✅ 🟢 SEGURO (AZUL): Dose dentro da faixa terapêutica de bula (Ex: Levo até 200mcg, Dipirona até 4g/dia). 
+-> REGRA: Se a dose digitada for IGUAL ao limite superior, use AZUL. Proibido usar amarelo no limite
 
+✅ 🟡 ATENÇÃO (AMARELO): Dose limítrofe, uso em idosos/crianças ou interação que exige cautela. Não é erro, é alerta.
+-> REGRA: Use se a dose estiver entre 1% e 20% ACIMA do limite usual, sem risco de morte iminente.
+
+✅ 🔴 PERIGOSO (VERMELHO): Dose nitidamente tóxica, erro de prescrição ou contraindicação absoluta.
+-> REGRA: Use se a dose exceder 20% do limite máximo (LMAX) ANVISA ou houver risco de toxicidade aguda.
+
+⚠️ IMPORTANTE: Seja pragmático. Não classifique doses de manutenção altas como "Atenção" se forem clinicamente aceitas no Brasil. Siga rigorosamente o que você citou em "Dosagem Usual".
 ---
 🎨 LÓGICA DE CORES OBRIGATÓRIA (CARD 1):
 - SEGURO (Azul): background:rgba(2,132,199,0.05); border:2px solid #0284c7; border-left:8px solid #0284c7; padding:20px; border-radius:16px; margin:16px 0;
