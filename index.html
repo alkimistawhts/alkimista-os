@@ -740,8 +740,7 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
                         throw new Error(data.error?.message || "Falha na resposta da IA.");
                     }
                     const text = data.choices[0].message.content;
-                    const cleanText = text.replace(/```html/g, "").replace(/```/g, "").trim();
-                    content.innerHTML = cleanText;
+                    content.innerHTML = text;
                     resultBox.style.display = 'block';
                     
                 } catch (e) { 
