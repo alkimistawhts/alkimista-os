@@ -490,10 +490,16 @@ RECEITA ANALISADA: "${input}"
 - 🟢 SEGURO (Azul): background:rgba(2,132,199,0.05); border:2px solid #0284c7; border-left:8px solid #0284c7;
 - 🟡 ATENÇÃO/LIMITE (Amarelo): background:rgba(255,193,7,0.05); border:2px solid #ffc107; border-left:8px solid #ffc107;
 - 🔴 PERIGOSO/ACIMA LMAX (Vermelho): background:rgba(220,53,69,0.05); border:2px solid #dc3545; border-left:8px solid #dc3545;
----
 
+---
+🎨 LÓGICA DE CORES OBRIGATÓRIA (CARD 1):
+- SEGURO (Azul): background:rgba(2,132,199,0.05); border:2px solid #0284c7; border-left:8px solid #0284c7; padding:20px; border-radius:16px; margin:16px 0;
+- ATENÇÃO/LIMITE (Amarelo): background:rgba(255,193,7,0.05); border:2px solid #ffc107; border-left:8px solid #ffc107; padding:20px; border-radius:16px; margin:16px 0;
+- PERIGOSO (Vermelho): background:rgba(220,53,69,0.05); border:2px solid #dc3545; border-left:8px solid #dc3545; padding:20px; border-radius:16px; margin:16px 0;
+
+---
 📊 FORMATO HTML MÉDICO (EXATO):
-Retorne o HTML conforme a classificação de risco:
+Proibido incluir introduções, explicações ou "Aqui está sua análise". Comece direto no Veredito. Retorne o HTML conforme a classificação de risco:
 
 [VEREDITO] | [SCORE: X/10] | [URGÊNCIA: IMEDIATA/24H/PRÓX. CONSULTA]
 
@@ -587,6 +593,9 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                         content.innerHTML = text;
                     }
 
+                    const text = data.choices[0].message.content;
+                    const cleanText = text.replace(/```html/g, "").replace(/```/g, "").trim();
+                    content.innerHTML = cleanText;
                     box.style.display = 'block';
                     
                 } catch (e) { 
@@ -594,7 +603,7 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                     alert("Erro na auditoria: " + e.message);
                 } finally { 
                     btn.disabled = false;
-                    btn.innerText = "⚡ Executar Auditoria";
+                    btn.innerText = "🔍 Executar Auditoria";
                     loading.style.display = 'none'; 
                 }
             }
@@ -731,7 +740,8 @@ RESPOSTA FINAL: MASTER SINERGIA (ANÁLISE DE TEIA - NO FINAL)
                         throw new Error(data.error?.message || "Falha na resposta da IA.");
                     }
                     const text = data.choices[0].message.content;
-                    content.innerHTML = text;
+                    const cleanText = text.replace(/```html/g, "").replace(/```/g, "").trim();
+                    content.innerHTML = cleanText;
                     resultBox.style.display = 'block';
                     
                 } catch (e) { 
