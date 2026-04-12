@@ -498,6 +498,7 @@
                         produtos: this.produtos,
                         notas: this.notas,
                         historico: this.historico
+                        fases: this.fases // Importante para salvar o conversor de gotas
                     }, { merge: true });
                 } catch (e) {
                 console.error("Erro ao salvar:", e);
@@ -1488,8 +1489,7 @@ fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }
 
 }
 
-window.App = new AlkimistaApp();
-
+window.addEventListener('DOMContentLoaded', () => {
+        window.App = new AlkimistaApp();
+    });
 </script>
-</body>
-</html>
