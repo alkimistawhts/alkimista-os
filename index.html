@@ -979,30 +979,32 @@ ATIVOS ANALISADOS: "${input}"
             
             // Método para alternar entre views
             changeView(v) {
-                // 1. Lista de abas
                 const views = ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'];
-
-            views.forEach(id => {
-                const el = document.getElementById('view-' + id);
-                const nav = document.getElementById('nav-' + id);
-
-                if (el) {
-                    // Usa flex se for a calculadora, block para o resto, ou initial para garantir
-                    el.style.display = (id === v) ? 'block' : 'none';
+        
+                views.forEach(id => {
+                    const el = document.getElementById('view-' + id);
+                    const nav = document.getElementById('nav-' + id);
             
-                    // Força a opacidade para garantir que não está invisível por CSS
-                    if(id === v) el.style.opacity = "1"; 
-                }
+                    if (el) {
+                        if (id === v) {
+                            el.classList.add('active');
+                            el.style.display = 'block'; // Força a exibição
+                        } else {
+                            el.classList.remove('active');
+                            el.style.display = 'none'; // Esconde
+                        }
+                    }
+            
+                    if (nav) {
+                        nav.classList.toggle('active', id === v);
+                    }
+                });
 
-                if (nav) {
-                    nav.classList.toggle('active', id === v);
-                }
-            });
-
-            // 2. IMPORTANTE: Algumas abas precisam ser re-renderizadas ao abrir
-            if (v === 'prod') this.renderProds();
-            if (v === 'notes') this.renderNotes(); // Certifique-se que esta função existe
-        }
+                // Chama as funções de desenho de cada aba para não ficar em branco
+                if (v === 'prod') this.renderProds();
+                if (v === 'notes') this.renderNotes();
+                if (v === 'serv') this.renderFases();
+    }
 
             toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
             openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
