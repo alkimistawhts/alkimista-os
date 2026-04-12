@@ -134,21 +134,24 @@
         </div>
     </div>
 
-    <div id="modalProd" class="overlay">
-        <div class="modal-container">
+    <div id="modalProd" class="modal" style="display:none;">
+        <div class="modal-content">
             <h2 id="modalProdTitle">Novo Produto</h2>
-            <input type="hidden" id="pId">
             <label>Nome do Produto</label>
-            <input type="text" id="pNome" placeholder="Ex: Melatonina Gold">
-            <label>Ativos / Composição</label>
-            <input type="text" id="pAtivos" placeholder="Ex: Melatonina 3mg, L-Teanina...">
+            <input type="text" id="pNome" placeholder="Ex: Composto Emagrecedor X">
+        
+            <label>Ativos</label>
+            <input type="text" id="pAtivos" placeholder="Ex: Cafeína, Garcinia Cambogia">
+        
             <label>Indicação / Serve para</label>
-            <input type="text" id="pServe" placeholder="Ex: Melhora do sono e ansiedade">
-            <label>Posologia Sugerida</label>
-            <textarea id="pPoso" rows="3" placeholder="Ex: Tomar 1 cápsula 30min antes de deitar"></textarea>
-            <div style="display: flex; gap: 12px; margin-top: 10px;">
-                <button class="btn-gray" onclick="window.App.closeProdModal()">Voltar</button>
-                <button class="btn-green" id="btnSalvarProd">Salvar Alterações</button>
+            <input type="text" id="pServe" placeholder="Ex: Emagrecimento">
+        
+            <label>Posologia Padrão</label>
+            <textarea id="pPoso" rows="2" placeholder="Ex: Tomar 1 cápsula 30min antes de deitar"></textarea>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-gray" onclick="document.getElementById('modalProd').style.display='none'">Cancelar</button>
+                <button class="btn-blue" onclick="window.App.saveProd()">Salvar Produto</button>
             </div>
         </div>
     </div>
@@ -520,8 +523,65 @@
                 const gGotas = document.getElementById('gGotas');
                 gGotas.oninput = (e) => {
                     let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                    document.getElementById('gRes').innerText = (val/20).toFixed(2) + " mL"; 
+                    document.getElementById('gRes').innerText = (val / 20).toFixed(2) + " mL";
                 };
+            }
+
+            async saveProd() {
+                const nome = document.getElementById('pNome').value.trim();
+                const ativos = document.getElementById('pAtivos').value;
+                const serve = document.getElementById('pServe').value;
+                const poso = document.getElementById('pPoso').value;
+
+                if (!nome) {
+                    alert("O nome do produto é obrigatório!");
+                    return;
+                }
+
+                if (this.editandoProdId) {
+                    // Modo Edição
+                    const i = this.produtos.findIndex(p => p.id === this.editandoProdId);
+                    if (i !== -1) {
+                        this.produtos[i] = { ...this.produtos[i], nome, ativos, serve, poso };
+                    }
+                } else {
+                    // Modo Novo Produto
+                    this.produtos.push({
+                        id: Date.now(),
+                        nome,
+                        ativos,
+                        serve,
+                        poso
+                    });
+                }
+
+                await this.save(); // Salva no Firebase
+                this.renderProds(); // Atualiza a lista na tela
+                document.getElementById('modalProd').style.display = 'none';
+
+                // Limpa os campos para a próxima vez
+                ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
+                this.editandoProdId = null;
+            }
+
+            openProdModal(id = null) {
+                if (id) {
+                    // Se passar ID, é edição
+                    const p = this.produtos.find(prod => prod.id === id);
+                    if (!p) return;
+                    this.editandoProdId = id;
+                    document.getElementById('modalProdTitle').innerText = "Editar Produto";
+                    document.getElementById('pNome').value = p.nome;
+                    document.getElementById('pAtivos').value = p.ativos || "";
+                    document.getElementById('pServe').value = p.serve || "";
+                    document.getElementById('pPoso').value = p.poso || "";
+                } else {
+                    // Senão, é novo produto
+                    this.editandoProdId = null;
+                    document.getElementById('modalProdTitle').innerText = "Novo Produto";
+                    ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
+                }
+                document.getElementById('modalProd').style.display = 'flex';
             }
 
             async execAudit() {
