@@ -185,7 +185,7 @@
     </div>
 
     <div id="modalProd" class="modal" style="display:none;">
-        <div class="modal-content">
+        <div class="modal-container">
             <h2 id="modalProdTitle">Novo Produto</h2>
             <label>Nome do Produto</label>
             <input type="text" id="pNome" placeholder="Ex: Composto Emagrecedor X">
@@ -543,7 +543,7 @@
 
                 await this.save();
                 this.renderProds();
-                document.getElementById('modalProd').style.display = 'flex';
+                document.getElementById('modalProd').style.display = 'none';
 
                 ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
                 this.editandoProdId = null;
@@ -661,37 +661,42 @@
                 }
             }
 
-            renderNotes() {
-                const container = document.getElementById('notasLista');
-                if (!container) return;
+    renderNotes() {
+        const container = document.getElementById('notasLista');
+        if (!container) return;
 
-                // Se não houver notas, mostra uma mensagem amigável
-                if (this.notas.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum lembrete salvo.</p>';
-                    return;
-                }
-
-                container.innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 15px; padding: 15px; position: relative;">
-                        <div style="display:flex; justify-content:space-between; align-items: flex-start;">
-                            <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">
-                                ${n.cat.toUpperCase()} | 📅 ${n.data} às ${n.hora}
-                            </div>
-                            <div style="display:flex; gap: 15px;">
-                                <button title="Editar" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
-                                <button title="Excluir" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.2rem;" onclick="window.App.delNota(${n.id})">🗑️</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 10px; font-size: 1rem; color: var(--text-main); line-height: 1.4;">
-                        ${n.txt}
-                    </div>
-                    ${n.notificado ? '<div style="margin-top:8px; color:var(--success); font-size:0.75rem; font-weight:bold;">✓ Notificado</div>' : ''}
-                </div>
-            `).join('');
+        if (this.notas.length === 0) {
+            container.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum lembrete salvo.</p>';
+            return;
         }
 
-            checkLembretes() {
+        container.innerHTML = this.notas.slice().reverse().map(n => `
+            <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 15px; padding: 15px;">
+                <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+                    <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">
+                        ${n.cat.toUpperCase()} | 📅 ${n.data} às ${n.hora}
+                    </div>
+                    <div style="display:flex; gap: 15px;">
+                        <button title="Editar" style="background:none; border:none; cursor:pointer; font-size: 1.2rem; width:auto; padding:0;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
+                        <button title="Excluir" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.2rem; width:auto; padding:0;" onclick="window.App.delNota(${n.id})">🗑️</button>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; font-size: 1rem; color: var(--text-main);">
+                    ${n.txt}
+                </div>
+            </div>
+        `).join('');
+    }
+
+// Adicione também esta função logo abaixo da renderNotes:
+    async delNota(id) {
+        if (confirm("Deseja excluir este lembrete?")) {
+            this.notas = this.notas.filter(n => n.id !== id);
+            this.renderNotes();
+            await this.save();
+        }
+    }
+    checkLembretes() {
                 const agora = new Date();
                 const hoje = agora.toISOString().split('T')[0];
                 const agoraHora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -1425,18 +1430,6 @@ ATIVOS ANALISADOS: "${input}"
                         <span>De ${this.fmt(h.o)}</span> <span>➔ ${this.fmt(h.f)}</span>
                     </div>`).join('');
             }
-            renderNotes() {
-                // Aqui fica APENAS o que é das notas
-                const lista = document.getElementById('notasLista');
-                if (!lista) return;
-
-                lista.innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="nota-card">
-                        <small>${n.cat.toUpperCase()} - ${n.data}</small>
-                        <div>${n.txt}</div>
-                    </div>`).join('');
-            }
-        }
 
         window.App = new AlkimistaApp();
     </script>
