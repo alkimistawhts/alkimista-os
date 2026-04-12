@@ -1006,56 +1006,127 @@ ATIVOS ANALISADOS: "${input}"
             async addNota() {
                 const t = document.getElementById('nTexto').value.trim();
                 const c = document.getElementById('nCat').value;
-                const dManual = document.getElementById('nData').value; // Sua data escolhida
-                const hManual = document.getElementById('nHora').value; // Seu horário escolhido
-    
-                if(!t || !dManual || !hManual) {
-                    alert("Por favor, preencha o texto, a data e o horário para o lembrete.");
+                const d = document.getElementById('nData').value;
+                const h = document.getElementById('nHora').value;
+
+                if (!t || !d || !h) {
+                    alert("Preencha o texto, a data e o horário!");
                     return;
                 }
 
-                this.notas.push({ 
-                    id: Date.now(), 
-                    txt: t, 
-                    cat: c, 
-                    data: dManual, 
-                    hora: hManual,
-                    notificado: false // Para não repetir a notificação várias vezes
-                });
+                if (this.editandoNotaId) {
+                    // MODO EDIÇÃO
+                    const index = this.notas.findIndex(n => n.id === this.editandoNotaId);
+                    if (index !== -1) {
+                        this.notas[index] = {
+                            ...this.notas[index],
+                            txt: t,
+                            cat: c,
+                            data: d,
+                            hora: h,
+                            notificado: false // Reseta para avisar novamente se o horário mudou
+                        };
+                    }
+                    this.editandoNotaId = null;
+                    document.getElementById('btnSalvarNota').innerText = "Salvar Lembrete";
+                } else {
+                    // MODO CRIAÇÃO
+                    const novaNota = {
+                        id: Date.now(),
+                        txt: t,
+                        cat: c,
+                        data: d,
+                        hora: h,
+                        notificado: false
+                    };
+                    this.notas.push(novaNota);
+                }
 
-                this.notas.push(novaNota);
-                document.getElementById('nTexto').value = ""; 
-                this.renderNotes(); 
+                // Limpa campos e atualiza interface
+                document.getElementById('nTexto').value = "";
+                document.getElementById('nData').value = "";
+                document.getElementById('nHora').value = "";
+
+                this.renderNotes();
                 await this.save();
+
+                // Solicita permissão de notificação se ainda não tiver
                 if (Notification.permission !== "granted") {
                     Notification.requestPermission();
                 }
-            }    
+            }
 
-            // O "Despertador" que roda em segundo plano
+            prepararEdicaoNota(id) {
+                const nota = this.notas.find(n => n.id === id);
+                if (!nota) return;
+
+                // Joga os dados de volta para o formulário
+                document.getElementById('nTexto').value = nota.txt;
+                document.getElementById('nCat').value = nota.cat;
+                document.getElementById('nData').value = nota.data;
+                document.getElementById('nHora').value = nota.hora;
+
+                this.editandoNotaId = id;
+                document.getElementById('btnSalvarNota').innerText = "ATUALIZAR NOTA";
+
+                // Rola para o topo para facilitar a edição
+                document.getElementById('view-notes').scrollTop = 0;
+            }
+
+            async delNota(id) {
+                if (confirm("Excluir esta anotação?")) {
+                    this.notas = this.notas.filter(n => n.id !== id);
+                    this.renderNotes();
+                    await this.save();
+                }
+            }
+
+            renderNotes() {
+                const container = document.getElementById('notasLista');
+                if (!container) return;
+
+                container.innerHTML = this.notas.slice().reverse().map(n => `
+                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 10px; padding: 15px;">
+                        <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+                            <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">
+                                ${n.cat.toUpperCase()} | 📅 ${n.data} às ${n.hora}
+                            </div>
+                            <div style="display:flex; gap: 12px;">
+                                <button style="background:none; border:none; cursor:pointer; font-size: 1.1rem;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
+                                <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.1rem;" onclick="window.App.delNota(${n.id})">🗑️</button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.95rem; color: var(--text-main); line-height: 1.4;">${n.txt}</div>
+                        ${n.notificado ? '<div style="margin-top:5px; color:var(--success); font-size:0.75rem; font-weight:bold;">✓ Notificado</div>' : ''}
+                    </div>
+                `).join('');
+            }
+
             checkLembretes() {
                 const agora = new Date();
-                // Formata data e hora para comparar com os inputs
-                const hoje = agora.toISOString().split('T')[0]; 
+                // Formato YYYY-MM-DD para bater com o input date
+                const hoje = agora.toISOString().split('T')[0];
+                // Formato HH:MM
                 const agoraHora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
                 this.notas.forEach(n => {
                     if (n.data === hoje && n.hora === agoraHora && !n.notificado) {
                         this.notificarWindows(`Lembrete Alkimista: ${n.cat}`, n.txt);
-                        n.notificado = true; 
-                        this.save(); // Salva na nuvem que já avisou para não repetir
+                        n.notificado = true;
+                        this.save();
+                        this.renderNotes(); // Atualiza para mostrar o check de "notificado"
                     }
                 });
             }
 
             notificarWindows(titulo, msg) {
                 if (Notification.permission === "granted") {
-                    new Notification(titulo, { 
-                    body: msg,
-                    icon: 'https://cdn-icons-png.flaticon.com/512/1001/1001371.png' // Um ícone de alerta
-                });
+                    new Notification(titulo, {
+                        body: msg,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/1001/1001371.png'
+                    });
+                }
             }
-        }
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
             
             // Método para alternar entre views
