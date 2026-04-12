@@ -979,10 +979,11 @@ ATIVOS ANALISADOS: "${input}"
             
             // Método para alternar entre views
             changeView(v) {
+                console.log("Tentando abrir a aba:", v); // Isso vai aparecer no F12
                 // Adicione 'sinergia' e 'servs' à lista
                 ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'].forEach(id => {
                      const el = document.getElementById('view-' + id);
-                    if (el) el.style.display = (id === v) ? 'block' : 'none';
+                    if (el) el.style.display = (id === v) ? 'initial' : 'none';
                 });
 
                 // 2. Mapeamento de todos os itens de navegação da sidebar para o efeito "Active"
