@@ -214,14 +214,14 @@
         </div>
 
         <div id="view-prod" class="view" style="display:none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h1>Catálogo</h1>
-                <button class="btn-blue" id="btnAbreNovoProd" style="width: auto; padding: 10px 20px; display: none;">+ Novo</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h1>Produtos</h1>
+                <button class="btn-blue" onclick="window.App.openProdModal()" style="width:auto; padding:10px 20px;">+ Novo Produto</button>
             </div>
-            <div class="card" style="padding: 10px; margin-bottom: 20px;">
-                <input type="text" id="pBusca" placeholder="🔍 Buscar por nome, ativos ou indicação..." style="margin-bottom: 0; border: none; background: transparent;">
+            <div class="card" style="margin-bottom: 20px; padding: 10px;">
+                <input type="text" id="pBusca" placeholder="🔍 Buscar por nome, ativos ou indicação..." oninput="window.App.renderProds()" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border);">
             </div>
-            <div id="prodLista"></div>
+            <div id="prodLista" class="grid-prods"></div>
         </div>
 
         <div id="view-audit" class="view" style="display:none;">
@@ -291,34 +291,34 @@
         </div>
     </div>
 
-        <div id="view-notes" class="view" style="display:none;">
-            <h1>Anotações & Lembretes</h1>
-            <div class="card">
-                <label>Tipo de Registro</label>
-                <select id="nCat">
-                    <option value="aviso">🔵 Aviso Geral</option>
-                    <option value="urgente">🔴 Urgência / Falta</option>
-                    <option value="verificação">🟢 Conferência</option>
-                </select>
+    <div id="view-notes" class="view" style="display:none;">
+        <h1>Anotações</h1>
+        <div class="card">
+            <label>Tipo de Registro</label>
+            <select id="nCat">
+                <option value="aviso">🔵 Aviso Geral</option>
+                <option value="urgente">🔴 Urgência / Falta</option>
+                <option value="verificação">🟢 Conferência</option>
+            </select>
 
-                <div style="display: flex; gap: 12px; margin-top: 10px;">
-                    <div style="flex:1">
-                        <label>Data do Alerta</label>
-                        <input type="date" id="nData">
-                    </div>
-                    <div style="flex:1">
-                        <label>Hora do Alerta</label>
-                        <input type="time" id="nHora">
-                    </div>
+            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <div style="flex:1">
+                    <label>Data (Clique para Calendário)</label>
+                    <input type="date" id="nData">
                 </div>
-
-                <label style="margin-top: 10px; display: block;">Descrição</label>
-                <textarea id="nTexto" rows="3" placeholder="O que deseja lembrar?"></textarea>
-        
-                <button class="btn-blue" onclick="window.App.addNota()" style="margin-top: 10px;">Salvar Lembrete Agendado</button>
+                <div style="flex:1">
+                    <label>Hora (Clique para Relógio)</label>
+                    <input type="time" id="nHora">
+                </div>
             </div>
-            <div id="notasLista"></div>
+
+            <label style="margin-top: 10px; display: block;">Descrição</label>
+            <textarea id="nTexto" rows="3" placeholder="O que deseja lembrar?"></textarea>
+
+            <button class="btn-blue" id="btnSalvarNota" onclick="window.App.addNota()" style="margin-top: 10px;">Salvar Lembrete</button>
         </div>
+        <div id="notasLista"></div>
+    </div>
 
         <div id="view-serv" class="view" style="display:none;">
             <h1>Serviços</h1>
@@ -403,35 +403,30 @@
             }
 
             nav(v) {
-                // Esconde todas as visualizações (views)
-                document.querySelectorAll('.view').forEach(view => {
-                    view.style.display = 'none';
-                });
+                // Esconde todas as telas
+                document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
 
-                // Mostra a visualização selecionada
-                const targetView = document.getElementById('view-' + v);
-                if (targetView) {
-                    targetView.style.display = 'block';
-                }
+                // Mostra a tela selecionada
+                const target = document.getElementById('view-' + v);
+                if (target) target.style.display = 'block';
 
-                // Se a aba for 'notes' (Anotações), gera a sugestão de horário automaticamente
+                // Se for para anotações, ativa as automações
                 if (v === 'notes') {
                     this.preencherDataSugestao();
                     this.renderNotes();
                 }
 
-                // Se for a aba de produtos, renderiza a lista
                 if (v === 'prod') {
                     this.renderProds();
                 }
             }
+
             preencherDataSugestao() {
                 const agora = new Date();
-
-                // Define a data de hoje (formato YYYY-MM-DD)
+                // Data de hoje (AAAA-MM-DD)
                 const hoje = agora.toISOString().split('T')[0];
 
-                // Define o horário para daqui a 1 hora
+                // Sugestão de +1 hora
                 agora.setHours(agora.getHours() + 1);
                 const horaSugestao = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
@@ -442,32 +437,246 @@
                 if (inputHora) inputHora.value = horaSugestao;
             }
 
+            // CORREÇÃO BOTÃO NOVO:
             openProdModal(id = null) {
                 const modal = document.getElementById('modalProd');
                 if (!modal) return;
 
                 if (id) {
-                    // Modo Edição
                     const p = this.produtos.find(prod => prod.id === id);
                     if (!p) return;
                     this.editandoProdId = id;
                     document.getElementById('modalProdTitle').innerText = "Editar Produto";
                     document.getElementById('pNome').value = p.nome;
+                    document.getElementById('pPreco').value = p.preco;
                     document.getElementById('pAtivos').value = p.ativos || "";
                     document.getElementById('pServe').value = p.serve || "";
                     document.getElementById('pPoso').value = p.poso || "";
                 } else {
-                    // Modo Novo (Limpa tudo)
+                    // Novo Produto: Limpa tudo
                     this.editandoProdId = null;
                     document.getElementById('modalProdTitle').innerText = "Novo Produto";
-                    const campos = ['pNome', 'pAtivos', 'pServe', 'pPoso'];
-                    campos.forEach(idCampo => {
-                        const el = document.getElementById(idCampo);
+                    ['pNome', 'pPreco', 'pAtivos', 'pServe', 'pPoso'].forEach(f => {
+                        const el = document.getElementById(f);
                         if (el) el.value = "";
                     });
                 }
                 modal.style.display = 'flex';
             }
+
+            async addFullProd() {
+                if (!this.isAdmin) return;
+                const id = document.getElementById('pId').value;
+                const p = {
+                    id: id ? parseInt(id) : Date.now(),
+                    nome: document.getElementById('pNome').value,
+                    ativos: document.getElementById('pAtivos').value,
+                    serve: document.getElementById('pServe').value,
+                    poso: document.getElementById('pPoso').value
+                };
+                if (!p.nome) return;
+                if (id) {
+                    const idx = this.produtos.findIndex(x => x.id == id);
+                    if (idx != -1) this.produtos[idx] = p;
+                } else {
+                    this.produtos.push(p);
+                }
+                await this.save();
+                this.renderProds();
+                this.closeProdModal();
+            }
+
+            async saveProd() {
+                const nome = document.getElementById('pNome').value.trim();
+                const ativos = document.getElementById('pAtivos').value;
+                const serve = document.getElementById('pServe').value;
+                const poso = document.getElementById('pPoso').value;
+
+                if (!nome) {
+                    alert("O nome do produto é obrigatório!");
+                    return;
+                }
+
+                if (this.editandoProdId) {
+                    const i = this.produtos.findIndex(p => p.id === this.editandoProdId);
+                    if (i !== -1) {
+                        this.produtos[i] = { ...this.produtos[i], nome, ativos, serve, poso };
+                    }
+                } else {
+                    this.produtos.push({
+                        id: Date.now(),
+                        nome,
+                        ativos,
+                        serve,
+                        poso
+                    });
+                }
+
+                await this.save();
+                this.renderProds();
+                document.getElementById('modalProd').style.display = 'none';
+
+                ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
+                this.editandoProdId = null;
+            }
+
+            renderProds() {
+                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
+                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
+                const container = document.getElementById('prodLista');
+                if (filtrados.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; opacity:0.5;">Nenhum produto encontrado.</p>';
+                    return;
+                }
+                container.innerHTML = filtrados.slice().reverse().map(p => {
+                    const editButton = this.isAdmin ? `<button class="btn-gray" style="padding:10px; flex: 1;" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : '';
+                    const deleteButton = this.isAdmin ? `<button class="btn-red" style="width:45px; padding:10px; flex: 0;" onclick="window.App.delProd(${p.id})">🗑️</button>` : '';
+                    return `<div class="prod-card" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="color:var(--accent); font-weight:800; font-size:1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                            ${p.nome.toUpperCase()}
+                        </div>
+                        <div style="font-size:0.85rem; color:var(--text-main); line-height: 1.4;">
+                            <div style="margin-bottom: 4px;"><b>🧪 Ativos:</b> <span style="color:var(--text-sub)">${p.ativos}</span></div>
+                            <div style="margin-bottom: 4px;"><b>🎯 Indicação:</b> <span style="color:var(--text-sub)">${p.serve}</span></div>
+                            <div style="background: var(--highlight-bg); padding: 8px; border-radius: 12px; margin-top: 8px; border-left: 3px solid var(--accent);">
+                                <b>💊 Posologia:</b> <span style="color:var(--text-sub)">${p.poso || 'Verificar bula/receita'}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top: 5px;">
+                            <button class="btn-blue" style="padding:10px; flex: 2;" onclick="window.App.copyProd(${p.id})">COPIAR INFO</button>
+                            ${editButton}
+                            ${deleteButton}
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            copyProd(id) {
+                const p = this.produtos.find(x => x.id === id);
+                const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}\n\n*SUGESTÃO DE USO:* ${p.poso}`;
+                navigator.clipboard.writeText(txt).then(() => {
+                    const t = document.getElementById('toast');
+                    t.style.display = 'block';
+                    setTimeout(() => t.style.display = 'none', 2000);
+                }).catch(err => console.error('Erro ao copiar: ', err));
+            }
+
+            async addNota() {
+                const t = document.getElementById('nTexto').value.trim();
+                const c = document.getElementById('nCat').value;
+                const d = document.getElementById('nData').value;
+                const h = document.getElementById('nHora').value;
+
+                if (!t || !d || !h) {
+                    alert("Preencha o texto, a data e o horário!");
+                    return;
+                }
+
+                if (this.editandoNotaId) {
+                    const index = this.notas.findIndex(n => n.id === this.editandoNotaId);
+                    if (index !== -1) {
+                        this.notas[index] = {
+                            ...this.notas[index],
+                            txt: t,
+                            cat: c,
+                            data: d,
+                            hora: h,
+                            notificado: false
+                        };
+                    }
+                    this.editandoNotaId = null;
+                    document.getElementById('btnSalvarNota').innerText = "Salvar Lembrete";
+                } else {
+                    const novaNota = {
+                        id: Date.now(),
+                        txt: t,
+                        cat: c,
+                        data: d,
+                        hora: h,
+                        notificado: false
+                    };
+                    this.notas.push(novaNota);
+                }
+
+                document.getElementById('nTexto').value = "";
+                document.getElementById('nData').value = "";
+                document.getElementById('nHora').value = "";
+
+                this.renderNotes();
+                await this.save();
+
+                if (Notification.permission !== "granted") {
+                    Notification.requestPermission();
+                }
+            }
+
+            prepararEdicaoNota(id) {
+                const n = this.notas.find(nota => nota.id === id);
+                if (!n) return;
+
+                document.getElementById('nTexto').value = n.txt;
+                document.getElementById('nCat').value = n.cat;
+                document.getElementById('nData').value = n.data;
+                document.getElementById('nHora').value = n.hora;
+
+                this.editandoNotaId = id;
+                document.getElementById('btnSalvarNota').innerText = "ATUALIZAR NOTA";
+                document.getElementById('view-notes').scrollTop = 0;
+            }
+
+            async delNota(id) {
+                if (confirm("Deseja excluir esta anotação?")) {
+                    this.notas = this.notas.filter(n => n.id !== id);
+                    this.renderNotes();
+                    await this.save();
+                }
+            }
+
+            renderNotes() {
+                const container = document.getElementById('notasLista');
+                if (!container) return;
+
+                container.innerHTML = this.notas.slice().reverse().map(n => `
+                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 10px; padding: 15px;">
+                        <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+                            <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">
+                                ${n.cat.toUpperCase()} | 📅 ${n.data} às ${n.hora}
+                            </div>
+                            <div style="display:flex; gap: 12px;">
+                                <button style="background:none; border:none; cursor:pointer; font-size: 1.1rem;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
+                                <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.1rem;" onclick="window.App.delNota(${n.id})">🗑️</button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.95rem; color: var(--text-main); line-height: 1.4;">${n.txt}</div>
+                        ${n.notificado ? '<div style="margin-top:5px; color:var(--success); font-size:0.75rem; font-weight:bold;">✓ Notificado</div>' : ''}
+                    </div>
+                `).join('');
+            }
+
+            checkLembretes() {
+                const agora = new Date();
+                const hoje = agora.toISOString().split('T')[0];
+                const agoraHora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                this.notas.forEach(n => {
+                    if (n.data === hoje && n.hora === agoraHora && !n.notificado) {
+                        this.notificarWindows(`Lembrete Alkimista: ${n.cat}`, n.txt);
+                        n.notificado = true;
+                        this.save();
+                        this.renderNotes();
+                    }
+                });
+            }
+
+            notificarWindows(titulo, msg) {
+                if (Notification.permission === "granted") {
+                    new Notification(titulo, {
+                        body: msg,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/1001/1001371.png'
+                    });
+                }
+            }
+
             copiarTexto(idElemento) {
                 const elemento = document.getElementById(idElemento);
                 if (elemento) {
@@ -591,43 +800,6 @@
                     let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
                     document.getElementById('gRes').innerText = (val / 20).toFixed(2) + " mL";
                 };
-            }
-
-            async saveProd() {
-                const nome = document.getElementById('pNome').value.trim();
-                const ativos = document.getElementById('pAtivos').value;
-                const serve = document.getElementById('pServe').value;
-                const poso = document.getElementById('pPoso').value;
-
-                if (!nome) {
-                    alert("O nome do produto é obrigatório!");
-                    return;
-                }
-
-                if (this.editandoProdId) {
-                    // Modo Edição
-                    const i = this.produtos.findIndex(p => p.id === this.editandoProdId);
-                    if (i !== -1) {
-                        this.produtos[i] = { ...this.produtos[i], nome, ativos, serve, poso };
-                    }
-                } else {
-                    // Modo Novo Produto
-                    this.produtos.push({
-                        id: Date.now(),
-                        nome,
-                        ativos,
-                        serve,
-                        poso
-                    });
-                }
-
-                await this.save(); // Salva no Firebase
-                this.renderProds(); // Atualiza a lista na tela
-                document.getElementById('modalProd').style.display = 'none';
-
-                // Limpa os campos para a próxima vez
-                ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
-                this.editandoProdId = null;
             }
 
             async execAudit() {
@@ -1045,194 +1217,7 @@ ATIVOS ANALISADOS: "${input}"
                 }
             
             }
-            openProdModal(id = null) {
-                if(!this.isAdmin) return;
-                this.resetProdForm();
-                if(id) {
-                    const p = this.produtos.find(x => x.id === id);
-                    document.getElementById('pId').value = p.id;
-                    document.getElementById('pNome').value = p.nome;
-                    document.getElementById('pAtivos').value = p.ativos;
-                    document.getElementById('pServe').value = p.serve;
-                    document.getElementById('pPoso').value = p.poso;
-                    document.getElementById('modalProdTitle').innerText = "Editar Produto";
-                } else { document.getElementById('modalProdTitle').innerText = "Novo Produto"; }
-                document.getElementById('modalProd').classList.add('active');
-            }
 
-            closeProdModal() { document.getElementById('modalProd').classList.remove('active'); }
-
-            async addFullProd() {
-                if(!this.isAdmin) return;
-                const id = document.getElementById('pId').value;
-                const p = { id: id ? parseInt(id) : Date.now(), nome: document.getElementById('pNome').value, ativos: document.getElementById('pAtivos').value, serve: document.getElementById('pServe').value, poso: document.getElementById('pPoso').value };
-                if(!p.nome) return;
-                if(id) { const idx = this.produtos.findIndex(x => x.id == id); if(idx!=-1) this.produtos[idx] = p; }
-                else { this.produtos.push(p); }
-                await this.save(); this.renderProds(); this.closeProdModal();
-            }
-
-            renderProds() {
-                const buscaInput = document.getElementById('pBusca').value.toLowerCase();
-                const filtrados = this.produtos.filter(p => `${p.nome} ${p.ativos} ${p.serve}`.toLowerCase().includes(buscaInput));
-                const container = document.getElementById('prodLista');
-                if (filtrados.length === 0) { container.innerHTML = '<p style="text-align:center; opacity:0.5;">Nenhum produto encontrado.</p>'; return; }
-                container.innerHTML = filtrados.slice().reverse().map(p => {
-                    const editButton = this.isAdmin ? `<button class="btn-gray" style="padding:10px; flex: 1;" onclick="window.App.openProdModal(${p.id})">EDITAR</button>` : '';
-                    const deleteButton = this.isAdmin ? `<button class="btn-red" style="width:45px; padding:10px; flex: 0;" onclick="window.App.delProd(${p.id})">🗑️</button>` : '';
-                    return `<div class="prod-card" style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="color:var(--accent); font-weight:800; font-size:1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-                        ${p.nome.toUpperCase()}
-                    </div>
-                    <div style="font-size:0.85rem; color:var(--text-main); line-height: 1.4;">
-                        <div style="margin-bottom: 4px;"><b>🧪 Ativos:</b> <span style="color:var(--text-sub)">${p.ativos}</span></div>
-                        <div style="margin-bottom: 4px;"><b>🎯 Indicação:</b> <span style="color:var(--text-sub)">${p.serve}</span></div>
-                        <div style="background: var(--highlight-bg); padding: 8px; border-radius: 12px; margin-top: 8px; border-left: 3px solid var(--accent);">
-                            <b>💊 Posologia:</b> <span style="color:var(--text-sub)">${p.poso || 'Verificar bula/receita'}</span>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:8px; margin-top: 5px;">
-                        <button class="btn-blue" style="padding:10px; flex: 2;" onclick="window.App.copyProd(${p.id})">COPIAR INFO</button>
-                        ${editButton}
-                        ${deleteButton}
-                    </div>
-                </div>`;
-                }).join('');
-            }
-
-            copyProd(id) {
-                const p = this.produtos.find(x => x.id === id);
-                const txt = `*PRODUTO:* ${p.nome}\n\n*INDICAÇÃO:* ${p.serve}\n\n*COMPOSIÇÃO:* ${p.ativos}\n\n*SUGESTÃO DE USO:* ${p.poso}`;
-                navigator.clipboard.writeText(txt).then(() => {
-                    const t = document.getElementById('toast');
-                    t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000);
-                }).catch(err => console.error('Erro ao copiar: ', err));
-            }
-
-            async addNota() {
-                const t = document.getElementById('nTexto').value.trim();
-                const c = document.getElementById('nCat').value;
-                const d = document.getElementById('nData').value;
-                const h = document.getElementById('nHora').value;
-
-                if (!t || !d || !h) {
-                    alert("Preencha o texto, a data e o horário!");
-                    return;
-                }
-
-                if (this.editandoNotaId) {
-                    // MODO EDIÇÃO
-                    const index = this.notas.findIndex(n => n.id === this.editandoNotaId);
-                    if (index !== -1) {
-                        this.notas[index] = {
-                            ...this.notas[index],
-                            txt: t,
-                            cat: c,
-                            data: d,
-                            hora: h,
-                            notificado: false // Reseta para avisar novamente se o horário mudou
-                        };
-                    }
-                    this.editandoNotaId = null;
-                    document.getElementById('btnSalvarNota').innerText = "Salvar Lembrete";
-                } else {
-                    // MODO CRIAÇÃO
-                    const novaNota = {
-                        id: Date.now(),
-                        txt: t,
-                        cat: c,
-                        data: d,
-                        hora: h,
-                        notificado: false
-                    };
-                    this.notas.push(novaNota);
-                }
-
-                // Limpa campos e atualiza interface
-                document.getElementById('nTexto').value = "";
-                document.getElementById('nData').value = "";
-                document.getElementById('nHora').value = "";
-
-                this.renderNotes();
-                await this.save();
-
-                // Solicita permissão de notificação se ainda não tiver
-                if (Notification.permission !== "granted") {
-                    Notification.requestPermission();
-                }
-            }
-
-            prepararEdicaoNota(id) {
-                const nota = this.notas.find(n => n.id === id);
-                if (!nota) return;
-
-                // Joga os dados de volta para o formulário
-                document.getElementById('nTexto').value = nota.txt;
-                document.getElementById('nCat').value = nota.cat;
-                document.getElementById('nData').value = nota.data;
-                document.getElementById('nHora').value = nota.hora;
-
-                this.editandoNotaId = id;
-                document.getElementById('btnSalvarNota').innerText = "ATUALIZAR NOTA";
-
-                // Rola para o topo para facilitar a edição
-                document.getElementById('view-notes').scrollTop = 0;
-            }
-
-            async delNota(id) {
-                if (confirm("Excluir esta anotação?")) {
-                    this.notas = this.notas.filter(n => n.id !== id);
-                    this.renderNotes();
-                    await this.save();
-                }
-            }
-
-            renderNotes() {
-                const container = document.getElementById('notasLista');
-                if (!container) return;
-
-                container.innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 10px; padding: 15px;">
-                        <div style="display:flex; justify-content:space-between; align-items: flex-start;">
-                            <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">
-                                ${n.cat.toUpperCase()} | 📅 ${n.data} às ${n.hora}
-                            </div>
-                            <div style="display:flex; gap: 12px;">
-                                <button style="background:none; border:none; cursor:pointer; font-size: 1.1rem;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
-                                <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.1rem;" onclick="window.App.delNota(${n.id})">🗑️</button>
-                            </div>
-                        </div>
-                        <div style="margin-top: 8px; font-size: 0.95rem; color: var(--text-main); line-height: 1.4;">${n.txt}</div>
-                        ${n.notificado ? '<div style="margin-top:5px; color:var(--success); font-size:0.75rem; font-weight:bold;">✓ Notificado</div>' : ''}
-                    </div>
-                `).join('');
-            }
-
-            checkLembretes() {
-                const agora = new Date();
-                // Formato YYYY-MM-DD para bater com o input date
-                const hoje = agora.toISOString().split('T')[0];
-                // Formato HH:MM
-                const agoraHora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-                this.notas.forEach(n => {
-                    if (n.data === hoje && n.hora === agoraHora && !n.notificado) {
-                        this.notificarWindows(`Lembrete Alkimista: ${n.cat}`, n.txt);
-                        n.notificado = true;
-                        this.save();
-                        this.renderNotes(); // Atualiza para mostrar o check de "notificado"
-                    }
-                });
-            }
-
-            notificarWindows(titulo, msg) {
-                if (Notification.permission === "granted") {
-                    new Notification(titulo, {
-                        body: msg,
-                        icon: 'https://cdn-icons-png.flaticon.com/512/1001/1001371.png'
-                    });
-                }
-            }
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
             
             // Método para alternar entre views
