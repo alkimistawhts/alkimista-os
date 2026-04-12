@@ -335,11 +335,11 @@
             <div style="display: flex; gap: 12px; margin-top: 10px;">
                 <div style="flex:1">
                     <label>Data (Clique para Calendário)</label>
-                    <input type="date" id="nData">
+                    <input type="date" id="nData" onclick="this.showPicker()">>
                 </div>
                 <div style="flex:1">
                     <label>Hora (Clique para Relógio)</label>
-                    <input type="time" id="nHora">
+                    <input type="time" id="nHora" onclick="this.showPicker()">>
                 </div>
             </div>
 
@@ -492,28 +492,6 @@
                     });
                 }
                 modal.style.display = 'flex';
-            }
-
-            async addFullProd() {
-                if (!this.isAdmin) return;
-                const id = document.getElementById('pId').value;
-                const p = {
-                    id: id ? parseInt(id) : Date.now(),
-                    nome: document.getElementById('pNome').value,
-                    ativos: document.getElementById('pAtivos').value,
-                    serve: document.getElementById('pServe').value,
-                    poso: document.getElementById('pPoso').value
-                };
-                if (!p.nome) return;
-                if (id) {
-                    const idx = this.produtos.findIndex(x => x.id == id);
-                    if (idx != -1) this.produtos[idx] = p;
-                } else {
-                    this.produtos.push(p);
-                }
-                await this.save();
-                this.renderProds();
-                this.closeProdModal();
             }
 
             async saveProd() {
