@@ -1058,18 +1058,22 @@ ATIVOS ANALISADOS: "${input}"
             initUI() { this.render(); this.renderProds(); this.renderFases(); }
 
             render() {
+                // Aqui fica APENAS o que é da calculadora
                 document.getElementById('totalVal').innerText = this.fmt(this.total);
                 document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
-                    <div class="display-line" style="font-size:0.8rem; opacity:0.7; padding:4px 10px; border-bottom:1px solid var(--border)">
+                    <div class="display-line">
                         <span>De ${this.fmt(h.o)}</span> <span>➔ ${this.fmt(h.f)}</span>
                     </div>`).join('');
-                document.getElementById('notasLista').innerHTML = this.notas.slice().reverse().map(n => `
+            }
+            renderNotes() {
+                // Aqui fica APENAS o que é das notas
+                const lista = document.getElementById('notasLista');
+                if (!lista) return;
+
+                lista.innerHTML = this.notas.slice().reverse().map(n => `
                     <div class="nota-card">
-                        <div style="display:flex; justify-content:space-between">
-                            <small style="font-weight:bold; color:var(--accent)">${n.cat.toUpperCase()} - ${n.data} ${n.hora}</small>
-                            <button style="width:24px;height:24px;background:none;color:var(--danger);padding:0" onclick="window.App.delNota(${n.id})">✕</button>
-                        </div>
-                        <div style="margin-top:5px; font-size:0.95rem">${n.txt}</div>
+                        <small>${n.cat.toUpperCase()} - ${n.data}</small>
+                        <div>${n.txt}</div>
                     </div>`).join('');
             }
         }
