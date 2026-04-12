@@ -261,6 +261,9 @@
                         <button onclick="window.App.copiarTexto('resumoWhatsAppWiki')" style="width: auto; padding: 5px 12px; background: #25d366; font-size: 0.75rem; border-radius: 8px; color: white; cursor: pointer;">📋 Copiar WhatsApp</button>
                     </div>
                     <div id="wikiContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
+                </div>
+            </div>
+        </div>
                 
         <div id="view-sinergia" class="view" style="display:none;">
             <h1>🚀 Sinergia de Fórmulas</h1>
@@ -768,8 +771,9 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
                     btn.innerText = "🔍 Consultar";
                     loading.style.display = 'none';
                 }
+            }
             
-            async function execSinergia() {
+            async execSinergia() {
                 const input = document.getElementById('sinergiaInput').value.trim();
                 if (!input) return alert("Insira os componentes da fórmula.");
     
@@ -957,11 +961,11 @@ ATIVOS ANALISADOS: "${input}"
 
             async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
             
-            async save() { 
-                if(this.user) { 
+            async save() {
+                if(this.user) {
                     await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true });
-                    if(this.isAdmin) await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos }); 
-                } 
+                    if(this.isAdmin) await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos });
+                }
             }
 
             async loadFromCloud() { 
@@ -975,14 +979,10 @@ ATIVOS ANALISADOS: "${input}"
             
             // Método para alternar entre views
             changeView(v) {
-                // 1. Lista completa de todas as views (telas) do seu sistema
-                const views = ['calc', 'audit', 'wiki', 'sinergia', 'servs', 'prods', 'notas', 'config'];
-    
-                views.forEach(id => {
-                    const el = document.getElementById('view-' + id);
-                    if (el) {
-                        el.style.display = (id === v) ? 'block' : 'none';
-                    }
+                // Adicione 'sinergia' e 'servs' à lista
+                ['calc', 'prods', 'audit', 'wiki', 'sinergia', 'notas', 'servs'].forEach(id => {
+                     const el = document.getElementById('view-' + id);
+                    if (el) el.style.display = (id === v) ? 'block' : 'none';
                 });
 
                 // 2. Mapeamento de todos os itens de navegação da sidebar para o efeito "Active"
