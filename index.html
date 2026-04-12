@@ -137,6 +137,18 @@
             .main { margin-left: 0; margin-bottom: 80px; padding: 20px 15px; }
             .theme-fab { bottom: 90px; right: 20px; width: 50px; height: 50px; }
         }
+        #btnInstalar {
+            animation: pulse 2s infinite; /* Faz o botão pulsar levemente para chamar atenção */
+            white-space: nowrap;
+            margin-left: auto; /* Empurra o botão para a direita na barra de links */
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
         #resumoWhatsAppWiki {
             background: #f1f5f9;
             padding: 15px;
@@ -239,6 +251,11 @@
     <main class="main">
     <div class="app-container">
         
+        <div id="btnInstalar" style="display: none; align-items: center; justify-content: center; background: #ff9800; color: white; padding: 12px; border-radius: 12px; font-size: 13px; cursor: pointer; font-weight: bold; gap: 8px; margin: 15px auto; width: 90%; max-width: 500px; box-shadow: 0 4px 12px rgba(255,152,0,0.3); z-index: 999;" onclick="window.App.instalarPWA()">
+        <i class="fas fa-download"></i>
+        <span>INSTALAR APLICATIVO ALKIMISTA</span>
+    </div>
+
         <div id="view-calc" class="view active">
             <h1>Calculadora 20%</h1>
             <div class="card">
@@ -457,7 +474,7 @@
 
             nav(v) {
                 // Esconde todas as telas
-                document.querySelectorAll('.view').forEach(view => view.style.display = 'flex');
+                document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
 
                 // Mostra a tela selecionada
                 const target = document.getElementById('view-' + v);
@@ -740,192 +757,215 @@
             }
         }
 
-            initAuth() {
-                onAuthStateChanged(auth, async (u) => {
-                    const loginScreen = document.getElementById('view-login');
-                    if (u) {
-                        this.user = u;
-                        const uDoc = await getDoc(doc(db, "usuarios", u.uid));
-                        if(uDoc.exists()) {
-                            this.isAdmin = uDoc.data().isAdmin || false;
-                            this.isDark = uDoc.data().isDark || false;
-                            if(this.isDark) document.body.classList.add('dark-mode');
+            instalarPWA() {
+                if (this.deferredPrompt) {
+                    this.deferredPrompt.prompt();
+                    this.deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('Usuário aceitou a instalação');
+                            document.getElementById('btnInstalar').style.display = 'none';
                         }
-                        loginScreen.style.display = 'none'; 
-                        document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
-                        await this.loadFromCloud();
-                        if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
-                        this.initUI();
-                    } else {
-                        loginScreen.style.display = 'flex';
-                    }
+                        this.deferredPrompt = null;
+                    });
+                }
+            }
+
+            // E adicione este ouvinte no constructor ou no initUI da classe
+            escutarInstalacao() {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    const btn = document.getElementById('btnInstalar');
+                    if (btn) btn.style.display = 'flex'; // Aqui ele aparece para o usuário
                 });
-                document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
-            async loadFromCloud() { 
-                try {
-                    // Busca os dados do usuário logado
-                    const uD = await getDoc(doc(db, "usuarios", this.user.uid));
-                    if(uD.exists()) { 
-                        const d = uD.data(); 
-                        this.total = d.total || 0; 
-                        this.historico = d.historico || []; 
-                        this.notas = d.notas || []; 
-                        this.isDark = d.isDark || false;
-                    } 
-
-                    // Busca o catálogo global de produtos
-                    const cD = await getDoc(doc(db, "configuracoes", "catalogo"));
-                    if(cD.exists()) {
-                        this.produtos = cD.data().produtos || []; 
-                    }
-
-                    console.log("Dados carregados da nuvem com sucesso.");
-                } catch (error) {
-                    console.error("Erro técnico ao carregar dados:", error);
+    initAuth() {
+        onAuthStateChanged(auth, async (u) => {
+            const loginScreen = document.getElementById('view-login');
+            if (u) {
+                this.user = u;
+                const uDoc = await getDoc(doc(db, "usuarios", u.uid));
+                if(uDoc.exists()) {
+                    this.isAdmin = uDoc.data().isAdmin || false;
+                    this.isDark = uDoc.data().isDark || false;
+                    if(this.isDark) document.body.classList.add('dark-mode');
                 }
+                loginScreen.style.display = 'none'; 
+                document.getElementById('btnAbreNovoProd').style.display = this.isAdmin ? 'block' : 'none';
+                await this.loadFromCloud();
+                if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
+                this.initUI();
+            } else {
+                loginScreen.style.display = 'flex';
             }
+        });
+        document.getElementById('btnLogin').onclick = () => this.handleLogin();
+    }
+
+    async loadFromCloud() { 
+        try {
+            // Busca os dados do usuário logado
+            const uD = await getDoc(doc(db, "usuarios", this.user.uid));
+            if(uD.exists()) { 
+                const d = uD.data(); 
+                this.total = d.total || 0; 
+                this.historico = d.historico || []; 
+                this.notas = d.notas || []; 
+                this.isDark = d.isDark || false;
+            } 
+
+            // Busca o catálogo global de produtos
+            const cD = await getDoc(doc(db, "configuracoes", "catalogo"));
+            if(cD.exists()) {
+                this.produtos = cD.data().produtos || []; 
+            }
+
+            console.log("Dados carregados da nuvem com sucesso.");
+        } catch (error) {
+            console.error("Erro técnico ao carregar dados:", error);
+        }
+    }
             
-            async handleLogin() {
-                const u = document.getElementById('loginUser').value.trim();
-                const p = document.getElementById('loginPass').value;
-                try { 
-                    await signInWithEmailAndPassword(auth, u + DOMAIN, p); 
-                } catch(e) { 
-                    const err = document.getElementById('loginError');
-                    err.innerText = "Usuário ou senha inválidos."; 
-                    err.style.display = 'block'; 
-                }
-            }
+    async handleLogin() {
+        const u = document.getElementById('loginUser').value.trim();
+        const p = document.getElementById('loginPass').value;
+        try { 
+            await signInWithEmailAndPassword(auth, u + DOMAIN, p); 
+        } catch(e) { 
+            const err = document.getElementById('loginError');
+            err.innerText = "Usuário ou senha inválidos."; 
+            err.style.display = 'block'; 
+        }
+    }
 
-            logout() { signOut(auth); location.reload(); }
+    logout() { signOut(auth); location.reload(); }
 
-            calc() {
-                const input = document.getElementById('vOrig');
-                let valStr = input.value.replace(',', '.');
-                const val = parseFloat(valStr) || 0;
-                this.tempV = val * 0.8;
-                document.getElementById('bruto').innerText = this.fmt(val);
-                document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
-                document.getElementById('btnSomar').disabled = val <= 0;
-            }
+    calc() {
+        const input = document.getElementById('vOrig');
+        let valStr = input.value.replace(',', '.');
+        const val = parseFloat(valStr) || 0;
+        this.tempV = val * 0.8;
+        document.getElementById('bruto').innerText = this.fmt(val);
+        document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
+        document.getElementById('btnSomar').disabled = val <= 0;
+    }
 
-nav(v) {
-                document.querySelectorAll('.view').forEach(view => view.style.display = 'flex');
-                const target = document.getElementById('view-' + v);
-                if (target) target.style.display = 'block';
+    nav(v) {
+        document.querySelectorAll('.view').forEach(view => view.style.display = 'flex');
+        const target = document.getElementById('view-' + v);
+        if (target) target.style.display = 'block';
 
-                if (v === 'notes') {
-                    this.preencherDataSugestao();
-                    this.renderNotes();
-                }
-                if (v === 'prod') this.renderProds();
-            }
+        if (v === 'notes') {
+            this.preencherDataSugestao();
+            this.renderNotes();
+        }
+        if (v === 'prod') this.renderProds();
+    }
 
-            preencherDataSugestao() {
-                const agora = new Date();
-                const hoje = agora.toISOString().split('T')[0];
-                agora.setHours(agora.getHours() + 1);
-                const horaSugestao = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+    preencherDataSugestao() {
+        const agora = new Date();
+        const hoje = agora.toISOString().split('T')[0];
+        agora.setHours(agora.getHours() + 1);
+        const horaSugestao = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-                if (document.getElementById('nData')) document.getElementById('nData').value = hoje;
-                if (document.getElementById('nHora')) document.getElementById('nHora').value = horaSugestao;
-            }
+        if (document.getElementById('nData')) document.getElementById('nData').value = hoje;
+        if (document.getElementById('nHora')) document.getElementById('nHora').value = horaSugestao;
+    }
 
-            async addNota() {
-                const t = document.getElementById('nTexto').value.trim();
-                const c = document.getElementById('nCat').value;
-                const d = document.getElementById('nData').value;
-                const h = document.getElementById('nHora').value;
+    async addNota() {
+        const t = document.getElementById('nTexto').value.trim();
+        const c = document.getElementById('nCat').value;
+        const d = document.getElementById('nData').value;
+        const h = document.getElementById('nHora').value;
 
-                if (!t || !d || !h) return alert("Preencha todos os campos!");
+        if (!t || !d || !h) return alert("Preencha todos os campos!");
 
-                if (this.editandoNotaId) {
-                    const idx = this.notas.findIndex(n => n.id === this.editandoNotaId);
-                    this.notas[idx] = { ...this.notas[idx], txt: t, cat: c, data: d, hora: h, notificado: false };
-                    this.editandoNotaId = null;
-                    document.getElementById('btnSalvarNota').innerText = "Salvar Lembrete";
-                } else {
-                    this.notas.push({ id: Date.now(), txt: t, cat: c, data: d, hora: h, notificado: false });
-                }
+        if (this.editandoNotaId) {
+            const idx = this.notas.findIndex(n => n.id === this.editandoNotaId);
+            this.notas[idx] = { ...this.notas[idx], txt: t, cat: c, data: d, hora: h, notificado: false };
+            this.editandoNotaId = null;
+            document.getElementById('btnSalvarNota').innerText = "Salvar Lembrete";
+        } else {
+            this.notas.push({ id: Date.now(), txt: t, cat: c, data: d, hora: h, notificado: false });
+        }
 
-                document.getElementById('nTexto').value = "";
-                this.renderNotes();
-                await this.save();
-            }
+        document.getElementById('nTexto').value = "";
+        this.renderNotes();
+        await this.save();
+    }
 
-            prepararEdicaoNota(id) {
-                const n = this.notas.find(nota => nota.id === id);
-                document.getElementById('nTexto').value = n.txt;
-                document.getElementById('nCat').value = n.cat;
-                document.getElementById('nData').value = n.data;
-                document.getElementById('nHora').value = n.hora;
-                this.editandoNotaId = id;
-                document.getElementById('btnSalvarNota').innerText = "ATUALIZAR NOTA";
-            }
+    prepararEdicaoNota(id) {
+        const n = this.notas.find(nota => nota.id === id);
+        document.getElementById('nTexto').value = n.txt;
+        document.getElementById('nCat').value = n.cat;
+        document.getElementById('nData').value = n.data;
+        document.getElementById('nHora').value = n.hora;
+        this.editandoNotaId = id;
+        document.getElementById('btnSalvarNota').innerText = "ATUALIZAR NOTA";
+    }
 
-            async delNota(id) {
-                if (confirm("Deseja excluir esta nota?")) {
-                    this.notas = this.notas.filter(n => n.id !== id);
-                    this.renderNotes();
-                    await this.save();
-                }
-            }
+    async delNota(id) {
+        if (confirm("Deseja excluir esta nota?")) {
+            this.notas = this.notas.filter(n => n.id !== id);
+            this.renderNotes();
+            await this.save();
+        }
+    }
 
-            renderNotes() {
-                const lista = document.getElementById('notasLista');
-                if (!lista) return;
+    renderNotes() {
+        const lista = document.getElementById('notasLista');
+        if (!lista) return;
 
-                lista.innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom:10px; position:relative;">
-                        <div style="display:flex; justify-content:space-between; align-items:start;">
-                            <small><b>${n.cat.toUpperCase()}</b> | ${n.data} às ${n.hora}</small>
-                            <div style="display:flex; gap:10px;">
-                                <button onclick="window.App.prepararEdicaoNota(${n.id})" style="background:none; border:none; cursor:pointer;">✏️</button>
-                                <button onclick="window.App.delNota(${n.id})" style="background:none; border:none; color:var(--danger); cursor:pointer;">✕</button>
-                            </div>
-                        </div>
-                        <div style="margin-top:8px;">${n.txt}</div>
-                    </div>`).join('');
-            }
+        lista.innerHTML = this.notas.slice().reverse().map(n => `
+            <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom:10px; position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:start;">
+                    <small><b>${n.cat.toUpperCase()}</b> | ${n.data} às ${n.hora}</small>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="window.App.prepararEdicaoNota(${n.id})" style="background:none; border:none; cursor:pointer;">✏️</button>
+                        <button onclick="window.App.delNota(${n.id})" style="background:none; border:none; color:var(--danger); cursor:pointer;">✕</button>
+                    </div>
+                </div>
+                <div style="margin-top:8px;">${n.txt}</div>
+            </div>`).join('');
+    }
 
-            async somar() {
-                if(this.tempV <= 0) return;
-                this.total += this.tempV;
-                const input = document.getElementById('vOrig');
-                const valRaw = parseFloat(input.value.replace(',', '.')) || 0;
-                this.historico.push({o: valRaw, f: this.tempV});
-                input.value = ""; this.calc();
-                this.render(); await this.save();
-                input.focus();
-            }
+    async somar() {
+        if(this.tempV <= 0) return;
+        this.total += this.tempV;
+        const input = document.getElementById('vOrig');
+        const valRaw = parseFloat(input.value.replace(',', '.')) || 0;
+        this.historico.push({o: valRaw, f: this.tempV});
+        input.value = ""; this.calc();
+        this.render(); await this.save();
+        input.focus();
+    }
 
-            setupListeners() {
-                const vOrig = document.getElementById('vOrig');
-                vOrig.addEventListener('input', () => this.calc());
-                vOrig.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.somar(); });
+    setupListeners() {
+        const vOrig = document.getElementById('vOrig');
+        vOrig.addEventListener('input', () => this.calc());
+        vOrig.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.somar(); });
 
-                document.getElementById('btnSomar').onclick = () => this.somar();
-                document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
-                document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
-                document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
-                document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
-                document.getElementById('pBusca').oninput = () => this.renderProds();
-                document.getElementById('btnAddNota').onclick = () => this.addNota();
-                document.getElementById('btnAddFase').onclick = () => this.addFase();
-                document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
-                document.getElementById('btnRunAudit').onclick = () => this.execAudit();
-                document.getElementById('btnRunWiki').onclick = () => this.execWiki();
-                document.getElementById('btnRunSinergia').onclick = () => this.execSinergia();
-                const gGotas = document.getElementById('gGotas');
-                gGotas.oninput = (e) => {
-                    let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                    document.getElementById('gRes').innerText = (val / 20).toFixed(2) + " mL";
-                };
-            }
+        document.getElementById('btnSomar').onclick = () => this.somar();
+        document.getElementById('btnLimpar').onclick = () => { document.getElementById('vOrig').value = ""; this.calc(); };
+        document.getElementById('btnResetTotal').onclick = () => this.openConfirm(() => { this.total = 0; this.historico = []; this.render(); this.save(); });
+        document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
+        document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
+        document.getElementById('pBusca').oninput = () => this.renderProds();
+        document.getElementById('btnAddNota').onclick = () => this.addNota();
+        document.getElementById('btnAddFase').onclick = () => this.addFase();
+        document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
+        document.getElementById('btnRunAudit').onclick = () => this.execAudit();
+        document.getElementById('btnRunWiki').onclick = () => this.execWiki();
+        document.getElementById('btnRunSinergia').onclick = () => this.execSinergia();
+        const gGotas = document.getElementById('gGotas');
+        gGotas.oninput = (e) => {
+            let val = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+            document.getElementById('gRes').innerText = (val / 20).toFixed(2) + " mL";
+        };
+    }
 
-            async execAudit() {
+    async execAudit() {
                 const input = document.getElementById('auditInput').value;
                 if (!input || !input.trim()) return alert("Cole o texto da receita primeiro.");
                 
@@ -1092,19 +1132,19 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                 }
             }
 
-            async execWiki() {
-                const input = document.getElementById('wikiInput').value.trim();
-                if (!input) return alert("Digite o nome do ativo ou fórmula.");
-                
-                const btn = document.getElementById('btnRunWiki');
-                const loading = document.getElementById('wikiLoading');
-                const resultBox = document.getElementById('wikiResultBox');
-                const content = document.getElementById('wikiContent');
+    async execWiki() {
+        const input = document.getElementById('wikiInput').value.trim();
+        if (!input) return alert("Digite o nome do ativo ou fórmula.");
+        
+        const btn = document.getElementById('btnRunWiki');
+        const loading = document.getElementById('wikiLoading');
+        const resultBox = document.getElementById('wikiResultBox');
+        const content = document.getElementById('wikiContent');
 
-                btn.disabled = true;
-                btn.innerText = "⏳ Consultando...";
-                loading.style.display = 'block'; 
-                resultBox.style.display = 'none';
+        btn.disabled = true;
+        btn.innerText = "⏳ Consultando...";
+        loading.style.display = 'block'; 
+        resultBox.style.display = 'none';
 
                 const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO v5.0 - WHATSAPP VIP 🇧🇷
 Especialista em Farmacologia e Atendimento Consultivo.
@@ -1212,22 +1252,22 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
                     }
                     const textWiki = data.choices[0].message.content;
                     const cleanWiki = textWiki.replace(/```html/g, "").replace(/```/g, "").trim();
-                    content.innerHTML = cleanWiki;
-                    resultBox.style.display = 'block';
-                    
-                } catch (e) { 
-                    console.error("Erro Wiki:", e); 
-                    alert("Erro na consulta: " + e.message); 
-                } finally { 
-                    btn.disabled = false;
-                    btn.innerText = "🔍 Consultar";
-                    loading.style.display = 'none';
-                }
-            }
-            
-            async execSinergia() {
-                const input = document.getElementById('sinergiaInput').value.trim();
-                if (!input) return alert("Insira os componentes da fórmula.");
+        content.innerHTML = cleanWiki;
+        resultBox.style.display = 'block';
+        
+    } catch (e) { 
+        console.error("Erro Wiki:", e); 
+        alert("Erro na consulta: " + e.message); 
+    } finally { 
+        btn.disabled = false;
+        btn.innerText = "🔍 Consultar";
+        loading.style.display = 'none';
+    }
+}
+
+async execSinergia() {
+    const input = document.getElementById('sinergiaInput').value.trim();
+    if (!input) return alert("Insira os componentes da fórmula.");
     
                 const btn = document.getElementById('btnRunSinergia');
                 const loading = document.getElementById('sinergiaLoading');
@@ -1327,110 +1367,110 @@ ATIVOS ANALISADOS: "${input}"
                     }
                     const textSinergia = data.choices[0].message.content;
                     const cleanSinergia = textSinergia.replace(/```html/g, "").replace(/```/g, "").trim();
-                    content.innerHTML = cleanSinergia;
-                    resultBox.style.display = 'block';
-                    
-                } catch (e) { 
-                    console.error("Erro Sinergia:", e); 
-                    alert("Erro na consulta: " + e.message); 
-                } finally { 
-                    btn.disabled = false;
-                    btn.innerText = "🔍 Consultar";
-                    loading.style.display = 'none';
-                }
-            
-            }
-
-            fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-            
-            // Método para alternar entre views
-            changeView(v) {
-                const views = ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'];
+        content.innerHTML = cleanSinergia;
+        resultBox.style.display = 'block';
         
-                views.forEach(id => {
-                    const el = document.getElementById('view-' + id);
-                    const nav = document.getElementById('nav-' + id);
-            
-                    if (el) {
-                        if (id === v) {
-                            el.classList.add('active');
-                            el.style.display = 'block'; // Força a exibição
-                        } else {
-                            el.classList.remove('active');
-                            el.style.display = 'none'; // Esconde
-                        }
-                    }
-            
-                    if (nav) {
-                        nav.classList.toggle('active', id === v);
-                    }
-                });
-
-                // Chama as funções de desenho de cada aba para não ficar em branco
-                if (v === 'prod') this.renderProds();
-                if (v === 'notes') this.renderNotes();
-                if (v === 'serv') this.renderFases();
+    } catch (e) { 
+        console.error("Erro Sinergia:", e); 
+        alert("Erro na consulta: " + e.message); 
+    } finally { 
+        btn.disabled = false;
+        btn.innerText = "🔍 Consultar";
+        loading.style.display = 'none';
     }
 
-            toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
-            openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
-            closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
-            resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
-            async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
+}
 
-            addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
-            removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); this.calcTotalFases(); }
-            updateFase(id, field, val) { 
-                const f = this.fases.find(x => x.id === id);
-                if(f) { 
-                    if (field === 'tipo') f[field] = val;
-                    else f[field] = val.replace(',', '.').replace(/[^0-9.]/g, ''); 
-                } 
-                this.calcTotalFases();
+fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+// Método para alternar entre views
+    changeView(v) {
+        const views = ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'];
+
+        views.forEach(id => {
+            const el = document.getElementById('view-' + id);
+            const nav = document.getElementById('nav-' + id);
+
+            if (el) {
+                if (id === v) {
+                    el.classList.add('active');
+                    el.style.display = 'block'; // Força a exibição
+                } else {
+                    el.classList.remove('active');
+                    el.style.display = 'none'; // Esconde
+                }
             }
 
-            calcTotalFases() { 
-                let tC = 0, tL = 0;
-                this.fases.forEach(f => { 
-                    let d = parseFloat(f.dose) || 0; let fr = parseFloat(f.freq) || 0; let di = parseFloat(f.dias) || 0; 
-                    let sub = d * fr * di; 
-                    if(f.tipo === 'gotas') tL += (sub/20); else if(f.tipo === 'ml') tL += sub; else tC += sub; 
-                });
-                let res = []; 
-                if(tC > 0) res.push(`${Math.ceil(tC)} Cáps`); 
-                if(tL > 0) res.push(`${tL.toFixed(2)} mL`); 
-                document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL"; 
+            if (nav) {
+                nav.classList.toggle('active', id === v);
             }
+        });
 
-            renderFases() { 
-                document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
-                <div style="background:var(--bg-body); padding:20px; border-radius:20px; margin-bottom:15px; position:relative; border:1px solid var(--border)">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-                        <div><label>Dose</label><input type="text" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)"></div>
-                        <div><label>Freq (x dia)</label><input type="text" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)"></div>
-                        <div><label>Dias</label><input type="text" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)"></div>
-                        <div><label>Tipo</label>
-                            <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
-                                <option value="caps" ${f.tipo==='caps'?'selected':''}>Cápsulas</option>
-                                <option value="ml" ${f.tipo==='ml'?'selected':''}>mL (Líquido)</option>
-                                <option value="gotas" ${f.tipo==='gotas'?'selected':''}>Gotas</option>
-                            </select>
-                        </div>
-                    </div>
-                    ${this.fases.length > 1 ? `<button style="width:30px;height:30px;position:absolute;right:-10px;top:-10px;background:var(--danger);border-radius:50%;color:white" onclick="window.App.removeFase(${f.id})">×</button>` : ''}
-                </div>`).join('');
-            }
+        // Chama as funções de desenho de cada aba para não ficar em branco
+        if (v === 'prod') this.renderProds();
+        if (v === 'notes') this.renderNotes();
+        if (v === 'serv') this.renderFases();
+    }
 
-            initUI() { this.render(); this.renderProds(); this.renderFases(); this.renderNotes(); }
+    toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
+    openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
+    closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
+    resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
+    async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
 
-            render() {
-                // Aqui fica APENAS o que é da calculadora
-                document.getElementById('totalVal').innerText = this.fmt(this.total);
-                document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
-                    <div class="display-line">
-                        <span>De ${this.fmt(h.o)}</span> <span>➔ ${this.fmt(h.f)}</span>
-                    </div>`).join('');
-               }
+    addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
+    removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); this.calcTotalFases(); }
+    updateFase(id, field, val) { 
+        const f = this.fases.find(x => x.id === id);
+        if(f) { 
+            if (field === 'tipo') f[field] = val;
+            else f[field] = val.replace(',', '.').replace(/[^0-9.]/g, ''); 
+        } 
+        this.calcTotalFases();
+    }
+
+    calcTotalFases() { 
+        let tC = 0, tL = 0;
+        this.fases.forEach(f => { 
+            let d = parseFloat(f.dose) || 0; let fr = parseFloat(f.freq) || 0; let di = parseFloat(f.dias) || 0; 
+            let sub = d * fr * di; 
+            if(f.tipo === 'gotas') tL += (sub/20); else if(f.tipo === 'ml') tL += sub; else tC += sub; 
+        });
+        let res = []; 
+        if(tC > 0) res.push(`${Math.ceil(tC)} Cáps`); 
+        if(tL > 0) res.push(`${tL.toFixed(2)} mL`); 
+        document.getElementById('resGeral').innerText = res.join(' + ') || "0 uni/mL"; 
+    }
+
+    renderFases() { 
+        document.getElementById('fasesContainer').innerHTML = this.fases.map((f, i) => `
+        <div style="background:var(--bg-body); padding:20px; border-radius:20px; margin-bottom:15px; position:relative; border:1px solid var(--border)">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                <div><label>Dose</label><input type="text" value="${f.dose}" oninput="window.App.updateFase(${f.id}, 'dose', this.value)"></div>
+                <div><label>Freq (x dia)</label><input type="text" value="${f.freq}" oninput="window.App.updateFase(${f.id}, 'freq', this.value)"></div>
+                <div><label>Dias</label><input type="text" value="${f.dias}" oninput="window.App.updateFase(${f.id}, 'dias', this.value)"></div>
+                <div><label>Tipo</label>
+                    <select onchange="window.App.updateFase(${f.id}, 'tipo', this.value)">
+                        <option value="caps" ${f.tipo==='caps'?'selected':''}>Cápsulas</option>
+                        <option value="ml" ${f.tipo==='ml'?'selected':''}>mL (Líquido)</option>
+                        <option value="gotas" ${f.tipo==='gotas'?'selected':''}>Gotas</option>
+                    </select>
+                </div>
+            </div>
+            ${this.fases.length > 1 ? `<button style="width:30px;height:30px;position:absolute;right:-10px;top:-10px;background:var(--danger);border-radius:50%;color:white" onclick="window.App.removeFase(${f.id})">×</button>` : ''}
+        </div>`).join('');
+    }
+
+    initUI() { this.render(); this.renderProds(); this.renderFases(); this.renderNotes(); }
+
+    render() {
+        // Aqui fica APENAS o que é da calculadora
+        document.getElementById('totalVal').innerText = this.fmt(this.total);
+        document.getElementById('histLista').innerHTML = this.historico.slice().reverse().map(h => `
+            <div class="display-line">
+                <span>De ${this.fmt(h.o)}</span> <span>➔ ${this.fmt(h.f)}</span>
+            </div>`).join('');
+    }
 
 }
 
