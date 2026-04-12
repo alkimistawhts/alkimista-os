@@ -497,7 +497,7 @@
                     await db.collection('usuarios').doc(this.user.uid).set({
                         produtos: this.produtos,
                         notas: this.notas,
-                        historico: this.historico
+                        historico: this.historico,
                         fases: this.fases // Importante para salvar o conversor de gotas
                     }, { merge: true });
                 } catch (e) {
