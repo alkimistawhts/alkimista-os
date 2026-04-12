@@ -494,14 +494,17 @@ class AlkimistaApp {
             async save() {
                 if (!this.user) return;
                 try {
-                    await db.collection('usuarios').doc(this.user.uid).set({
+                    // Correção para Firebase v9+ (Firestore modular)
+                    const userRef = firebase.firestore().collection('usuarios').doc(this.user.uid);
+                    await userRef.set({
                         produtos: this.produtos,
                         notas: this.notas,
                         historico: this.historico,
-                        fases: this.fases // Importante para salvar o conversor de gotas
+                        fases: this.fases
                     }, { merge: true });
+                    console.log("Dados salvos com sucesso!");
                 } catch (e) {
-                console.error("Erro ao salvar:", e);
+                    console.error("Erro real ao salvar:", e);
                 }
             }
             
@@ -787,10 +790,12 @@ class AlkimistaApp {
     escutarInstalacao() {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
-            window.App.deferredPrompt = e; // Armazena no objeto global
-            const btn = document.getElementById('btnInstalar');
-            if (btn) {
-                btn.style.display = 'flex'; 
+            if (window.App) {
+                window.App.deferredPrompt = e;
+                const btn = document.getElementById('btnInstalar');
+                if (btn) {
+                    btn.style.display = 'flex';
+                }
             }
         });
     }
@@ -867,15 +872,25 @@ class AlkimistaApp {
     }
 
     nav(v) {
-        document.querySelectorAll('.view').forEach(view => view.style.display = 'flex');
-        const target = document.getElementById('view-' + v);
-        if (target) target.style.display = 'block';
+        // 1. Esconde TODAS as telas
+        document.querySelectorAll('.view').forEach(view => {
+            view.style.display = 'none';
+            view.classList.remove('active');
+        });
 
-        if (v === 'notes') {
-            this.preencherDataSugestao();
-            this.renderNotes();
+        // 2. Tenta mostrar a tela desejada
+        const target = document.getElementById('view-' + v);
+        if (target) {
+            target.style.display = 'block';
+            target.classList.add('active');
+        } else {
+            console.warn("Tela não encontrada: view-" + v);
         }
+
+        // 3. Roda as renderizações específicas
+        if (v === 'notes') this.renderNotes();
         if (v === 'prod') this.renderProds();
+        if (v === 'calc') this.renderFases();
     }
 
     preencherDataSugestao() {
@@ -981,24 +996,24 @@ class AlkimistaApp {
     }
 
     async execAudit() {
-                const input = document.getElementById('auditInput').value;
-                if (!input || !input.trim()) return alert("Cole o texto da receita primeiro.");
-                
-                const btn = document.getElementById('btnRunAudit');
-                const box = document.getElementById('auditResultBox');
-                const content = document.getElementById('auditContent');
-                const status = document.getElementById('auditStatus');
-                const loading = document.getElementById('auditLoading');
+        const input = document.getElementById('auditInput').value;
+        if (!input || !input.trim()) return alert("Cole o texto da receita primeiro.");
+        
+        const btn = document.getElementById('btnRunAudit');
+        const box = document.getElementById('auditResultBox');
+        const content = document.getElementById('auditContent');
+        const status = document.getElementById('auditStatus');
+        const loading = document.getElementById('auditLoading');
 
-                // BLOQUEIO DO BOTÃO
-                btn.disabled = true;
-                btn.innerText = "⏳ Analisando...";
-                content.innerHTML = "";
-                loading.style.display = 'block';
-                box.style.display = 'none';
-                
-                // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
-                const systemInstruction = `🚨 AUDITORIA FARMACOLÓGICA v3.0 - PADRÃO BRASIL 🇧🇷
+        // BLOQUEIO DO BOTÃO
+        btn.disabled = true;
+        btn.innerText = "⏳ Analisando...";
+        content.innerHTML = "";
+        loading.style.display = 'block';
+        box.style.display = 'none';
+        
+        // SEU PROMPT v2.0 INTEGRADO NA ÍNTEGRA
+        const systemInstruction = `🚨 AUDITORIA FARMACOLÓGICA v3.0 - PADRÃO BRASIL 🇧🇷
 Farmacêutico Clínico (18 anos UTI/Farmacovigilância)
 MISSÃO: Auditoria de segurança máxima com Score de Gravidade e Cascata de Desfecho.
 RECEITA ANALISADA: "${input}"
@@ -1099,53 +1114,53 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
 ✅ Usar *negrito* para medicamentos e doses.
 ✅ Temperatura 0`;
 
-                try {
-                    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`, 
-                            'Content-Type': 'application/json' 
-                        },
-                        body: JSON.stringify({
-                            model: "llama-3.3-70b-versatile",
-                            messages: [ 
-                                { role: "system", content: systemInstruction }, 
-                                { role: "user", content: input } 
-                            ],
-                            temperature: 0,
-                        })
-                    });
+        try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${this.apiKey}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [ 
+                        { role: "system", content: systemInstruction }, 
+                        { role: "user", content: input } 
+                    ],
+                    temperature: 0,
+                })
+            });
 
-                    if (!response.ok) throw new Error(`Erro na API: ${response.status}`);
-                    
-                    const data = await response.json();
-                    const text = data.choices[0]?.message?.content || "";
-                    
-                    // Extrai o veredito para o cabeçalho azul
-                    const vereditoMatch = text.match(/[🔴🟡🟢].*?(?=<div)/);
-                    
-                    if(vereditoMatch && vereditoMatch[0]) {
-                        status.innerText = vereditoMatch[0].trim();
-                        content.innerHTML = text.replace(vereditoMatch[0], "");
-                    } else {
-                        status.innerText = "ANÁLISE CONCLUÍDA";
-                        content.innerHTML = text;
-                    }
-
-                    const textAudit = data.choices[0].message.content;
-                    const cleanAudit = textAudit.replace(/```html/g, "").replace(/```/g, "").trim();
-                    content.innerHTML = cleanAudit;
-                    box.style.display = 'block';
-                    
-                } catch (e) { 
-                    console.error("Erro Auditoria:", e);
-                    alert("Erro na auditoria: " + e.message);
-                } finally { 
-                    btn.disabled = false;
-                    btn.innerText = "🔍 Executar Auditoria";
-                    loading.style.display = 'none'; 
-                }
+            if (!response.ok) throw new Error(`Erro na API: ${response.status}`);
+            
+            const data = await response.json();
+            const text = data.choices[0]?.message?.content || "";
+            
+            // Extrai o veredito para o cabeçalho azul
+            const vereditoMatch = text.match(/[🔴🟡🟢].*?(?=<div)/);
+            
+            if(vereditoMatch && vereditoMatch[0]) {
+                status.innerText = vereditoMatch[0].trim();
+                content.innerHTML = text.replace(vereditoMatch[0], "");
+            } else {
+                status.innerText = "ANÁLISE CONCLUÍDA";
+                content.innerHTML = text;
             }
+
+            const textAudit = data.choices[0].message.content;
+            const cleanAudit = textAudit.replace(/```html/g, "").replace(/```/g, "").trim();
+            content.innerHTML = cleanAudit;
+            box.style.display = 'block';
+            
+        } catch (e) { 
+            console.error("Erro Auditoria:", e);
+            alert("Erro na auditoria: " + e.message);
+        } finally { 
+            btn.disabled = false;
+            btn.innerText = "🔍 Executar Auditoria";
+            loading.style.display = 'none'; 
+        }
+    }
 
     async execWiki() {
         const input = document.getElementById('wikiInput').value.trim();
@@ -1161,7 +1176,7 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
         loading.style.display = 'block'; 
         resultBox.style.display = 'none';
 
-                const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO v5.0 - WHATSAPP VIP 🇧🇷
+        const promptWiki = `🔬 DICIONÁRIO FARMACODINÂMICO v5.0 - WHATSAPP VIP 🇧🇷
 Especialista em Farmacologia e Atendimento Consultivo.
 
 ATIVOS ANALISADOS: "${input}"
@@ -1244,56 +1259,56 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
 ✅ Usar *negrito* no HTML e *asteriscos* no texto do WhatsApp.
 ✅ Temperatura 0.1.`;
 
-                try {
-                    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`,
-                            'Content-Type': 'application/json' 
-                        },
-                        body: JSON.stringify({
-                            model: "llama-3.3-70b-versatile",
-                            messages: [ 
-                                { role: "system", content: "Você é um especialista em farmacologia da ANVISA. Responda usando exatamente a estrutura de cards HTML solicitada e finalize com o bloco <pre id='resumoWhatsAppWiki'>." }, 
-                                { role: "user", content: promptWiki } 
-                            ],
-                            temperature: 0.1
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    if (!data.choices || !data.choices[0]) {
-                        throw new Error(data.error?.message || "Falha na resposta da IA.");
-                    }
-                    const textWiki = data.choices[0].message.content;
-                    const cleanWiki = textWiki.replace(/```html/g, "").replace(/```/g, "").trim();
-        content.innerHTML = cleanWiki;
-        resultBox.style.display = 'block';
-        
-    } catch (e) { 
-        console.error("Erro Wiki:", e); 
-        alert("Erro na consulta: " + e.message); 
-    } finally { 
-        btn.disabled = false;
-        btn.innerText = "🔍 Consultar";
-        loading.style.display = 'none';
+        try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [ 
+                        { role: "system", content: "Você é um especialista em farmacologia da ANVISA. Responda usando exatamente a estrutura de cards HTML solicitada e finalize com o bloco <pre id='resumoWhatsAppWiki'>." }, 
+                        { role: "user", content: promptWiki } 
+                    ],
+                    temperature: 0.1
+                })
+            });
+            
+            const data = await response.json();
+            if (!data.choices || !data.choices[0]) {
+                throw new Error(data.error?.message || "Falha na resposta da IA.");
+            }
+            const textWiki = data.choices[0].message.content;
+            const cleanWiki = textWiki.replace(/```html/g, "").replace(/```/g, "").trim();
+            content.innerHTML = cleanWiki;
+            resultBox.style.display = 'block';
+            
+        } catch (e) { 
+            console.error("Erro Wiki:", e); 
+            alert("Erro na consulta: " + e.message); 
+        } finally { 
+            btn.disabled = false;
+            btn.innerText = "🔍 Consultar";
+            loading.style.display = 'none';
+        }
     }
-}
 
-async execSinergia() {
-    const input = document.getElementById('sinergiaInput').value.trim();
-    if (!input) return alert("Insira os componentes da fórmula.");
-    
-                const btn = document.getElementById('btnRunSinergia');
-                const loading = document.getElementById('sinergiaLoading');
-                const resultBox = document.getElementById('sinergiaResultBox');
-                const content = document.getElementById('sinergiaContent');
+    async execSinergia() {
+        const input = document.getElementById('sinergiaInput').value.trim();
+        if (!input) return alert("Insira os componentes da fórmula.");
+        
+        const btn = document.getElementById('btnRunSinergia');
+        const loading = document.getElementById('sinergiaLoading');
+        const resultBox = document.getElementById('sinergiaResultBox');
+        const content = document.getElementById('sinergiaContent');
 
-                btn.disabled = true;
-                loading.style.display = 'block';
-                resultBox.style.display = 'none';
+        btn.disabled = true;
+        loading.style.display = 'block';
+        resultBox.style.display = 'none';
 
-                const promptSinergia = `🚀 MASTER SINERGIA v7.0 - INTELIGÊNCIA DE FÓRMULA 🇧🇷
+        const promptSinergia = `🚀 MASTER SINERGIA v7.0 - INTELIGÊNCIA DE FÓRMULA 🇧🇷
 Especialista em Farmacologia Clínica e Sinergia Farmacêutica.
 
 OBJETIVO: Analisar como os ativos interagem entre si, o benefício do conjunto e gerar o resumo final para o cliente.
@@ -1359,46 +1374,46 @@ ATIVOS ANALISADOS: "${input}"
 ✅ Linguagem 100% clara e acessível para leigos.
 ✅ Temperatura 0.1.`;
 
-                try {
-                    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`, 
-                            'Content-Type': 'application/json' 
-                        },
-                        body: JSON.stringify({
-                            model: "llama-3.3-70b-versatile",
-                            messages: [
-                                { role: "system", content: "Você é um especialista em sinergia farmacêutica. Retorne o HTML e o bloco <pre id='resumoWhatsAppSinergia'>." },
-                                { role: "user", content: promptSinergia }
-                            ],
-                            temperature: 0.1
-                        })
-                    });
-                        
-                    const data = await response.json();
-                    if (!data.choices || !data.choices[0]) {
-                        throw new Error(data.error?.message || "Falha na resposta da IA.");
-                    }
-                    const textSinergia = data.choices[0].message.content;
-                    const cleanSinergia = textSinergia.replace(/```html/g, "").replace(/```/g, "").trim();
-        content.innerHTML = cleanSinergia;
-        resultBox.style.display = 'block';
+        try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${this.apiKey}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: "Você é um especialista em sinergia farmacêutica. Retorne o HTML e o bloco <pre id='resumoWhatsAppSinergia'>." },
+                        { role: "user", content: promptSinergia }
+                    ],
+                    temperature: 0.1
+                })
+            });
+                
+            const data = await response.json();
+            if (!data.choices || !data.choices[0]) {
+                throw new Error(data.error?.message || "Falha na resposta da IA.");
+            }
+            const textSinergia = data.choices[0].message.content;
+            const cleanSinergia = textSinergia.replace(/```html/g, "").replace(/```/g, "").trim();
+            content.innerHTML = cleanSinergia;
+            resultBox.style.display = 'block';
         
-    } catch (e) { 
-        console.error("Erro Sinergia:", e); 
-        alert("Erro na consulta: " + e.message); 
-    } finally { 
-        btn.disabled = false;
-        btn.innerText = "🔍 Consultar";
-        loading.style.display = 'none';
+        } catch (e) { 
+            console.error("Erro Sinergia:", e); 
+            alert("Erro na consulta: " + e.message); 
+        } finally { 
+            btn.disabled = false;
+            btn.innerText = "🔍 Consultar";
+            loading.style.display = 'none';
+        }
     }
 
-}
+    fmt(v) { 
+        return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
+    }
 
-fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-
-// Método para alternar entre views
     changeView(v) {
         const views = ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'];
 
@@ -1427,14 +1442,48 @@ fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }
         if (v === 'serv') this.renderFases();
     }
 
-    toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
-    openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
-    closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
-    resetProdForm() { document.getElementById('pId').value = ""; ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); }
-    async delProd(id) { this.openConfirm(async () => { this.produtos = this.produtos.filter(p => p.id !== id); this.renderProds(); await this.save(); }); }
+    toggleDark() { 
+        this.isDark = !this.isDark; 
+        document.body.classList.toggle('dark-mode', this.isDark); 
+        this.save(); 
+    }
 
-    addFase() { this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); this.renderFases(); }
-    removeFase(id) { this.fases = this.fases.filter(f => f.id !== id); this.renderFases(); this.calcTotalFases(); }
+    openConfirm(cb) { 
+        document.getElementById('confirmOverlay').classList.add('active'); 
+        document.getElementById('confirmActionBtn').onclick = () => { 
+            cb(); 
+            this.closeConfirm(); 
+        } 
+    }
+
+    closeConfirm() { 
+        document.getElementById('confirmOverlay').classList.remove('active'); 
+    }
+
+    resetProdForm() { 
+        document.getElementById('pId').value = ""; 
+        ['pNome','pAtivos','pServe','pPoso'].forEach(i => document.getElementById(i).value=""); 
+    }
+
+    async delProd(id) { 
+        this.openConfirm(async () => { 
+            this.produtos = this.produtos.filter(p => p.id !== id); 
+            this.renderProds(); 
+            await this.save(); 
+        }); 
+    }
+
+    addFase() { 
+        this.fases.push({id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}); 
+        this.renderFases(); 
+    }
+
+    removeFase(id) { 
+        this.fases = this.fases.filter(f => f.id !== id); 
+        this.renderFases(); 
+        this.calcTotalFases(); 
+    }
+
     updateFase(id, field, val) { 
         const f = this.fases.find(x => x.id === id);
         if(f) { 
@@ -1447,9 +1496,13 @@ fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }
     calcTotalFases() { 
         let tC = 0, tL = 0;
         this.fases.forEach(f => { 
-            let d = parseFloat(f.dose) || 0; let fr = parseFloat(f.freq) || 0; let di = parseFloat(f.dias) || 0; 
+            let d = parseFloat(f.dose) || 0; 
+            let fr = parseFloat(f.freq) || 0; 
+            let di = parseFloat(f.dias) || 0; 
             let sub = d * fr * di; 
-            if(f.tipo === 'gotas') tL += (sub/20); else if(f.tipo === 'ml') tL += sub; else tC += sub; 
+            if(f.tipo === 'gotas') tL += (sub/20); 
+            else if(f.tipo === 'ml') tL += sub; 
+            else tC += sub; 
         });
         let res = []; 
         if(tC > 0) res.push(`${Math.ceil(tC)} Cáps`); 
@@ -1476,7 +1529,12 @@ fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }
         </div>`).join('');
     }
 
-    initUI() { this.render(); this.renderProds(); this.renderFases(); this.renderNotes(); }
+    initUI() { 
+        this.render(); 
+        this.renderProds(); 
+        this.renderFases(); 
+        this.renderNotes(); 
+    }
 
     render() {
         // Aqui fica APENAS o que é da calculadora
@@ -1488,9 +1546,10 @@ fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }
     }
 
 }
+
 window.addEventListener('DOMContentLoaded', () => {
     window.App = new AlkimistaApp();
 });
-</script>
+    </script>
 </body>
 </html>
