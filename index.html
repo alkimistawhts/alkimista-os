@@ -402,6 +402,72 @@
                 }
             }
 
+            nav(v) {
+                // Esconde todas as visualizações (views)
+                document.querySelectorAll('.view').forEach(view => {
+                    view.style.display = 'none';
+                });
+
+                // Mostra a visualização selecionada
+                const targetView = document.getElementById('view-' + v);
+                if (targetView) {
+                    targetView.style.display = 'block';
+                }
+
+                // Se a aba for 'notes' (Anotações), gera a sugestão de horário automaticamente
+                if (v === 'notes') {
+                    this.preencherDataSugestao();
+                    this.renderNotes();
+                }
+
+                // Se for a aba de produtos, renderiza a lista
+                if (v === 'prod') {
+                    this.renderProds();
+                }
+            }
+            preencherDataSugestao() {
+                const agora = new Date();
+
+                // Define a data de hoje (formato YYYY-MM-DD)
+                const hoje = agora.toISOString().split('T')[0];
+
+                // Define o horário para daqui a 1 hora
+                agora.setHours(agora.getHours() + 1);
+                const horaSugestao = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                const inputData = document.getElementById('nData');
+                const inputHora = document.getElementById('nHora');
+
+                if (inputData) inputData.value = hoje;
+                if (inputHora) inputHora.value = horaSugestao;
+            }
+
+            openProdModal(id = null) {
+                const modal = document.getElementById('modalProd');
+                if (!modal) return;
+
+                if (id) {
+                    // Modo Edição
+                    const p = this.produtos.find(prod => prod.id === id);
+                    if (!p) return;
+                    this.editandoProdId = id;
+                    document.getElementById('modalProdTitle').innerText = "Editar Produto";
+                    document.getElementById('pNome').value = p.nome;
+                    document.getElementById('pAtivos').value = p.ativos || "";
+                    document.getElementById('pServe').value = p.serve || "";
+                    document.getElementById('pPoso').value = p.poso || "";
+                } else {
+                    // Modo Novo (Limpa tudo)
+                    this.editandoProdId = null;
+                    document.getElementById('modalProdTitle').innerText = "Novo Produto";
+                    const campos = ['pNome', 'pAtivos', 'pServe', 'pPoso'];
+                    campos.forEach(idCampo => {
+                        const el = document.getElementById(idCampo);
+                        if (el) el.value = "";
+                    });
+                }
+                modal.style.display = 'flex';
+            }
             copiarTexto(idElemento) {
                 const elemento = document.getElementById(idElemento);
                 if (elemento) {
@@ -562,26 +628,6 @@
                 // Limpa os campos para a próxima vez
                 ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
                 this.editandoProdId = null;
-            }
-
-            openProdModal(id = null) {
-                if (id) {
-                    // Se passar ID, é edição
-                    const p = this.produtos.find(prod => prod.id === id);
-                    if (!p) return;
-                    this.editandoProdId = id;
-                    document.getElementById('modalProdTitle').innerText = "Editar Produto";
-                    document.getElementById('pNome').value = p.nome;
-                    document.getElementById('pAtivos').value = p.ativos || "";
-                    document.getElementById('pServe').value = p.serve || "";
-                    document.getElementById('pPoso').value = p.poso || "";
-                } else {
-                    // Senão, é novo produto
-                    this.editandoProdId = null;
-                    document.getElementById('modalProdTitle').innerText = "Novo Produto";
-                    ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
-                }
-                document.getElementById('modalProd').style.display = 'flex';
             }
 
             async execAudit() {
