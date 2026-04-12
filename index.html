@@ -953,28 +953,53 @@ ATIVOS ANALISADOS: "${input}"
             }
 
             async addNota() {
+                // 1. Verifica se o usuário está logado (Segurança para visualização individual)
+                if (!this.user) {
+                    alert("Você precisa estar logado para salvar anotações!");
+                    return;
+                }
+
                 const t = document.getElementById('nTexto').value.trim();
+                const c = document.getElementById('nCat').value;
+    
                 if(!t) return;
-                this.notas.push({ id: Date.now(), txt: t, cat: document.getElementById('nCat').value, data: document.getElementById('nData').value, hora: document.getElementById('nHora').value });
-                document.getElementById('nTexto').value = ""; this.render(); await this.save();
+
+                // 2. Data e Hora automáticas (como você pediu)
+                const agora = new Date();
+                const dataAtual = agora.toLocaleDateString('pt-BR');
+                const horaAtual = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                // 3. Adiciona ao array local
+                this.notas.push({ 
+                    id: Date.now(), 
+                    txt: t, 
+                    cat: c, 
+                    data: dataAtual,
+                    hora: horaAtual
+                });
+
+                // 4. Limpa o campo e atualiza a tela
+                document.getElementById('nTexto').value = ""; 
+                this.renderNotes(); 
+    
+                // 5. Salva na nuvem (Vinculado ao seu UID de usuário)
+                await this.save();
+
+                // 6. Notificação do Windows
+                this.notificarWindows("Alkimista OS", `Anotação salva em ${c}`);
             }
 
-            async delNota(id) { this.notas = this.notas.filter(n => n.id !== id); this.render(); await this.save(); }
-            
-            async save() {
-                if(this.user) {
-                    await setDoc(doc(db, "usuarios", this.user.uid), { total: this.total, historico: this.historico, notas: this.notas, isDark: this.isDark }, { merge: true });
-                    if(this.isAdmin) await setDoc(doc(db, "configuracoes", "catalogo"), { produtos: this.produtos });
+            // Função de Notificação
+            notificarWindows(titulo, msg) {
+                if (!("Notification" in window)) return;
+                if (Notification.permission === "granted") {
+                    new Notification(titulo, { body: msg });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(p => {
+                        if (p === "granted") new Notification(titulo, { body: msg });
+                    });
                 }
             }
-
-            async loadFromCloud() { 
-                const uD = await getDoc(doc(db, "usuarios", this.user.uid));
-                if(uD.exists()) { const d = uD.data(); this.total = d.total||0; this.historico = d.historico||[]; this.notas = d.notas||[]; } 
-                const cD = await getDoc(doc(db, "configuracoes", "catalogo"));
-                if(cD.exists()) this.produtos = cD.data().produtos||[]; 
-            }
-
             fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
             
             // Método para alternar entre views
@@ -1055,7 +1080,7 @@ ATIVOS ANALISADOS: "${input}"
                 </div>`).join('');
             }
 
-            initUI() { this.render(); this.renderProds(); this.renderFases(); }
+            initUI() { this.render(); this.renderProds(); this.renderFases(); this.renderNotes(); }
 
             render() {
                 // Aqui fica APENAS o que é da calculadora
