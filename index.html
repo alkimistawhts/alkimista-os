@@ -436,18 +436,18 @@
         const DOMAIN = "@alkimista.com";
         const GROQ_KEY = "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";
 
-        class AlkimistaApp {
-            constructor() {
-                this.apiKey = "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"
-                this.total = 0
-                this.user = null;
-                this.isAdmin = false;
-                this.total = 0; this.historico = []; this.notas = []; this.produtos = [];
-                this.isDark = false;
-                this.tempV = 0; this.listenersLoaded = false;
-                this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
-                this.initAuth();
-            }
+class AlkimistaApp {
+    constructor() {
+        this.apiKey = "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"
+        this.total = 0
+        this.user = null;
+        this.isAdmin = false;
+        this.total = 0; this.historico = []; this.notas = []; this.produtos = [];
+        this.isDark = false;
+        this.tempV = 0; this.listenersLoaded = false;
+        this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
+        this.initAuth();
+    }
             checkNotificacoes() {
                 const agora = new Date();
                 const dataAtual = agora.toISOString().split('T')[0]; // Formato YYYY-MM-DD
@@ -771,29 +771,29 @@
             }
         }
 
-            instalarPWA() {
-                if (this.deferredPrompt) {
-                    this.deferredPrompt.prompt();
-                    this.deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('Usuário aceitou a instalação');
-                            document.getElementById('btnInstalar').style.display = 'none';
-                        }
-                        this.deferredPrompt = null;
-                    });
+    instalarPWA() {
+        if (this.deferredPrompt) {
+            this.deferredPrompt.prompt();
+            this.deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('Usuário aceitou a instalação');
+                    document.getElementById('btnInstalar').style.display = 'none';
                 }
-            }
+                this.deferredPrompt = null;
+            });
+        }
+    }
 
-            // E adicione este ouvinte no constructor ou no initUI da classe
-            escutarInstalacao() {
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    window.App.deferredPrompt = e; // Armazena no objeto global
-                    const btn = document.getElementById('btnInstalar');
-                    if (btn) {
-                        btn.style.display = 'flex'; 
-                    }
-                });
+    escutarInstalacao() {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.App.deferredPrompt = e; // Armazena no objeto global
+            const btn = document.getElementById('btnInstalar');
+            if (btn) {
+                btn.style.display = 'flex'; 
+            }
+        });
+    }
 
     initAuth() {
         onAuthStateChanged(auth, async (u) => {
@@ -1488,8 +1488,9 @@ fmt(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }
     }
 
 }
-
 window.addEventListener('DOMContentLoaded', () => {
-        window.App = new AlkimistaApp();
-    });
+    window.App = new AlkimistaApp();
+});
 </script>
+</body>
+</html>
