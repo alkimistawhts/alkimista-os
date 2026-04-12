@@ -1,0 +1,16 @@
+{
+  "name": "Alkimista OS",
+  "short_name": "Alkimista",
+  "description": "Sistema de Gestão Alkimista",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0047AB",
+  "theme_color": "#0047AB",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1001/1001371.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
