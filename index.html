@@ -249,12 +249,12 @@
     </aside>
 
     <main class="main">
-    <div class="app-container">
+        <div class="app-container">
         
-        <div id="btnInstalar" style="display: none; align-items: center; justify-content: center; background: #ff9800; color: white; padding: 12px; border-radius: 12px; font-size: 13px; cursor: pointer; font-weight: bold; gap: 8px; margin: 15px auto; width: 90%; max-width: 500px; box-shadow: 0 4px 12px rgba(255,152,0,0.3); z-index: 999;" onclick="window.App.instalarPWA()">
-        <i class="fas fa-download"></i>
-        <span>INSTALAR APLICATIVO ALKIMISTA</span>
-    </div>
+            <div id="btnInstalar" style="display: none; align-items: center; justify-content: center; background: #ff9800; color: white; padding: 12px; border-radius: 12px; font-size: 13px; cursor: pointer; font-weight: bold; gap: 8px; margin: 15px auto; width: 90%; max-width: 500px; box-shadow: 0 4px 12px rgba(255,152,0,0.3); z-index: 999;" onclick="window.App.instalarPWA()">
+                <i class="fas fa-download"></i>
+                <span>INSTALAR APLICATIVO ALKIMISTA</span>
+            </div>
 
         <div id="view-calc" class="view active">
             <h1>Calculadora 20%</h1>
@@ -359,36 +359,35 @@
                 <div id="sinergiaContent" style="padding:20px; line-height: 1.6; font-size: 0.95rem; color: var(--text-main);"></div>
             </div>
         </div>
-    </div>
 
-    <div id="view-notes" class="view" style="display:none;">
-        <h1>Anotações</h1>
-        <div class="card">
-            <label>Tipo de Registro</label>
-            <select id="nCat">
-                <option value="aviso">🔵 Aviso Geral</option>
-                <option value="urgente">🔴 Urgência / Falta</option>
-                <option value="verificação">🟢 Conferência</option>
-            </select>
+        <div id="view-notes" class="view" style="display:none;">
+            <h1>Anotações</h1>
+            <div class="card">
+                <label>Tipo de Registro</label>
+                <select id="nCat">
+                    <option value="aviso">🔵 Aviso Geral</option>
+                    <option value="urgente">🔴 Urgência / Falta</option>
+                    <option value="verificação">🟢 Conferência</option>
+                </select>
 
-            <div style="display: flex; gap: 12px; margin-top: 10px;">
-                <div style="flex:1">
-                    <label>Data (Clique para Calendário)</label>
-                    <input type="date" id="nData" onclick="this.showPicker()">>
+                <div style="display: flex; gap: 12px; margin-top: 10px;">
+                    <div style="flex:1">
+                        <label>Data (Clique para Calendário)</label>
+                        <input type="date" id="nData" onclick="this.showPicker()">>
+                    </div>
+                    <div style="flex:1">
+                        <label>Hora (Clique para Relógio)</label>
+                        <input type="time" id="nHora" onclick="this.showPicker()">>
+                    </div>
                 </div>
-                <div style="flex:1">
-                    <label>Hora (Clique para Relógio)</label>
-                    <input type="time" id="nHora" onclick="this.showPicker()">>
-                </div>
+
+                <label style="margin-top: 10px; display: block;">Descrição</label>
+                <textarea id="nTexto" rows="3" placeholder="O que deseja lembrar?"></textarea>
+
+                <button class="btn-blue" id="btnSalvarNota" onclick="window.App.addNota()" style="margin-top: 10px;">Salvar Lembrete</button>
             </div>
-
-            <label style="margin-top: 10px; display: block;">Descrição</label>
-            <textarea id="nTexto" rows="3" placeholder="O que deseja lembrar?"></textarea>
-
-            <button class="btn-blue" id="btnSalvarNota" onclick="window.App.addNota()" style="margin-top: 10px;">Salvar Lembrete</button>
+            <div id="notasLista"></div>
         </div>
-        <div id="notasLista"></div>
-    </div>
 
         <div id="view-serv" class="view" style="display:none;">
             <h1>Serviços</h1>
@@ -413,8 +412,7 @@
                 </div>
             </div>
         </div>
-
-    </div> </main>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -495,12 +493,15 @@ class AlkimistaApp {
                 if (!this.user) return;
                 try {
                     // Correção para Firebase v9+ (Firestore modular)
-                    const userRef = firebase.firestore().collection('usuarios').doc(this.user.uid);
+                    const userRef = firebase.firestore().collection('usuarios').doc(this.user.uid)
+                    
                     await userRef.set({
-                        produtos: this.produtos,
-                        notas: this.notas,
-                        historico: this.historico,
-                        fases: this.fases
+                        data: { 
+                            produtos: this.produtos,
+                            notas: this.notas,
+                            historico: this.historico,
+                            fases: this.fases
+                        }
                     }, { merge: true });
                     console.log("Dados salvos com sucesso!");
                 } catch (e) {
@@ -1547,9 +1548,22 @@ ATIVOS ANALISADOS: "${input}"
 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    window.App = new AlkimistaApp();
-});
-    </script>
+// Inicialização Blindada
+    let appInstance;
+    window.addEventListener('load', () => {
+        appInstance = new AlkimistaApp();
+        window.App = appInstance;
+    });
+
+    // PWA - Instalação
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        if (window.App) {
+            window.App.deferredPrompt = e;
+            const btn = document.getElementById('btnInstalar');
+            if (btn) btn.style.display = 'flex';
+        }
+    });
+</script>
 </body>
 </html>
