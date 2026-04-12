@@ -147,6 +147,27 @@
             white-space: pre-wrap;
             font-family: sans-serif;
         }
+
+        /* Estilo para os inputs de data e hora */
+        input[type="date"], input[type="time"] {
+            appearance: none;
+            -webkit-appearance: none;
+            min-height: 45px;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            color: var(--text-main);
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* Força o ícone do calendário/relógio a aparecer e ser clicável */
+        ::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5); /* Ajuste a cor do ícone se necessário */
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
