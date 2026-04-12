@@ -414,6 +414,30 @@
                 document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
+            async loadFromCloud() { 
+                try {
+                    // Busca os dados do usuário logado
+                    const uD = await getDoc(doc(db, "usuarios", this.user.uid));
+                    if(uD.exists()) { 
+                        const d = uD.data(); 
+                        this.total = d.total || 0; 
+                        this.historico = d.historico || []; 
+                        this.notas = d.notas || []; 
+                        this.isDark = d.isDark || false;
+                    } 
+
+                    // Busca o catálogo global de produtos
+                    const cD = await getDoc(doc(db, "configuracoes", "catalogo"));
+                    if(cD.exists()) {
+                        this.produtos = cD.data().produtos || []; 
+                    }
+
+                    console.log("Dados carregados da nuvem com sucesso.");
+                } catch (error) {
+                    console.error("Erro técnico ao carregar dados:", error);
+                }
+            }
+            
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
