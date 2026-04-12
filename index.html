@@ -44,7 +44,36 @@
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
         .overlay.active { display: flex; }
-        .modal-container { background: var(--bg-card); width: 100%; max-width: 450px; padding: 30px; border-radius: 32px; border: 1px solid var(--border); box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto; }
+        .modal {
+            display: none; 
+            position: fixed; /* Fixa na tela, ignora a sidebar */
+            top: 0;
+            left: 0;
+            width: 100vw; /* Ocupa toda a largura da janela */
+            height: 100vh; /* Ocupa toda a altura da janela */
+            background: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+            backdrop-filter: blur(4px); /* Efeito de desfoque ao fundo */
+            z-index: 9999; /* Garante que fique na frente de tudo */
+    
+            /* Centraliza o container perfeitamente */
+            display: none; /* Alterado para flex via JS quando abre */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Este é o seu código do container, com pequenos ajustes de centralização */
+        .modal-container { 
+            background: var(--bg-card); 
+            width: 90%; /* Responsivo para celulares */
+            max-width: 450px; 
+            padding: 30px; 
+            border-radius: 32px; 
+            border: 1px solid var(--border); 
+            box-shadow: var(--shadow); 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            position: relative;
+        }
 
         .sidebar { width: var(--sidebar-w); background: var(--bg-sidebar); height: 96vh; margin: 2vh 0 2vh 15px; border-radius: 24px; display: flex; flex-direction: column; padding: 25px 10px; position: fixed; left: 0; top: 0; z-index: 2000; overflow: hidden; white-space: nowrap; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         .sidebar:hover { width: 240px; }
@@ -406,7 +435,7 @@
 
             nav(v) {
                 // Esconde todas as telas
-                document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
+                document.querySelectorAll('.view').forEach(view => view.style.display = 'flex');
 
                 // Mostra a tela selecionada
                 const target = document.getElementById('view-' + v);
@@ -515,7 +544,7 @@
 
                 await this.save();
                 this.renderProds();
-                document.getElementById('modalProd').style.display = 'none';
+                document.getElementById('modalProd').style.display = 'flex';
 
                 ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(id => document.getElementById(id).value = "");
                 this.editandoProdId = null;
@@ -769,7 +798,7 @@
             }
 
 nav(v) {
-                document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
+                document.querySelectorAll('.view').forEach(view => view.style.display = 'flex');
                 const target = document.getElementById('view-' + v);
                 if (target) target.style.display = 'block';
 
