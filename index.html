@@ -665,22 +665,31 @@
                 const container = document.getElementById('notasLista');
                 if (!container) return;
 
+                // Se não houver notas, mostra uma mensagem amigável
+                if (this.notas.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum lembrete salvo.</p>';
+                    return;
+                }
+
                 container.innerHTML = this.notas.slice().reverse().map(n => `
-                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 10px; padding: 15px;">
+                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom: 15px; padding: 15px; position: relative;">
                         <div style="display:flex; justify-content:space-between; align-items: flex-start;">
                             <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">
                                 ${n.cat.toUpperCase()} | 📅 ${n.data} às ${n.hora}
                             </div>
-                            <div style="display:flex; gap: 12px;">
-                                <button style="background:none; border:none; cursor:pointer; font-size: 1.1rem;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
-                                <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.1rem;" onclick="window.App.delNota(${n.id})">🗑️</button>
+                            <div style="display:flex; gap: 15px;">
+                                <button title="Editar" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;" onclick="window.App.prepararEdicaoNota(${n.id})">✏️</button>
+                                <button title="Excluir" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size: 1.2rem;" onclick="window.App.delNota(${n.id})">🗑️</button>
                             </div>
                         </div>
-                        <div style="margin-top: 8px; font-size: 0.95rem; color: var(--text-main); line-height: 1.4;">${n.txt}</div>
-                        ${n.notificado ? '<div style="margin-top:5px; color:var(--success); font-size:0.75rem; font-weight:bold;">✓ Notificado</div>' : ''}
                     </div>
-                `).join('');
-            }
+                    <div style="margin-top: 10px; font-size: 1rem; color: var(--text-main); line-height: 1.4;">
+                        ${n.txt}
+                    </div>
+                    ${n.notificado ? '<div style="margin-top:8px; color:var(--success); font-size:0.75rem; font-weight:bold;">✓ Notificado</div>' : ''}
+                </div>
+            `).join('');
+        }
 
             checkLembretes() {
                 const agora = new Date();
