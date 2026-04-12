@@ -980,7 +980,7 @@ ATIVOS ANALISADOS: "${input}"
             // Método para alternar entre views
             changeView(v) {
                 // Adicione 'sinergia' e 'servs' à lista
-                ['calc', 'prods', 'audit', 'wiki', 'sinergia', 'notas', 'servs'].forEach(id => {
+                ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'].forEach(id => {
                      const el = document.getElementById('view-' + id);
                     if (el) el.style.display = (id === v) ? 'block' : 'none';
                 });
@@ -988,12 +988,12 @@ ATIVOS ANALISADOS: "${input}"
                 // 2. Mapeamento de todos os itens de navegação da sidebar para o efeito "Active"
                 const navs = {
                     calc: document.getElementById('nav-calc'),
-                    prods: document.getElementById('nav-prods'),
+                    prod: document.getElementById('nav-prod'),
                     audit: document.getElementById('nav-audit'),
                     wiki: document.getElementById('nav-wiki'),
                     sinergia: document.getElementById('nav-sinergia'), // Nova aba
-                    notas: document.getElementById('nav-notas'),
-                    servs: document.getElementById('nav-servs'),
+                    notes: document.getElementById('nav-notes'),
+                    serv: document.getElementById('nav-serv'),
                 };
 
                 // 3. Aplica a classe active apenas no botão clicado
