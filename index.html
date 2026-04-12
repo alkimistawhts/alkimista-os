@@ -491,6 +491,19 @@
                 }
             }
 
+            async save() {
+                if (!this.user) return;
+                try {
+                    await db.collection('usuarios').doc(this.user.uid).set({
+                        produtos: this.produtos,
+                        notas: this.notas,
+                        historico: this.historico
+                    }, { merge: true });
+                } catch (e) {
+                console.error("Erro ao salvar:", e);
+                }
+            }
+            
             preencherDataSugestao() {
                 const agora = new Date();
                 // Data de hoje (AAAA-MM-DD)
@@ -774,11 +787,12 @@
             escutarInstalacao() {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
-                    this.deferredPrompt = e;
+                    window.App.deferredPrompt = e; // Armazena no objeto global
                     const btn = document.getElementById('btnInstalar');
-                    if (btn) btn.style.display = 'flex'; // Aqui ele aparece para o usuário
+                    if (btn) {
+                        btn.style.display = 'flex'; 
+                    }
                 });
-            }
 
     initAuth() {
         onAuthStateChanged(auth, async (u) => {
