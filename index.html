@@ -149,9 +149,11 @@
             <label>Posologia Padrão</label>
             <textarea id="pPoso" rows="2" placeholder="Ex: Tomar 1 cápsula 30min antes de deitar"></textarea>
 
+            <input type="hidden" id="pId">
+
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn-gray" onclick="document.getElementById('modalProd').style.display='none'">Cancelar</button>
                 <button class="btn-blue" onclick="window.App.saveProd()">Salvar Produto</button>
+                <button class="btn-gray" onclick="document.getElementById('modalProd').style.display='none'">Cancelar</button>
             </div>
         </div>
     </div>
@@ -448,7 +450,6 @@
                     this.editandoProdId = id;
                     document.getElementById('modalProdTitle').innerText = "Editar Produto";
                     document.getElementById('pNome').value = p.nome;
-                    document.getElementById('pPreco').value = p.preco;
                     document.getElementById('pAtivos').value = p.ativos || "";
                     document.getElementById('pServe').value = p.serve || "";
                     document.getElementById('pPoso').value = p.poso || "";
@@ -456,7 +457,7 @@
                     // Novo Produto: Limpa tudo
                     this.editandoProdId = null;
                     document.getElementById('modalProdTitle').innerText = "Novo Produto";
-                    ['pNome', 'pPreco', 'pAtivos', 'pServe', 'pPoso'].forEach(f => {
+                    ['pNome', 'pAtivos', 'pServe', 'pPoso'].forEach(f => {
                         const el = document.getElementById(f);
                         if (el) el.value = "";
                     });
@@ -765,6 +766,85 @@
                 document.getElementById('bruto').innerText = this.fmt(val);
                 document.getElementById('comDesconto').innerText = this.fmt(this.tempV);
                 document.getElementById('btnSomar').disabled = val <= 0;
+            }
+
+nav(v) {
+                document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
+                const target = document.getElementById('view-' + v);
+                if (target) target.style.display = 'block';
+
+                if (v === 'notes') {
+                    this.preencherDataSugestao();
+                    this.renderNotes();
+                }
+                if (v === 'prod') this.renderProds();
+            }
+
+            preencherDataSugestao() {
+                const agora = new Date();
+                const hoje = agora.toISOString().split('T')[0];
+                agora.setHours(agora.getHours() + 1);
+                const horaSugestao = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+                if (document.getElementById('nData')) document.getElementById('nData').value = hoje;
+                if (document.getElementById('nHora')) document.getElementById('nHora').value = horaSugestao;
+            }
+
+            async addNota() {
+                const t = document.getElementById('nTexto').value.trim();
+                const c = document.getElementById('nCat').value;
+                const d = document.getElementById('nData').value;
+                const h = document.getElementById('nHora').value;
+
+                if (!t || !d || !h) return alert("Preencha todos os campos!");
+
+                if (this.editandoNotaId) {
+                    const idx = this.notas.findIndex(n => n.id === this.editandoNotaId);
+                    this.notas[idx] = { ...this.notas[idx], txt: t, cat: c, data: d, hora: h, notificado: false };
+                    this.editandoNotaId = null;
+                    document.getElementById('btnSalvarNota').innerText = "Salvar Lembrete";
+                } else {
+                    this.notas.push({ id: Date.now(), txt: t, cat: c, data: d, hora: h, notificado: false });
+                }
+
+                document.getElementById('nTexto').value = "";
+                this.renderNotes();
+                await this.save();
+            }
+
+            prepararEdicaoNota(id) {
+                const n = this.notas.find(nota => nota.id === id);
+                document.getElementById('nTexto').value = n.txt;
+                document.getElementById('nCat').value = n.cat;
+                document.getElementById('nData').value = n.data;
+                document.getElementById('nHora').value = n.hora;
+                this.editandoNotaId = id;
+                document.getElementById('btnSalvarNota').innerText = "ATUALIZAR NOTA";
+            }
+
+            async delNota(id) {
+                if (confirm("Deseja excluir esta nota?")) {
+                    this.notas = this.notas.filter(n => n.id !== id);
+                    this.renderNotes();
+                    await this.save();
+                }
+            }
+
+            renderNotes() {
+                const lista = document.getElementById('notasLista');
+                if (!lista) return;
+
+                lista.innerHTML = this.notas.slice().reverse().map(n => `
+                    <div class="prod-card" style="border-left: 4px solid var(--accent); margin-bottom:10px; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:start;">
+                            <small><b>${n.cat.toUpperCase()}</b> | ${n.data} às ${n.hora}</small>
+                            <div style="display:flex; gap:10px;">
+                                <button onclick="window.App.prepararEdicaoNota(${n.id})" style="background:none; border:none; cursor:pointer;">✏️</button>
+                                <button onclick="window.App.delNota(${n.id})" style="background:none; border:none; color:var(--danger); cursor:pointer;">✕</button>
+                            </div>
+                        </div>
+                        <div style="margin-top:8px;">${n.txt}</div>
+                    </div>`).join('');
             }
 
             async somar() {
