@@ -979,31 +979,30 @@ ATIVOS ANALISADOS: "${input}"
             
             // Método para alternar entre views
             changeView(v) {
-                console.log("Tentando abrir a aba:", v); // Isso vai aparecer no F12
-                // Adicione 'sinergia' e 'servs' à lista
-                ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'].forEach(id => {
-                     const el = document.getElementById('view-' + id);
-                    if (el) el.style.display = (id === v) ? 'initial' : 'none';
-                });
+                // 1. Lista de abas
+                const views = ['calc', 'prod', 'audit', 'wiki', 'sinergia', 'notes', 'serv'];
 
-                // 2. Mapeamento de todos os itens de navegação da sidebar para o efeito "Active"
-                const navs = {
-                    calc: document.getElementById('nav-calc'),
-                    prod: document.getElementById('nav-prod'),
-                    audit: document.getElementById('nav-audit'),
-                    wiki: document.getElementById('nav-wiki'),
-                    sinergia: document.getElementById('nav-sinergia'), // Nova aba
-                    notes: document.getElementById('nav-notes'),
-                    serv: document.getElementById('nav-serv'),
-                };
+            views.forEach(id => {
+                const el = document.getElementById('view-' + id);
+                const nav = document.getElementById('nav-' + id);
 
-                // 3. Aplica a classe active apenas no botão clicado
-                Object.keys(navs).forEach(k => {
-                    if (navs[k]) {
-                        navs[k].classList.toggle('active', k === v);
-                    }
-                });
-            }
+                if (el) {
+                    // Usa flex se for a calculadora, block para o resto, ou initial para garantir
+                    el.style.display = (id === v) ? 'block' : 'none';
+            
+                    // Força a opacidade para garantir que não está invisível por CSS
+                    if(id === v) el.style.opacity = "1"; 
+                }
+
+                if (nav) {
+                    nav.classList.toggle('active', id === v);
+                }
+            });
+
+            // 2. IMPORTANTE: Algumas abas precisam ser re-renderizadas ao abrir
+            if (v === 'prod') this.renderProds();
+            if (v === 'notes') this.renderNotes(); // Certifique-se que esta função existe
+        }
 
             toggleDark() { this.isDark = !this.isDark; document.body.classList.toggle('dark-mode', this.isDark); this.save(); }
             openConfirm(cb) { document.getElementById('confirmOverlay').classList.add('active'); document.getElementById('confirmActionBtn').onclick = () => { cb(); this.closeConfirm(); } }
