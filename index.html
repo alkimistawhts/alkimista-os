@@ -836,7 +836,11 @@
             } else {
                 loginScreen.style.display = 'flex';
             }
-        }
+        }); 
+
+        const btnLogin = document.getElementById('btnLogin');
+        if (btnLogin) btnLogin.onclick = () => this.handleLogin();
+    } 
         
     async loadFromCloud() {
         if (!this.user) return;
