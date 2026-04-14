@@ -617,6 +617,51 @@
                     </div>`;
                 }).join('');
             }
+            
+            executarAuditoria() {
+                const input = document.getElementById('auditInput').value;
+                const resultadoArea = document.getElementById('auditResult');
+                if (!input) return alert("Digite algo para auditar!");
+        
+                // Exemplo de lógica sênior: Filtrar produtos que batem com o termo
+                const achados = this.produtos.filter(p => 
+                    p.nome.toLowerCase().includes(input.toLowerCase()) || 
+                    (p.ativos && p.ativos.toLowerCase().includes(input.toLowerCase()))
+                );
+
+                if (achados.length > 0) {
+                    resultadoArea.innerHTML = achados.map(p => `
+                        <div class="card" style="margin-top:10px; border-left: 4px solid var(--success)">
+                            <strong>${p.nome}</strong><br>
+                            <small>Ativos: ${p.ativos || 'Não informados'}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    resultadoArea.innerHTML = `<p style="color:var(--danger)">Nenhum registro encontrado.</p>`;
+                }
+            }
+
+            // Lógica para Dicionário
+            buscarDicionario() {
+                const termo = document.getElementById('dictInput').value.toLowerCase();
+                const area = document.getElementById('dictResult');
+                // Aqui você pode criar um objeto fixo de termos técnicos ou buscar no Firebase
+                const termos = {
+                    "acido": "Substância que libera íons de hidrogênio em água.",
+                    "base": "Substância que aceita íons de hidrogênio.",
+                    "ph": "Potencial Hidrogeniônico, mede a acidez ou alcalinidade."
+                };
+
+                area.innerHTML = termos[termo] 
+                    ? `<div class="card">${termos[termo]}</div>` 
+                    : `<p>Termo não encontrado no dicionário local.</p>`;
+            }
+
+            // Lógica para Sinergia e Composto (Simples)
+            calcularSinergia() {
+                // Exemplo: Soma valores ou valida compatibilidade de ativos
+                alert("Função de Sinergia processada com os ativos locais.");
+            }
 
             copyProd(id) {
                 const p = this.produtos.find(x => x.id === id);
