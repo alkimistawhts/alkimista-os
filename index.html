@@ -438,16 +438,18 @@
 
     class AlkimistaApp {
     constructor() {
-        this.apiKey = "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";
-        this.total = 0;
         this.user = null;
+        this.produtos = [];
+        this.fases = [{ id: Date.now(), ml: 0, gotas: 0, tipo: 'ml' }];
+        this.historico = [];
+        this.notas = [];
+        this.total = 0;
         this.isAdmin = false;
-        this.total = 0; this.historico = []; this.notas = []; this.produtos = [];
-        this.isDark = false;
-        this.tempV = 0; this.listenersLoaded = false;
-        this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
+        this.listenersLoaded = false;
+        this.deferredPrompt = null;
+
         this.initAuth();
-    };
+    }
             checkNotificacoes() {
                 const agora = new Date();
                 const dataAtual = agora.toISOString().split('T')[0]; // Formato YYYY-MM-DD
@@ -863,6 +865,35 @@
         }
     }
 
+    async loadData() {
+        try {
+            const uDoc = await getDoc(doc(db, "usuarios", this.user.uid));
+            if (uDoc.exists()) {
+                const userData = uDoc.data();
+                this.isAdmin = userData.isAdmin || false;
+                
+                // Mapeamento seguro da pasta 'data'
+                const d = userData.data || {};
+                this.produtos = d.produtos || [];
+                this.fases = d.fases || [{ id: Date.now(), ml: 0, gotas: 0, tipo: 'ml' }];
+                this.historico = d.historico || [];
+                this.notas = d.notas || [];
+                this.total = d.total || 0;
+
+                // Configurações de UI
+                if (userData.isDark) document.body.classList.add('dark-mode');
+            }
+            
+            // Carregar catálogo apenas se o utilizador não tiver produtos próprios
+            if (this.produtos.length === 0) {
+                const cDoc = await getDoc(doc(db, "configuracoes", "catalogo"));
+                if (cDoc.exists()) this.produtos = cDoc.data().produtos || [];
+            }
+        } catch (e) {
+            console.error("Erro Sénior no LoadData:", e);
+        }
+    }
+    
     async handleLogin() {
         const u = document.getElementById('loginUser').value.trim();
         const p = document.getElementById('loginPass').value;
@@ -884,26 +915,19 @@
         document.getElementById('btnSomar').disabled = val <= 0;
     }
 
-    nav(v) {
-        // 1. Esconde TODAS as telas
-        document.querySelectorAll('.view').forEach(view => {
-            view.style.display = 'none';
-            view.classList.remove('active');
-        });
-
-        // 2. Tenta mostrar a tela desejada
-        const target = document.getElementById('view-' + v);
+    nav(viewId) {
+        const views = document.querySelectorAll('.view');
+        views.forEach(v => v.style.display = 'none');
+        
+        const target = document.getElementById(`view-${viewId}`);
         if (target) {
             target.style.display = 'block';
             target.classList.add('active');
-        } else {
-            console.warn("Tela não encontrada: view-" + v);
         }
 
-        // 3. Roda as renderizações específicas
-        if (v === 'notes') this.renderNotes();
-        if (v === 'prod') this.renderProds();
-        if (v === 'calc') this.renderFases();
+        // Auto-renderizar ao entrar na aba específica
+        if (viewId === 'prod') this.renderProds();
+        if (viewId === 'notes') this.renderNotes();
     }
 
     preencherDataSugestao() {
