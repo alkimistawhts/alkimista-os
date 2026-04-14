@@ -830,12 +830,13 @@
 
                 // Remova a chamada redundante ao loadFromCloud se ela estiver zerando seus dados
                 if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
-        
+
+                this.renderProds();
                 this.initUI(); // Isso vai desenhar os produtos na tela
             } else {
                 loginScreen.style.display = 'flex';
             }
-        })
+        }
         
     async loadFromCloud() {
         if (!this.user) return;
