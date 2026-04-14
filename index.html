@@ -835,7 +835,10 @@
                 loginScreen.style.display = 'flex';
             }
         });
-
+        const btnLogin = document.getElementById('btnLogin');
+        if (btnLogin) btnLogin.onclick = () => this.handleLogin();
+    } // Fim do Constructor
+        
     async loadFromCloud() {
         try {
             // Busca os dados do usuário logado
