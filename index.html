@@ -814,12 +814,13 @@
                     this.isDark = docData.isDark || false;
                     if(this.isDark) document.body.classList.add('dark-mode');
 
-                    // --- CORREÇÃO AQUI: Carrega os dados da subpasta 'data' ---
+                    // Carrega os dados da subpasta 'data'
                     if (docData.data) {
                         this.produtos = docData.data.produtos || [];
                         this.fases = docData.data.fases || [];
                         this.notas = docData.data.notas || [];
                         this.historico = docData.data.historico || [];
+                        this.total = docData.data.total || 0;
                     }
                 }
 
@@ -827,39 +828,33 @@
                 const btnNovoProd = document.getElementById('btnAbreNovoProd');
                 if(btnNovoProd) btnNovoProd.style.display = this.isAdmin ? 'block' : 'none';
 
-                // Carrega o restante
-                await this.loadFromCloud();
+                // Remova a chamada redundante ao loadFromCloud se ela estiver zerando seus dados
                 if(!this.listenersLoaded) { this.setupListeners(); this.listenersLoaded = true; }
-                this.initUI();
+        
+                this.initUI(); // Isso vai desenhar os produtos na tela
             } else {
                 loginScreen.style.display = 'flex';
             }
         });
-        const btnLogin = document.getElementById('btnLogin');
-        if (btnLogin) btnLogin.onclick = () => this.handleLogin();
-    } // Fim do Constructor
         
     async loadFromCloud() {
+        if (!this.user) return;
         try {
-            // Busca os dados do usuário logado
-            const uD = await getDoc(doc(db, "usuarios", this.user.uid));
-            if(uD.exists()) {
-                const d = uD.data();
-                this.total = d.total || 0;
-                this.historico = d.historico || [];
-                this.notas = d.notas || [];
-                this.isDark = d.isDark || false;
+            const uDoc = await getDoc(doc(db, "usuarios", this.user.uid));
+            if (uDoc.exists()) {
+                const d = uDoc.data().data; // Acessa a pasta 'data'
+                if (d) {
+                    this.produtos = d.produtos || [];
+                    this.notas = d.notas || [];
+                    this.fases = d.fases || [];
+                    this.historico = d.historico || [];
+                    this.total = d.total || 0;
+                }
             }
-
-            // Busca o catálogo global de produtos
-            const cD = await getDoc(doc(db, "configuracoes", "catalogo"));
-            if(cD.exists()) {
-                this.produtos = cD.data().produtos || [];
-            }
-
-            console.log("Dados carregados da nuvem com sucesso.");
-        } catch (error) {
-            console.error("Erro técnico ao carregar dados:", error);
+            this.initUI(); // Redesenha tudo com os dados novos
+            console.log("✅ Nuvem sincronizada com sucesso");
+        } catch (e) {
+            console.error("Erro ao carregar nuvem:", e);
         }
     }
 
