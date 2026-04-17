@@ -460,30 +460,31 @@
 
             // 2. Modificar o addNota para incluir data e hora
             addNota() {
-                const txt = document.getElementById('notaInput').value.trim();
-                const dataAlerta = document.getElementById('notaData').value;
-                const horaAlerta = document.getElementById('notaTime').value;
-                const cat = document.getElementById('notaCat').value;
+                const txtEl = document.getElementById('notaInput');
+                const dataEl = document.getElementById('notaData'); // Ele procura este ID
+                const timeEl = document.getElementById('notaTime'); // Ele procura este ID
+                const catEl = document.getElementById('notaCat');
 
-                if (!txt) return;
+                if (!txtEl || !txtEl.value.trim()) return alert("Digite o conteúdo da nota.");
 
                 const novaNota = {
                     id: Date.now(),
-                    txt,
-                    data: dataAlerta,
-                    hora: horaAlerta,
-                    cat,
-                    notificado: false // Para não repetir a notificação
+                    txt: txtEl.value.trim(),
+                    // O código abaixo evita o erro: se o campo não existir, ele usa vazio
+                    data: dataEl ? dataEl.value : "", 
+                    hora: timeEl ? timeEl.value : "",
+                    cat: catEl ? catEl.value : "geral",
+                    notificado: false
                 };
 
                 this.notas.push(novaNota);
                 this.save();
-                this.renderNotes();
+                this.render(); // Certifique-se de que chama a renderização correta
     
-                // Limpar campos
-                document.getElementById('notaInput').value = '';
-                document.getElementById('notaData').value = '';
-                document.getElementById('notaTime').value = '';
+                // Limpa os campos
+                txtEl.value = '';
+                if(dataEl) dataEl.value = '';
+                if(timeEl) timeEl.value = '';
             }
 
             // 3. O "Vigilante" que roda a cada 30 segundos conferindo os prazos
