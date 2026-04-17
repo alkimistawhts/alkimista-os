@@ -547,7 +547,7 @@
                 document.getElementById('btnAbreNovoProd').onclick = () => this.openProdModal();
                 document.getElementById('btnSalvarProd').onclick = () => this.addFullProd();
                 document.getElementById('pBusca').oninput = () => this.renderProds();
-                document.getElementById('btnAddNota').onclick = () => this.addNota();
+                //document.getElementById('btnAddNota').onclick = () => this.addNota();
                 document.getElementById('btnAddFase').onclick = () => this.addFase();
                 document.getElementById('btnResetFases').onclick = () => { this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}]; this.renderFases(); };
                 document.getElementById('btnRunAudit').onclick = () => this.execAudit();
