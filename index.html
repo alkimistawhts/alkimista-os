@@ -465,15 +465,18 @@
                 const timeEl = document.getElementById('notaTime'); // Ele procura este ID
                 const catEl = document.getElementById('notaCat');
 
-                if (!txtEl || !txtEl.value.trim()) return alert("Digite o conteúdo da nota.");
+                if (!txtEl) return;
+                
+                const txt = txtEl.value.trim();
+                if (!txt) return alert("Digite o conteúdo da nota.");
 
                 const novaNota = {
                     id: Date.now(),
-                    txt: txtEl.value.trim(),
+                    txt: txt,
                     // O código abaixo evita o erro: se o campo não existir, ele usa vazio
-                    data: dataEl ? dataEl.value : "", 
-                    hora: timeEl ? timeEl.value : "",
-                    cat: catEl ? catEl.value : "geral",
+                    data: dataEl?.value || "", 
+                    hora: timeEl?.value || "",
+                    cat: catEl?.value || "geral",
                     notificado: false
                 };
 
