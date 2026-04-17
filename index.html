@@ -118,6 +118,22 @@
             white-space: pre-wrap;
             font-family: sans-serif;
         }
+        input[type="date"], input[type="time"] {
+            font-family: inherit;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-body);
+            color: var(--text-main);
+            appearance: none; /* Limpa estilos estranhos de alguns navegadores */
+            -webkit-appearance: none;
+        }
+
+        /* Garante que o ícone do calendário/relógio seja visível e clicável */
+        input::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5); /* Ajusta a cor do ícone */
+        }
     </style>
 </head>
 <body>
@@ -303,12 +319,12 @@
         
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                     <div>
-                        <label style="font-size:0.75rem; color:var(--text-sub)">Data do Alerta:</label>
-                        <input type="date" id="notaData">
+                        <label style="font-size:0.75rem; color:var(--text-sub); display:block; margin-bottom:5px;">Data do Alerta:</label>
+                        <input type="date" id="notaData" style="width:100%; height:45px; cursor:pointer;">
                     </div>
                     <div>
-                        <label style="font-size:0.75rem; color:var(--text-sub)">Horário:</label>
-                        <input type="time" id="notaTime">
+                        <label style="font-size:0.75rem; color:var(--text-sub); display:block; margin-bottom:5px;">Horário:</label>
+                        <input type="time" id="notaTime" style="width:100%; height:45px; cursor:pointer;">
                     </div>
                 </div>
 
