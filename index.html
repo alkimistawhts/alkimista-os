@@ -643,15 +643,14 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
             }
 
             async execWiki() {
-                const input = document.getElementById('dictCompInput').value.trim();
-                if (!input) return alert("Digite o nome do composto ou veículo.");
-    
-                const btn = document.getElementById('btnRunDictComp'); // O botão da nova aba
-                const loading = document.getElementById('dictCompLoading');
-                const resultBox = document.getElementById('dictCompResultBox');
-                const content = document.getElementById('dictCompContent');
+                const input = document.getElementById('wikiInput').value.trim();
+                if (!input) return alert("Digite o nome do ativo ou fórmula.");
+                
+                const btn = document.getElementById('btnRunWiki');
+                const loading = document.getElementById('wikiLoading');
+                const resultBox = document.getElementById('wikiResultBox');
+                const content = document.getElementById('wikiContent');
 
-                // Igual ao seu: Desabilita, muda texto e alterna visibilidade
                 btn.disabled = true;
                 btn.innerText = "⏳ Consultando...";
                 loading.style.display = 'block'; 
