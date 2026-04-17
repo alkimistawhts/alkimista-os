@@ -309,6 +309,15 @@
                         <label>Hora</label>
                         <input type="time" id="nHora">
                     </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-sub)">Data do Alerta:</label>
+                        <input type="date" id="notaData">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-sub)">Horário:</label>
+                        <input type="time" id="notaTime">
+                </div>   
                 </div>
                 <label>Descrição</label>
                 <textarea id="nTexto" rows="3" placeholder="Detalhes da anotação..."></textarea>
@@ -374,6 +383,7 @@
                 this.tempV = 0; this.listenersLoaded = false;
                 this.fases = [{id: Date.now(), dose: '', freq: '', dias: '', tipo: 'caps'}];
                 this.initAuth();
+                this.startNotificationTicker();
             }
             copiarTexto(idElemento) {
                 const elemento = document.getElementById(idElemento);
@@ -431,6 +441,67 @@
 
             logout() { signOut(auth); location.reload(); }
 
+            async requestNotificationPermission() {
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") alert("Notificações ativadas com sucesso!");
+            }
+
+            // 2. Modificar o addNota para incluir data e hora
+            addNota() {
+                const txt = document.getElementById('notaInput').value.trim();
+                const dataAlerta = document.getElementById('notaData').value;
+                const horaAlerta = document.getElementById('notaTime').value;
+                const cat = document.getElementById('notaCat').value;
+
+                if (!txt) return;
+
+                const novaNota = {
+                    id: Date.now(),
+                    txt,
+                    data: dataAlerta,
+                    hora: horaAlerta,
+                    cat,
+                    notificado: false // Para não repetir a notificação
+                };
+
+                this.notas.push(novaNota);
+                this.save();
+                this.renderNotes();
+    
+                // Limpar campos
+                document.getElementById('notaInput').value = '';
+                document.getElementById('notaData').value = '';
+                document.getElementById('notaTime').value = '';
+            }
+
+            // 3. O "Vigilante" que roda a cada 30 segundos conferindo os prazos
+            startNotificationTicker() {
+                setInterval(() => {
+                    const agora = new Date();
+                    const dataAtual = agora.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+                    const horaAtual = agora.getHours().toString().padStart(2, '0') + ":" + 
+                                     agora.getMinutes().toString().padStart(2, '0');
+
+                    this.notas.forEach(n => {
+                        if (n.data === dataAtual && n.hora === horaAtual && !n.notificado) {
+                            this.sendNotification(n);
+                            n.notificado = true;
+                            this.save();
+                        }
+                    });
+                }, 30000); // Checa a cada 30 segundos
+            }
+
+            // 4. Disparar a notificação visual do Windows
+            sendNotification(nota) {
+                if (Notification.permission === "granted") {
+                    new Notification("Alkimista OS: Lembrete", {
+                        body: nota.txt,
+                        icon: "https://cdn-icons-png.flaticon.com/512/1048/1048953.png" // Ícone opcional
+                    });
+                }
+            }
+            
             calc() {
                 const input = document.getElementById('vOrig');
                 let valStr = input.value.replace(',', '.');
