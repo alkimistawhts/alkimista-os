@@ -291,24 +291,16 @@
             </div>
         </section>
 
-        <div id="view-notes" class="view" style="display:none;">
-            <h1>Anotações</h1>
+        <section id="view-notes" class="view" style="display:none;">
+            <h1>📝 Anotações</h1>
             <div class="card">
-                <label>Tipo de Registro</label>
-                <select id="nCat">
-                    <option value="aviso">🔵 Aviso Geral</option>
-                    <option value="urgente">🔴 Urgência / Falta</option>
-                    <option value="verificação">🟢 Conferência</option>
-                </select>
-                <div style="display: flex; gap: 12px;">
-                    <div style="flex:1">
-                        <label>Data</label>
-                        <input type="date" id="nData">
-                    </div>
-                    <div style="flex:1">
-                        <label>Hora</label>
-                        <input type="time" id="nHora">
-                    </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h2>Nova Nota</h2>
+                    <button onclick="window.App.requestNotificationPermission()" style="width:auto; padding:5px 15px; font-size:0.7rem; background:var(--text-sub)">🔔 Ativar Notificações</button>
+                </div>
+        
+                <textarea id="notaInput" placeholder="Escreva sua anotação aqui..."></textarea>
+        
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-sub)">Data do Alerta:</label>
@@ -317,15 +309,19 @@
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-sub)">Horário:</label>
                         <input type="time" id="notaTime">
-                </div>   
+                    </div>
                 </div>
-                <label>Descrição</label>
-                <textarea id="nTexto" rows="3" placeholder="Detalhes da anotação..."></textarea>
-                <button class="btn-blue" id="btnAddNota">Salvar Lembrete</button>
+
+                <select id="notaCat" style="margin-top:10px;">
+                    <option value="geral">🔵 Geral</option>
+                    <option value="urgente">🔴 Urgência / Falta</option>
+                    <option value="verificar">🟢 Verificar</option>
+                </select>
+        
+                <button class="btn-blue" onclick="window.App.addNota()" style="margin-top:15px;">💾 Salvar Anotação</button>
             </div>
             <div id="notasLista"></div>
-        </div>
-
+        </section>
         <div id="view-serv" class="view" style="display:none;">
             <h1>Serviços</h1>
             <div class="card">
