@@ -777,12 +777,14 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
 
             async execDictComp() {
                 const input = document.getElementById('dictCompInput').value.trim();
-                if (!input) return alert("Digite o nome do ativo ou fórmula.");
-                
-                const out = document.getElementById('dictCompOutput');
-                const btn = document.getElementById('btnDictComp');
-                const query = input.value.trim();
+                if (!input) return alert("Digite o nome do composto ou veículo.");
+    
+                const btn = document.getElementById('btnRunDictComp');
+                const loading = document.getElementById('dictCompLoading');
+                const resultBox = document.getElementById('dictCompResultBox');
+                const content = document.getElementById('dictCompContent');
 
+                // Estado inicial (Igual à sua Wiki)
                 btn.disabled = true;
                 btn.innerText = "⏳ Consultando...";
                 loading.style.display = 'block'; 
