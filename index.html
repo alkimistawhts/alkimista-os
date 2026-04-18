@@ -386,7 +386,7 @@
 
         class AlkimistaApp {
             constructor() {
-                this.apiKey = [
+                this.apiKeys = [
                     "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",
                     "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",
                     "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"
@@ -464,12 +464,16 @@
             }
 
             getApiKey() {
+                if (!this.apiKeys || this.apiKeys.length === 0) {
+                    console.error("Erro: A lista apiKeys não foi definida no constructor.");
+                    return "";
+                
                 const key = this.apiKeys[this.currentKeyIndex];
     
                 // Move para a próxima chave na lista para o próximo clique
                 this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
     
-                console.log(`Usando conta Groq #${this.currentKeyIndex + 1}`);
+                console.log(`Rodízio de API: Usando chave #${this.currentKeyIndex + 1}`);
                 return key;
             }
             // 2. Modificar o addNota para incluir data e hora
