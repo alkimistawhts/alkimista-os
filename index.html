@@ -386,7 +386,12 @@
 
         class AlkimistaApp {
             constructor() {
-                this.apiKey = "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"
+                this.apiKey = [
+                    "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"
+                    "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"
+                    "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"
+                ];
+                this.currentKeyIndex = 0;
                 this.total = 0
                 this.user = null;
                 this.isAdmin = false;
@@ -458,6 +463,15 @@
                 if (permission === "granted") alert("Notificações ativadas com sucesso!");
             }
 
+            getApiKey() {
+                const key = this.apiKeys[this.currentKeyIndex];
+    
+                // Move para a próxima chave na lista para o próximo clique
+                this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
+    
+                console.log(`Usando conta Groq #${this.currentKeyIndex + 1}`);
+                return key;
+            }
             // 2. Modificar o addNota para incluir data e hora
             addNota() {
                 const txtEl = document.getElementById('nTexto');
@@ -686,7 +700,7 @@ Olá! Realizamos uma auditoria de segurança na sua fórmula e identificamos um 
                     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`, 
+                            'Authorization': `Bearer ${this.getApiKey()}`, 
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
@@ -831,7 +845,7 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
                     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`,
+                            'Authorization': `Bearer ${this.getApiKey()}`,
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
@@ -962,7 +976,7 @@ ATIVOS ANALISADOS: "${input}"
                     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: { 
-                            'Authorization': `Bearer ${this.apiKey}`,
+                            'Authorization': `Bearer ${this.getApiKey()}`,
                             'Content-Type': 'application/json' 
                         },
                         body: JSON.stringify({
