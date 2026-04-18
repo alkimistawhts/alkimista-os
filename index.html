@@ -922,6 +922,13 @@ ATIVOS ANALISADOS: "${input}"
 5️⃣ FASE DE RESULTADO: Gerar o Card de Sinergia (Ciano) e o Resumo WhatsApp.
 
 ---
+🧠 RACIOCÍNIO CLÍNICO OBRIGATÓRIO (PASSO A PASSO):
+1. Verifique se há minerais catiônicos (Cálcio, Magnésio, Zinco, Ferro). Se houver mais de um em dose alta (>100mg), VOCÊ DEVE alertar sobre a "Competição pelo mesmo transportador/sítio de absorção".
+2. Verifique se há inibidores de absorção (Fitatos, Oxalatos, Taninos).
+3. Verifique a carga adrenérgica (estimulantes). Se a soma for alta, o alerta deve ser enfático sobre risco cardiovascular, mesmo que individualmente as doses estejam no limite.
+4. Identifique se o objetivo toca em performance ou recuperação. Se sim, a "RELAÇÃO COM TREINO" é obrigatória e deve ser técnica (ex: modulação de cortisol, síntese de ATP, tamponamento de lactato).
+
+---
 📦 MODELO DE RESPOSTA (FORMATO HTML)
 
 <div style="background: rgba(21, 183, 213, 0.05); border: 2px solid #15b7d5; border-left: 10px solid #15b7d5; padding: 20px; border-radius: 16px; margin: 20px 0; font-family: sans-serif;">
@@ -938,15 +945,15 @@ ATIVOS ANALISADOS: "${input}"
     </div>
 
     <p style="line-height: 1.6; font-size: 15px; color: var(--text-main);">
-        <b>💡 O QUE ELE FAZ NO CORPO:</b> [Explicação simples e didática com legenda entre parênteses]<br><br>
+        <b>💡 O QUE ELE FAZ NO CORPO:</b> [Mecanismo de ação explicação simples e didática com legenda entre parênteses]<br><br>
         <b>🎯 BENEFÍCIO:</b> [O que o cliente ganha de forma prática]<br><br>
-        <b>🏋️ RELAÇÃO COM TREINO:</b> [Inserir análise APENAS se o ativo for para performance ou recuperação desportiva. Caso contrário, omita esta linha completamente]<br><br>
+        <b>🏋️ RELAÇÃO COM TREINO:</b> [Analise aqui se ajuda na força, resistência ou RECUPERAÇÃO/MODULAÇÃO DE CORTISOL. Se não tiver NENHUMA relação, omita esta linha.]<br><br>
         <b>🕒 TEMPO DE RESPOSTA:</b> [Expectativa de início de efeito]<br><br>
-        <b>Sinergia (Trabalho em Conjunto):</b> [Como os ativos se ajudam mutuamente].
+        <b>Trabalho em Conjunto:</b> [Como os ativos se potencializam e ajudam mutuamente].
     </p>
 
     <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.8); border-radius: 8px; font-size: 14px; color: #333; border: 1px dashed #15b7d5;">
-        <b>💡 Dica de Ouro:</b> [Melhor horário ou forma de uso] <br>
+        <b>💡 Dica de Ouro:</b> [Melhor horário/forma de uso] <br>
         <b>🚫 CONTRAINDICAÇÃO:</b> [Quem não deve tomar].
     </div>
 </div>
@@ -959,10 +966,10 @@ ATIVOS ANALISADOS: "${input}"
 [Liste TODOS os ativos sem exceção:]
 *Ativo:* *[Nome]* 🔬
 ✅ *O que faz:* [Benefício simplificado]
-💊 *Uso:* [Instrução técnica ou Alerta]
+💊 *Uso:* [Instrução ou Alerta de Dose]
 ❌ *Contraindicação:* [Público restrito]
 ---------------------------
-⚠️ *ALERTA TÉCNICO:* [Informar se um ativo bloqueia o outro ou se há dose elevada]
+⚠️ *ALERTA TÉCNICO:* [Destaque aqui conflitos de absorção ou dosagem]
 💡 *Dica:* [Dica prática para o dia a dia]
 </pre>
 
@@ -971,7 +978,10 @@ ATIVOS ANALISADOS: "${input}"
 ✅ MODO ESCURO: O box de alerta DEVE manter background #FFF9C4 e cor de texto #455A64 para não "sumir" no tema dark.
 ✅ Proibido imprimir títulos como "RESPOSTA FINAL" fora do card HTML.
 ✅ É PROIBIDO omitir qualquer ativo enviado no input.
+✅ PROIBIDO ser vago: No teste de minerais, mencione a "Competição por transportadores".
+✅ TREINO: Ativos que reduzem estresse ou melhoram o sono (como Ashwagandha/Magnésio) TÊM relação com treino (Recuperação Neural/Modulação de Cortisol). Analise isso obrigatoriamente.
 ✅ TREINO: A linha "RELAÇÃO COM TREINO" deve desaparecer se a fórmula não tiver ativos desportivos.
+✅ NEGATIVOS: Não use frases como "não apresenta conflitos diretos" se houver competição de absorção ou sobreposição de classe.
 ✅ É OBRIGATÓRIO listar todos os ativos no resumo do WhatsApp (inclusive Metilcobalamina, etc).
 ✅ Diferencie claramente Magnésio Dimalato (Energia) e Metilcobalamina (Absorção).
 ✅ Soma de Ativos: Se houver 3 tipos de Magnésio, analise a carga elementar total.
