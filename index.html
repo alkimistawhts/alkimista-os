@@ -192,17 +192,14 @@
         }
 
         .toast {
-            background: var(--success);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            margin-top: 10px;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            font-weight: 500;
-            animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
+            align-items: center; /* Centraliza ícone e texto na mesma linha */
+            gap: 12px;
+            background: rgba(16, 185, 129, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
         }
 
         @keyframes slideIn {
