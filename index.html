@@ -134,6 +134,55 @@
             cursor: pointer;
             filter: invert(0.5); /* Ajusta a cor do ícone */
         }
+
+        .orcamento-container {
+            padding: 15px;
+            background: rgba(20, 30, 35, 0.8);
+            border-radius: 12px;
+            border: 1px solid #15b7d5;
+            margin: 10px;
+        }
+
+        .formula-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #15b7d5;
+        }
+
+        .formula-item input {
+            width: 100%;
+            margin-top: 5px;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .btn-add-formula {
+            background: transparent;
+            color: #15b7d5;
+            border: 1px dashed #15b7d5;
+            width: 100%;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+#textoFinalOrcamento {
+    width: 100%;
+    height: 150px;
+    margin-top: 15px;
+    background: #111;
+    color: #00ffcc;
+    font-size: 12px;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 8px;
+    resize: none;
+}
     </style>
 </head>
 <body>
@@ -338,6 +387,29 @@
             </div>
             <div id="notasLista"></div>
         </section>
+        <div class="orcamento-container">
+            <h3>📋 Gerador de Orçamento</h3>
+    
+            <div id="listaFormulasOrcamento">
+                <div class="formula-item" id="form-0">
+                    <label>Fórmula 01:</label>
+                    <input type="text" placeholder="Nome ou Composição" class="orc-nome" oninput="atualizarOrcamento()">
+                    <input type="text" placeholder="Quantidade (Ex: 60 cáps)" class="orc-qtd" oninput="atualizarOrcamento()">
+                    <input type="number" placeholder="Valor Bruto R$" class="orc-valor" oninput="atualizarOrcamento()">
+                </div>
+            </div>
+
+            <button onclick="adicionarNovaFormulaNoOrcamento()" class="btn-add-formula">+ Adicionar Outra Fórmula</button>
+
+            <div id="resumoGeralOrcamento" style="display:none;">
+                </div>
+
+            <div class="rodape-fixo-orcamento">
+                <textarea id="textoFinalOrcamento" readonly placeholder="O texto formatado aparecerá aqui..."></textarea>
+                <button onclick="copiarOrcamento()" class="btn-success">📋 Copiar para WhatsApp</button>
+            </div>
+        </div>
+        
         <div id="view-serv" class="view" style="display:none;">
             <h1>Serviços</h1>
             <div class="card">
@@ -459,6 +531,79 @@
                 document.getElementById('btnLogin').onclick = () => this.handleLogin();
             }
 
+            contadorFormulas = 1;
+
+            adicionarNovaFormulaNoOrcamento = function() {
+                const lista = document.getElementById('listaFormulasOrcamento');
+                if (!lista) return;
+            
+                const novaFormula = `
+                    <div class="formula-item" id="form-${contadorFormulas}" style="background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #15b7d5;">
+                        <label style="color: #15b7d5; font-weight: bold; display: block; margin-bottom: 5px;">Fórmula 0${contadorFormulas + 1}:</label>
+                        <input type="text" placeholder="Nome ou Composição" class="orc-nome" oninput="atualizarOrcamento()" style="width: 100%; margin-bottom: 5px; background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 5px;">
+                        <input type="text" placeholder="Quantidade" class="orc-qtd" oninput="atualizarOrcamento()" style="width: 100%; margin-bottom: 5px; background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 5px;">
+                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" oninput="atualizarOrcamento()" style="width: 100%; background: #1e1e1e; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 5px;">
+                    </div>
+                `;
+                lista.insertAdjacentHTML('beforeend', novaFormula);
+                contadorFormulas++;
+                atualizarOrcamento();
+            }
+
+            atualizarOrcamento = function() {
+                const nomes = document.querySelectorAll('.orc-nome');
+                const qtds = document.querySelectorAll('.orc-qtd');
+                const valores = document.querySelectorAll('.orc-valor');
+            
+                let textoFinal = "";
+                let totalBrutoGeral = 0;
+                const temVarios = nomes.length > 1;
+
+                nomes.forEach((nomeInput, i) => {
+                    const nome = nomeInput.value || "[Nome]";
+                    const qtd = qtds[i].value || "[Quantidade]";
+                    const vBruto = parseFloat(valores[i].value) || 0;
+                    const vDesc = vBruto * 0.80;
+                    totalBrutoGeral += vBruto;
+
+                    const titulo = temVarios ? `💊 Fórmula 0${i + 1}: ${nome}` : `💊 Fórmula: ${nome}`;
+                
+                    textoFinal += `${titulo}\n\n`;
+                    textoFinal += `Quantidade: ${qtd}\n\n`;
+                    textoFinal += `Valor: R$ ${vBruto.toFixed(2).replace('.', ',')}\n`;
+                    textoFinal += `*Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}*\n\n`;
+                    textoFinal += `---------------------------\n\n`;
+                });
+
+                if (temVarios) {
+                    const totalDescGeral = totalBrutoGeral * 0.80;
+                    textoFinal += `💰 Resumo do Pedido:\n\n`;
+                    textoFinal += `Total das fórmulas: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n\n`;
+                    textoFinal += `*Total com desconto: R$ ${totalDescGeral.toFixed(2).replace('.', ',')}*\n\n`;
+                    textoFinal += `---------------------------\n\n`;
+                }
+
+                textoFinal += `Como deseja prosseguir com o pedido?\n\n`;
+                textoFinal += `💳 Formas de pagamento: Pix, Cartão de credito (Link.)\n\n`;
+                textoFinal += `📦 Entrega: Retirada em loja ou Entrega em domicílio.\n`;
+                textoFinal += `(Taxa de entrega: R$ 5,50 para a região de Santos. Demais regiões, favor consultar).`;
+
+                const txtArea = document.getElementById('textoFinalOrcamento');
+                if (txtArea) txtArea.value = textoFinal;
+            }
+
+            copiarOrcamento = async function() {
+                const texto = document.getElementById('textoFinalOrcamento').value;
+                try {
+                    await navigator.clipboard.writeText(texto);
+                    alert("✅ Orçamento copiado!");
+                } catch (err) {
+                    const area = document.getElementById('textoFinalOrcamento');
+                    area.select();
+                    document.execCommand('copy');
+                    alert("✅ Orçamento copiado!");
+                }
+            }
             async handleLogin() {
                 const u = document.getElementById('loginUser').value.trim();
                 const p = document.getElementById('loginPass').value;
