@@ -545,16 +545,22 @@
             
             showToast(mensagem) {
                 const container = document.getElementById('toast-container');
+                if (!container) return; // Segurança caso o container não exista
+                
                 const toast = document.createElement('div');
                 toast.className = 'toast';
-                toast.innerHTML = `<span class="material-icons">check_circle</span> ${mensagem}`;
+                toast.innerHTML = `
+                    <span class="material-icons" style="color: white; font-size: 20px;">check_circle</span>
+                    <span style="font-family: 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 500;">${mensagem}</span>
+                `;
     
                 container.appendChild(toast);
     
                 // Remove o elemento do HTML depois que a animação acaba (3 segundos)
                 setTimeout(() => {
-                    toast.remove();
-                }, 3000);
+                    toast.classList.add('fade-out');
+                    setTimeout(() => toast.remove(), 500);
+                }, 2500);
             }
 
             initAuth() {
