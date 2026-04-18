@@ -402,25 +402,40 @@
                 this.initAuth();
                 this.startNotificationTicker();
             }
+            
             copiarTexto(idElemento) {
                 const elemento = document.getElementById(idElemento);
                 if (elemento) {
                     const texto = elemento.innerText;
                     navigator.clipboard.writeText(texto).then(() => {
-                    // Reutiliza o seu toast que já existe no sistema
-                    const t = document.getElementById('toast');
-                    t.innerText = "Copiado com sucesso!";
-                    t.style.display = 'block'; 
-                    setTimeout(() => t.style.display = 'none', 2000);
-                }).catch(err => {
-                    console.error('Erro ao copiar: ', err);
-                    alert('Erro ao copiar texto.');
-                });
-            } else {
-                alert('O resumo para WhatsApp não foi encontrado nesta resposta.');
+                        // Reutiliza o seu toast que já existe no sistema
+                        const t = document.getElementById('toast');
+                        t.innerText = "Copiado com sucesso!";
+                        t.style.display = 'block'; 
+                        setTimeout(() => t.style.display = 'none', 2000);
+                    }).catch(err => {
+                        console.error('Erro ao copiar: ', err);
+                        alert('Erro ao copiar texto.');
+                    });
+                } else {
+                    alert('O resumo para WhatsApp não foi encontrado nesta resposta.');
+                }
             }
-        }
 
+            getApiKey() {
+                if (!this.apiKeys || this.apiKeys.length === 0) {
+                    console.error("Erro: A lista apiKeys não foi definida no constructor.");
+                    return "";
+                }
+                const key = this.apiKeys[this.currentKeyIndex];
+    
+                // Move para a próxima chave na lista para o próximo clique
+                this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
+    
+                console.log(`Rodízio de API: Usando chave #${this.currentKeyIndex + 1}`);
+                return key;
+            }
+                
             initAuth() {
                 onAuthStateChanged(auth, async (u) => {
                     const loginScreen = document.getElementById('view-login');
@@ -462,21 +477,7 @@
                 const permission = await Notification.requestPermission();
                 if (permission === "granted") alert("Notificações ativadas com sucesso!");
             }
-
-            getApiKey() {
-                if (!this.apiKeys || this.apiKeys.length === 0) {
-                    console.error("Erro: A lista apiKeys não foi definida no constructor.");
-                    return "";
                 
-                const key = this.apiKeys[this.currentKeyIndex];
-    
-                // Move para a próxima chave na lista para o próximo clique
-                this.currentKeyIndex = (this.currentKeyIndex + 1) % this.apiKeys.length;
-    
-                console.log(`Rodízio de API: Usando chave #${this.currentKeyIndex + 1}`);
-                return key;
-            }
-            // 2. Modificar o addNota para incluir data e hora
             addNota() {
                 const txtEl = document.getElementById('nTexto');
                 const dataEl = document.getElementById('nData'); // Ele procura este ID
