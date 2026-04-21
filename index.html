@@ -1453,7 +1453,7 @@ ATIVOS ANALISADOS: "${input}"
                     textoFinal += `${titulo}\n`;
                     textoFinal += `Quantidade: ${qtds[i].value || '...'}\n`;
                     textoFinal += `Valor: R$ ${vBruto.toFixed(2).replace('.', ',')}\n`;
-                    textoFinal += `_Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}_\n\n`;
+                    textoFinal += `*Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}*\n\n`;
                 });
 
                 if (temVarios) {
