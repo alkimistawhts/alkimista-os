@@ -1317,22 +1317,34 @@ ATIVOS ANALISADOS: "${input}"
             
             // Método para alternar entre views
             changeView(v) { 
-                document.querySelectorAll('.view').forEach(el => {
-                    el.style.display = 'none';
-                    el.classList.remove('active');
+                // 1. Esconde rigorosamente todas as seções antes de mostrar a próxima
+                const views = document.querySelectorAll('.view-section');
+                views.forEach(v => {
+                    v.style.display = 'none';
                 });
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                const targetView = document.getElementById('view-' + v);
-                const targetNav = document.getElementById('nav-' + v);
-                if (targetView) {
-                    targetView.style.display = 'block';
-                    targetView.classList.add('active');
+
+                // 2. Remove a classe 'active' de todos os botões do menu lateral
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(i => {
+                    i.classList.remove('active');
+                });
+
+                // 3. Procura a seção que queremos mostrar
+                const target = document.getElementById(viewId);
+                if (target) {
+                    // Usa block para garantir que ela apareça
+                    target.style.display = 'block';
                 }
-                if (targetNav) {
-                    targetNav.classList.add('active');
+
+                // 4. Marca o botão atual como ativo para feedback visual
+                const activeBtn = document.querySelector(`.nav-item[onclick*="${viewId}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
                 }
-                if (window.innerWidth < 768) {
-                    document.querySelector('.sidebar')?.classList.remove('active');
+
+                // 5. Se o menu lateral estiver aberto (no telemóvel), fecha-o
+                if (this.sidebarOpen) {
+                    this.toggleSidebar();
                 }
             }
 
