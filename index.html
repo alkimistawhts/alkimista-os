@@ -1439,7 +1439,7 @@ ATIVOS ANALISADOS: "${input}"
 
                 if (!txtArea) return;
 
-                let textoFinal = "";
+                let textoFinal = "*Segue orçamento*";
                 let totalBrutoGeral = 0;
                 const temVarios = nomes.length > 1;
 
@@ -1457,7 +1457,6 @@ ATIVOS ANALISADOS: "${input}"
                 });
 
                 if (temVarios) {
-                    textoFinal += `---------------------------------------------\n`;
                     textoFinal += `💰 *TOTAL DO PEDIDO*\n`;
                     textoFinal += `Total das fórmulas: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n`;
                     textoFinal += `*Total com desconto: R$ ${(totalBrutoGeral * 0.8).toFixed(2).replace('.', ',')}*\n\n`;
