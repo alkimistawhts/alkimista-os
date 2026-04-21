@@ -222,6 +222,15 @@
             transform: scale(1.1);
             opacity: 0.8;
         }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body>
@@ -441,7 +450,7 @@
                         <label style="font-weight: bold; color: var(--accent); display: block; margin-bottom: 10px;">Fórmula 01:</label>
                         <input type="text" placeholder="Nome da Fórmula" class="orc-nome" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                         <input type="text" placeholder="Quantidade" class="orc-qtd" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" oninput="window.App.atualizarOrcamento()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" step="0.01" onwheel="this.blur()" oninput="window.App.atualizarOrcamento()" onmousedown="event.stopPropagation()" onclick="event.stopPropagation()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                     </div>
                 </div>
 
@@ -1403,7 +1412,7 @@ ATIVOS ANALISADOS: "${input}"
                         <label style="font-weight: bold; color: var(--accent); display: block; margin-bottom: 10px;">Fórmula Especial:</label>
                         <input type="text" placeholder="Nome da Fórmula" class="orc-nome" oninput="window.App.atualizarOrcamento()" onclick="event.stopPropagation()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                         <input type="text" placeholder="Quantidade" class="orc-qtd" oninput="window.App.atualizarOrcamento()" onclick="event.stopPropagation()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" oninput="window.App.atualizarOrcamento()" onclick="event.stopPropagation()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" step="0.01" onwheel="this.blur()" oninput="window.App.atualizarOrcamento()" onclick="event.stopPropagation()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                     </div>
                 `;
 
