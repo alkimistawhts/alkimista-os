@@ -1439,7 +1439,7 @@ ATIVOS ANALISADOS: "${input}"
 
                 if (!txtArea) return;
 
-                let textoFinal = "*RESUMO DO ORÇAMENTO* 💊\n---------------------------------------------\n\n";
+                let textoFinal = "";
                 let totalBrutoGeral = 0;
                 const temVarios = nomes.length > 1;
 
@@ -1448,19 +1448,20 @@ ATIVOS ANALISADOS: "${input}"
                     const vDesc = vBruto * 0.80; // Mantendo sua regra de 20% de desconto
                     totalBrutoGeral += vBruto;
         
-                    const titulo = temVarios ? `*Fórmula 0${i + 1}:* ${nomeInput.value || '...'}` : `*Fórmula:* ${nomeInput.value || '...'}`;
-        
+                    const titulo = temVarios ? `*💊 Fórmula 0${i + 1}:* ${nomeInput.value || '...'}` : `*💊 Fórmula:* ${nomeInput.value || '...'}`;
                     textoFinal += `${titulo}\n`;
                     textoFinal += `Quantidade: ${qtds[i].value || '...'}\n`;
                     textoFinal += `Valor: R$ ${vBruto.toFixed(2).replace('.', ',')}\n`;
                     textoFinal += `*Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}*\n\n`;
+                    textoFinal += `---------------------------------------------\n\n`;
                 });
 
                 if (temVarios) {
                     textoFinal += `---------------------------------------------\n`;
                     textoFinal += `💰 *TOTAL DO PEDIDO*\n`;
-                    textoFinal += `Bruto: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n`;
-                    textoFinal += `*Com desconto: R$ ${(totalBrutoGeral * 0.8).toFixed(2).replace('.', ',')}*\n\n`;
+                    textoFinal += `Total das fórmulas: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n`;
+                    textoFinal += `*Total com desconto: R$ ${(totalBrutoGeral * 0.8).toFixed(2).replace('.', ',')}*\n\n`;
+                    textoFinal += `---------------------------------------------\n\n`;
                 }
 
                 textoFinal += `Como deseja prosseguir com o pedido?\n\n`;
