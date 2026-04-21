@@ -1449,8 +1449,8 @@ ATIVOS ANALISADOS: "${input}"
                     totalBrutoGeral += vBruto;
         
                     const titulo = temVarios ? `*💊 Fórmula 0${i + 1}:* ${nomeInput.value || '...'}` : `*💊 Fórmula:* ${nomeInput.value || '...'}`;
-                    textoFinal += `${titulo}\n`;
-                    textoFinal += `Quantidade: ${qtds[i].value || '...'}\n`;
+                    textoFinal += `${titulo}\n\n`;
+                    textoFinal += `Quantidade: ${qtds[i].value || '...'}\n\n`;
                     textoFinal += `Valor: R$ ${vBruto.toFixed(2).replace('.', ',')}\n`;
                     textoFinal += `*Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}*\n\n`;
                     textoFinal += `---------------------------------------------\n\n`;
