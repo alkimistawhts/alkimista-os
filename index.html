@@ -902,6 +902,20 @@ ATIVOS ANALISADOS: "${input}"
 4. 💊 REGRA DE DOSAGEM: Se a dose enviada for ACIMA do usual ou oferecer risco, a instrução de uso DEVE ser: "Tomar conforme orientação médica devido à dosagem específica".
 
 ---
+🇧🇷 DIRETRIZ DE SOBERANIA E POSOLOGIA:
+
+1. ANÁLISE DE FREQUÊNCIA: Avaliar se o ativo tem meia-vida curta (ex: Vitamina C, que precisa ser fracionada) ou longa (ex: Vitamina D, uma vez ao dia).
+2. CRONOFARMACOLOGIA: Indicar o horário ideal. Estímulo (Manhã/Pré-treino), Recuperação/Sono (Noite), Vitaminas Lipossolúveis (Após refeições).
+3. FRACIONAMENTO: Se a dose total de um ativo for muito alta para uma única absorção (ex: Magnésio > 300mg ou Cálcio > 500mg), a IA deve sugerir o fracionamento (ex: "Tomar 1 dose de manhã e 1 dose à noite").
+4.REGRA DE DOSAGEM: Se a dose for acima do usual, manter a instrução: "Tomar conforme orientação médica devido à dosagem específica".
+
+---
+🧠 PROTOCOLO POSOLÓGICO INTELIGENTE (RACIOCÍNIO OBRIGATÓRIO):
+1. Energia/Foco (Cafeína, Teacrina, Rhodiola): Indicar uso matinal ou pré-treino. Alertar para evitar após as 16h para não afetar o sono.
+2. Aminoácidos (Creatina, Beta-Alanina): Uso contínuo, independente do horário, mas sugerir constância.
+3. Lipossolúveis (A, D, E, K, Coq10): Obrigatoriamente indicar uso "após refeição que contenha gordura" para melhor aproveitamento.
+
+---
 🕹️ GATILHOS E ACESSIBILIDADE:
 Tom de voz clínico. RESPOSTAS 1, 2 e 3 Completas.
 * 📖 REGRA DA LEGENDA: Termos técnicos devem vir com explicação simples entre parênteses.
@@ -950,7 +964,7 @@ RESPOSTA 3: SEGURANÇA E CONTRAINDICAÇÃO (CARD VERMELHO - APENAS MODO ESTUDO)
 [Liste TODOS os ativos sem exceção:]
 *Ativo:* *[Nome]* 🔬
 ✅ *O que faz:* [Benefício simplificado]
-💊 *Uso:* [Instrução técnica ou Alerta]
+💊 *COMO USAR:* [Instrução detalhada: quantidade de vezes e melhor horário analisado]
 💡 *Dica:* [Dica prática]
 ⚠️ *Aviso:* [Contraindicação/Dosagem]
 ---------------------------
@@ -1040,6 +1054,20 @@ ATIVOS ANALISADOS: "${input}"
 7. 🔍 INTERAÇÃO: Analisar obrigatoriamente se os ativos interagem entre si ou com fármacos comuns (anti-hipertensivos, anticoncepcionais, anticoagulantes)..
 
 ---
+🇧🇷 DIRETRIZ DE SOBERANIA E POSOLOGIA:
+
+1. ANÁLISE DE FREQUÊNCIA: Avaliar se o ativo tem meia-vida curta (ex: Vitamina C, que precisa ser fracionada) ou longa (ex: Vitamina D, uma vez ao dia).
+2. CRONOFARMACOLOGIA: Indicar o horário ideal. Estímulo (Manhã/Pré-treino), Recuperação/Sono (Noite), Vitaminas Lipossolúveis (Após refeições).
+3. FRACIONAMENTO: Se a dose total de um ativo for muito alta para uma única absorção (ex: Magnésio > 300mg ou Cálcio > 500mg), a IA deve sugerir o fracionamento (ex: "Tomar 1 dose de manhã e 1 dose à noite").
+4.REGRA DE DOSAGEM: Se a dose for acima do usual, manter a instrução: "Tomar conforme orientação médica devido à dosagem específica".
+
+---
+🧠 PROTOCOLO POSOLÓGICO INTELIGENTE (RACIOCÍNIO OBRIGATÓRIO):
+1. Energia/Foco (Cafeína, Teacrina, Rhodiola): Indicar uso matinal ou pré-treino. Alertar para evitar após as 16h para não afetar o sono.
+2. Aminoácidos (Creatina, Beta-Alanina): Uso contínuo, independente do horário, mas sugerir constância.
+3. Lipossolúveis (A, D, E, K, Coq10): Obrigatoriamente indicar uso "após refeição que contenha gordura" para melhor aproveitamento.
+
+---
 🧠 PROTOCOLO DE ANÁLISE:
 1️⃣ FASE DE TEIA: Analisar a sinergia (como um ativo ajuda o outro a funcionar melhor).
 2️⃣ FASE DE CONFLITO: Identificar se algum ativo "atrapalha" a absorção ou o mecanismo de ação do outro.
@@ -1091,6 +1119,7 @@ ATIVOS ANALISADOS: "${input}"
         <b>🎯 BENEFÍCIO:</b> [O que o cliente sente na prática: ex: "Mais foco", "Sono mais profundo", "Menos cansaço"]<br><br>
         <b>🏋️ RELAÇÃO COM TREINO:</b> [Analise aqui se ajuda na força, resistência ou RECUPERAÇÃO/MODULAÇÃO DE CORTISOL. Se não tiver NENHUMA relação, omita esta linha.]<br><br>
         <b>🕒 TEMPO DE RESPOSTA:</b> [Expectativa de início de efeito]<br><br>
+        <b style="color: #15b7d5;">💊 COMO USAR (ANÁLISE DE ABSORÇÃO):</b> [A IA deve indicar aqui: "Tomar X vezes ao dia". Ex: "Tomar 2x ao dia: uma dose após o café da manhã e outra após o almoço para garantir que o corpo aproveite 100% dos nutrientes"].<br><br>
         <b>Trabalho em Conjunto:</b> [Como os ativos se potencializam e ajudam mutuamente].
     </p>
 
@@ -1109,13 +1138,18 @@ ATIVOS ANALISADOS: "${input}"
 • *[Nome]*: [O que faz de forma ultra simples]
 ---------------------------
 ⚠️ *ALERTA:* [Destaque conflitos ou dosagem alta]
-💊 *COMO USAR:* [Instrução de uso geral da fórmula]
+💊 *COMO USAR:* [Instrução detalhada: quantidade de vezes e melhor horário analisado]
 ❌ *CONTRAINDICAÇÃO:* [Resumo de quem não deve usar]
 💡 *DICA:* [Dica de ouro]
 </pre>
 
 ---
 🔒 REGRAS v7.0:
+✅ ANÁLISE DE FRACIONAMENTO: É obrigatório sugerir dividir a dose se houver ativos que competem entre si ou que sobrecarregam a absorção única.
+✅ ESTRATÉGIA GÁSTRICA: Se houver ativos irritantes (ex: Ferro, Zinco), sugerir tomar com alimentos.
+✅ POSOLOGIA PERSONALIZADA: Não diga apenas "Tomar 1 cápsula". Analise se para aquela combinação o melhor é manhã, tarde ou noite.
+✅ TERMINOLOGIA: Substitua "Farmacocinética" por "Caminho que o produto faz no corpo" e "Posologia" por "Melhor jeito de tomar".
+✅ ZERO TOLERÂNCIA: Proibido recomendar estimulantes à noite. Se a fórmula for para sono, a recomendação deve ser "30 a 60 minutos antes de deitar".
 ✅ PROIBIDO: Usar qualquer palavra que termine em "-ina", "-ona", ou que pareça nome de remédio ou processo químico dentro das explicações (exceto no nome do ativo).
 ✅ ANALOGIAS: Use termos como "Bateria", "Queimação", "Limpeza", "Blindagem".
 ✅ MODO ESCURO: O box de alerta DEVE manter background #FFF9C4 e cor de texto #455A64 para não "sumir" no tema dark.
@@ -1377,20 +1411,23 @@ ATIVOS ANALISADOS: "${input}"
                     textoFinal += `Quantidade: ${qtds[i].value || '...'}\n\n`;
                     textoFinal += `Valor: R$ ${vBruto.toFixed(2).replace('.', ',')}\n`;
                     textoFinal += `*Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}*\n\n`;
-                    textoFinal += `---------------------------\n\n`;
+                    textoFinal += `---------------------------------------------\n\n`;
                 });
 
                 if (temVarios) {
                     textoFinal += `💰 Resumo do Pedido:\n\n`;
                     textoFinal += `Total das fórmulas: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n\n`;
                     textoFinal += `*Total com desconto: R$ ${(totalBrutoGeral * 0.8).toFixed(2).replace('.', ',')}*\n\n`;
-                    textoFinal += `---------------------------\n\n`;
+                    textoFinal += `---------------------------------------------\n\n`;
                 }
 
                 textoFinal += `Como deseja prosseguir com o pedido?\n\n`;
-                textoFinal += `💳 Formas de pagamento: Pix, Cartão de credito (Link.)\n\n`;
+                textoFinal += `💳 Formas de pagamento: Pix ou Cartão de credito (Link)\n\n`;
                 textoFinal += `📦 Entrega: Retirada em loja ou Entrega em domicílio.\n`;
-                textoFinal += `(Taxa de entrega: R$ 5,50 para a região de Santos. Demais regiões, favor consultar).`;
+                textoFinal += `(Taxa de entrega: R$ 5,50 para a região de Santos. Demais regiões, favor consultar).\n\n`;
+                textoFinal += `📆 Validade de orçamento: 4 dias.\n\n`;
+                textoFinal += `Atenciosamente,\n`;
+                textoFinal += `Alkimista Farmácia de Manipulação\n`;
 
                 txtArea.value = textoFinal;
             }
