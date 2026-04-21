@@ -212,6 +212,16 @@
         @keyframes fadeOut {
             to { opacity: 0; transform: translateY(10px); }
         }
+
+        .formula-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .formula-item button:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -419,16 +429,21 @@
             <div id="notasLista"></div>
         </section>
         
-        <div id= "view-orc" class="view" style="display:none;">
+        <section id="view-orc" class="view-section" style="display:none;">
             <div class="card">
-                <h2 style="color: var(--accent); margin-bottom: 20px;">📋 Gerador de Orçamento</h2>
+                <h2 style="color: var(--accent); margin-bottom: 20px;">📋 Gerador de Orçamento Profissional</h2>
         
                 <div id="listaFormulasOrcamento">
-                    <div class="formula-item" style="background: var(--highlight-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+                    <div id="formula-inicial" class="formula-item" style="background: var(--highlight-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); position: relative;">
+                        <button onclick="this.parentElement.remove(); window.App.atualizarOrcamento();" 
+                            style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--danger); cursor: pointer;">
+                            <span class="material-icons" style="font-size: 20px;">delete_outline</span>
+                        </button>
+
                         <label style="font-weight: bold; color: var(--accent); display: block; margin-bottom: 10px;">Fórmula 01:</label>
-                        <input type="text" placeholder="Insira a Fórmula" class="orc-nome" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                        <input type="text" placeholder="Nome da Fórmula" class="orc-nome" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                         <input type="text" placeholder="Quantidade" class="orc-qtd" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                        <input type="number" placeholder="Valor R$" class="orc-valor" onwheel="this.blur()" oninput="window.App.atualizarOrcamento()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" onwheel="this.blur()" oninput="window.App.atualizarOrcamento()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                     </div>
                 </div>
 
@@ -439,10 +454,10 @@
                 <textarea id="textoFinalOrcamento" readonly placeholder="O orçamento aparecerá aqui..." style="width: 100%; height: 200px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); padding: 15px; font-family: monospace; font-size: 14px; resize: none; margin-bottom: 15px;"></textarea>
         
                 <button onclick="window.App.copiarOrcamento()" style="width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    COPIAR PARA WHATSAPP
+                    <span class="material-icons">content_copy</span> COPIAR PARA WHATSAPP
                 </button>
             </div>
-        </div>
+        </section>
         
         <div id="view-serv" class="view" style="display:none;">
             <h1>Serviços</h1>
@@ -1378,17 +1393,42 @@ ATIVOS ANALISADOS: "${input}"
                 const lista = document.getElementById('listaFormulasOrcamento');
                 if (!lista) return;
 
+                const idUnico = Date.now();
+    
+                // Criamos o HTML com o botão de excluir chamando a função correta
                 const novaFormula = `
-                    <div class="formula-item" style="background: var(--highlight-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
-                        <label style="font-weight: bold; color: var(--accent); display: block; margin-bottom: 10px;">Fórmula 0${this.contadorOrcamento + 1}:</label>
-                        <input type="text" placeholder="Nome da Fórmula" class="orc-nome" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                        <input type="text" placeholder="Quantidade" class="orc-qtd" oninput="window.App.atualizarOrcamento()" style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" onwheel="this.blur()" oninput="window.App.atualizarOrcamento()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                    <div id="formula-${idUnico}" class="formula-item" style="position: relative; background: var(--highlight-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+                        <button onclick="window.App.removerFormula(${idUnico})" 
+                            style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--danger); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <span class="material-icons" style="font-size: 20px;">delete_outline</span>
+                        </button>
+
+                        <label style="font-weight: bold; color: var(--accent); display: block; margin-bottom: 10px;">Fórmula Especial:</label>
+            
+                        <input type="text" placeholder="Nome da Fórmula" class="orc-nome" oninput="window.App.atualizarOrcamento()" 
+                            style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+            
+                        <input type="text" placeholder="Quantidade" class="orc-qtd" oninput="window.App.atualizarOrcamento()" 
+                            style="width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+            
+                        <input type="number" placeholder="Valor Bruto R$" class="orc-valor" onwheel="this.blur()" oninput="window.App.atualizarOrcamento()" 
+                            style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
                     </div>
                 `;
+
                 lista.insertAdjacentHTML('beforeend', novaFormula);
-                this.contadorOrcamento++;
-                this.atualizarOrcamento();
+                this.atualizarOrcamento(); // Sincroniza o textarea
+                this.showToast("Nova fórmula adicionada!");
+            }
+
+            removerFormula(id) {
+                // Esta função resolve o conflito de remover elementos criados dinamicamente
+                const elemento = document.getElementById(`formula-${id}`);
+                if (elemento) {
+                    elemento.remove();
+                    this.atualizarOrcamento(); // Recalcula tudo após remover
+                    this.showToast("Fórmula removida");
+                }
             }
 
             atualizarOrcamento() {
@@ -1396,31 +1436,31 @@ ATIVOS ANALISADOS: "${input}"
                 const qtds = document.querySelectorAll('.orc-qtd');
                 const valores = document.querySelectorAll('.orc-valor');
                 const txtArea = document.getElementById('textoFinalOrcamento');
-                
+
                 if (!txtArea) return;
-    
-                let textoFinal = "";
+
+                let textoFinal = "*RESUMO DO ORÇAMENTO* 💊\n---------------------------------------------\n\n";
                 let totalBrutoGeral = 0;
                 const temVarios = nomes.length > 1;
 
                 nomes.forEach((nomeInput, i) => {
                     const vBruto = parseFloat(valores[i].value) || 0;
-                    const vDesc = vBruto * 0.80;
+                    const vDesc = vBruto * 0.80; // Mantendo sua regra de 20% de desconto
                     totalBrutoGeral += vBruto;
-
-                    const titulo = temVarios ? `💊 Fórmula 0${i + 1}: ${nomeInput.value || '...'}` : `💊 Fórmula: ${nomeInput.value || '...'}`;
-                    textoFinal += `${titulo}\n\n`;
-                    textoFinal += `Quantidade: ${qtds[i].value || '...'}\n\n`;
+        
+                    const titulo = temVarios ? `*Fórmula 0${i + 1}:* ${nomeInput.value || '...'}` : `*Fórmula:* ${nomeInput.value || '...'}`;
+        
+                    textoFinal += `${titulo}\n`;
+                    textoFinal += `Quantidade: ${qtds[i].value || '...'}\n`;
                     textoFinal += `Valor: R$ ${vBruto.toFixed(2).replace('.', ',')}\n`;
-                    textoFinal += `*Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}*\n\n`;
-                    textoFinal += `---------------------------------------------\n\n`;
+                    textoFinal += `_Com desconto: R$ ${vDesc.toFixed(2).replace('.', ',')}_\n\n`;
                 });
 
                 if (temVarios) {
-                    textoFinal += `💰 Resumo do Pedido:\n\n`;
-                    textoFinal += `Total das fórmulas: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n\n`;
-                    textoFinal += `*Total com desconto: R$ ${(totalBrutoGeral * 0.8).toFixed(2).replace('.', ',')}*\n\n`;
-                    textoFinal += `---------------------------------------------\n\n`;
+                    textoFinal += `---------------------------------------------\n`;
+                    textoFinal += `💰 *TOTAL DO PEDIDO*\n`;
+                    textoFinal += `Bruto: R$ ${totalBrutoGeral.toFixed(2).replace('.', ',')}\n`;
+                    textoFinal += `*Com desconto: R$ ${(totalBrutoGeral * 0.8).toFixed(2).replace('.', ',')}*\n\n`;
                 }
 
                 textoFinal += `Como deseja prosseguir com o pedido?\n\n`;
